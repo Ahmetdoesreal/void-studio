@@ -1,0 +1,138 @@
+{
+  "domain": "pm",
+  "projectType": "Project Management Simulation",
+  "projectTitle": "Crisis Command: IT Risk Protocol",
+  "proposer": "Deniz (COM0463 Student)",
+  "organisation": "Istanbul Kültür University",
+  "targetPopulation": "Final-year IT Project Management students",
+  "sampleSize": "40",
+  "proposalDate": "2026-03-28",
+  "startDate": "2026-04-15",
+  "deliverableArea": "Software Estimation Game",
+  "deliverableJust": "A web-based simulation allows students to visualize the 'cascading failure' of risks in real-time. It provides immediate feedback on mitigation strategies which is impossible in static paper-based assignments.",
+  "problemStatement": "In COM0463, students often treat Risk Registers as a bureaucratic chore. They struggle to differentiate between risk 'likelihood' and 'impact' in high-pressure scenarios. Traditional methods fail to demonstrate the 'Chaos Debt' incurred when Tiger-class risks are ignored. Crisis Command gamifies this by putting students in a high-stakes simulation where every decision has a visible cost and a tangible impact on the project survival bar.",
+  "inScope": [
+    "Interactive Risk Dashboard with Chaos Meter",
+    "Tusler Classification Card System (Kitten to Tiger)",
+    "Resource Allocation Engine (Budget vs Risk Mitigate)",
+    "Random Event Trigger (Scenario-based crises)",
+    "Post-simulation 'Risk Autopsy' report",
+    "Leaderboard based on Risk-Adjusted ROI"
+  ],
+  "outScope": [
+    "Multiplayer real-time co-op mode",
+    "Integration with industrial JIRA instances",
+    "VR/AR immersion components",
+    "Real-money microtransactions"
+  ],
+  "frs": [
+    { "id": "FR-01", "desc": "System shall allow players to classify incoming risks into Tusler's four quadrants.", "priority": "Must" },
+    { "id": "FR-02", "desc": "System shall track 'Project Health' and 'Budget' across 10 simulation turns.", "priority": "Must" },
+    { "id": "FR-03", "desc": "System shall trigger random events based on unmitigated risks.", "priority": "Must" },
+    { "id": "FR-04", "desc": "System shall provide a debriefing screen showing the cost of failure for each decision.", "priority": "Should" }
+  ],
+  "nfrs": [
+    { "id": "NFR-01", "attr": "Performance", "desc": "Turn transitions shall occur in under 500ms.", "target": "< 500ms" },
+    { "id": "NFR-02", "attr": "Usability", "desc": "New users shall be able to complete the tutorial in < 5 minutes.", "target": "SUS Score > 80" }
+  ],
+  "successCriteria": [
+    "Target 80% accuracy in risk classification within 3 sessions",
+    "Increase in student participation from 45% (static) to 85% (gamified)",
+    "Improvement in Bloom L4 (Analysis) assessment scores by 30%"
+  ],
+  "userStories": [
+    { "id": "US-01", "role": "Student", "want": "see the probability of a Tiger risk triggering", "benefit": "I can prioritize my limited budget effectively", "points": 5, "priority": "Must", "sprint": "Sprint 1" }
+  ],
+  "theories": ["sdt", "mda", "flow", "bloom"],
+  "playerTypes": { "achiever": 40, "explorer": 20, "socialiser": 25, "killer": 15 },
+  "hexad": { "philanthropist": 10, "socialiser": 20, "freeSpirit": 15, "achiever": 40, "player": 10, "disruptor": 5 },
+  "octalysis": { "epic": 6, "development": 9, "empowerment": 8, "ownership": 7, "social": 5, "scarcity": 6, "unpredictability": 8, "avoidance": 7 },
+  "sdtAutonomy": "Players choose which risks to mitigate and which to accept (risk appetite).",
+  "sdtCompetence": "Mastering Tusler's quadrants unlocks advanced mitigation 'Power-ups'.",
+  "sdtRelatedness": "Global leaderboard allows students to see how they rank against the 'Industry Benchmark'.",
+  "mdaAnalysis": {
+    "mechanics": "Risk Cards, Budget Tokens, Chaos Meter, Turn-based Strategy, Event Deck.",
+    "dynamics": "Risk-taking vs. Caution, Resource Scarcity, Escalation of commitment.",
+    "aesthetics": "Challenge (Simulation tension), Narrative (War Room atmosphere), Discovery (Learning through failure)."
+  },
+  "mechanics": ["pts", "quest", "rand", "lb", "pb"],
+  "sixDim": {
+    "what": "A turn-based risk management simulator focusing on IT project scenarios.",
+    "why": "To transform abstract PM theory into concrete decision-making skills.",
+    "who": "Engineering students who value technical mastery and competitive ranking.",
+    "when": "Deployed during the 'Risk Management' module of COM0463.",
+    "how": "Web-app accessible via browser; no installation required.",
+    "where": "Used in lab sessions and as a project deliverable."
+  },
+  "narrativeTheme": "Crisis Command: The Project Hero",
+  "narrativeArc": "From an Entry-level PM to an 'Alligator Wrangler' (Senior Risk Lead).",
+  "characters": "Major Risk (Instructor/NPC), The Stakeholder (Randomized pressure), The Tech Lead (Advisor).",
+  "storyWorld": "A high-stakes IT firm managing a national software infrastructure project under tight deadlines.",
+  "conceptMappings": [
+    { "concept": "Risk Classification", "mechanic": "Tusler Card Sort", "dynamic": "Cognitive matching", "aesthetic": "Mastery", "rationale": "Directly maps theory to practice." },
+    { "concept": "Risk Mitigation", "mechanic": "Budget Allocation", "dynamic": "Trade-off analysis", "aesthetic": "Challenge", "rationale": "Simulates real-world resource constraints." }
+  ],
+  "gameDuration": "60-90 minutes per session",
+  "introText": "Welcome to the War Room, PM. A massive database migration is about to begin. The shadows are full of Kittens and Tigers. Save the project, or watch the bars turn red.",
+  "preGameSetup": "1. Import student roster. 2. Explain Tusler quadrants. 3. Distribute initial resource tokens.",
+  "sessionSteps": [
+    { "phase": "Intelligence Gathering", "duration": "10 min", "activity": "Audit the project backlog for hidden risks.", "role": "Individual", "output": "Preliminary Risk Register" },
+    { "phase": "The Storm Phase", "duration": "40 min", "activity": "React to 10 rounds of random event triggers.", "role": "Individual/Competitive", "output": "Survival Score" }
+  ],
+  "scenarios": [
+    { "id": "SC-01", "name": "The Tiger's Pounce", "title": "Infrastructure Failure", "setup": "Level 5 Tiger risk triggers.", "objective": "Minimize health impact with emergency response.", "winCondition": "< 20% Health loss", "loseCondition": "> 50% Health loss", "maxPoints": 100, "duration": "5 min", "difficulty": "Hard", "storyboard": "Alert -> Choice -> Mitigation -> Result", "algorithm": "Score = (Health_Saved * 10) - (Budget_Spent)", "outcome": "Win: Risk Maestro Badge; Fail: Chaos Debt incurred", "activities": [] }
+  ],
+  "scoringSystem": {
+    "basis": "Points awarded for accurate classification and cost-effective mitigation.",
+    "bonuses": "Stealth Mitigation: Prevent a risk without it ever triggering.",
+    "penalties": "Over-spending on Kittens (Low impact risks).",
+    "badges": "Tiger Tamer, Budget Guardian, Alligator Wrangler."
+  },
+  "socialFeatures": { "forums": true, "clubs": false, "leaderboard": true, "notifications": true, "analytics": true },
+  "socialRationale": "Competition drives engagement in engineering cohorts.",
+  "rewardTiers": {
+    "elite": "Project Hero (Top 5%): Bonus points on COM0463 midterm.",
+    "professional": "Senior PM: Digital Badge for LinkedIn.",
+    "access": "Participant: Achievement unlocked."
+  },
+  "tuslerRisks": [
+    { "risk": "Technical debt from rushed code", "category": "Tiger 🐯", "prob": "High", "impact": "High", "preventive": "Code Review Quests", "responsive": "Refactor Turn" }
+  ],
+  "supportTeam": [
+    { "role": "Lead Designer", "name": "Deniz", "resp": "Scenario design and mechanics balancing." }
+  ],
+  "facilitatorRole": "Monitors the leaderboard and triggers a 'Manual Boss Event' if the class is performing too well.",
+  "bloomOutcomes": [
+    { "level": "Analyze", "bloom_k": "4", "outcome": "Evaluate risk probability vs impact effectively.", "activity": "Crisis simulation", "assessment": "Automated simulation score" }
+  ],
+  "kirkpatrick": {
+    "l1": "Survey: 'Did the simulation feel realistic?'",
+    "l2": "Quiz scores on Risk Management exam questions.",
+    "l3": "Quality of Risk Registers in final projects.",
+    "l4": "Project success rate in subsequent courses."
+  },
+  "kpis": [
+    { "kpi": "Completion Rate", "baseline": "40%", "target": "85%", "measurement": "Logs", "frequency": "Weekly" }
+  ],
+  "futureEnhancements": [
+    "AI-driven dynamic scenarios",
+    "Mobile companion app"
+  ],
+  "dataCollection": "Logged via the simulation engine events.",
+  "continuousImprovement": "Quarterly scenario updates.",
+  "analyticsplatform": "GPPT Integrated Panel",
+  "appendices": ["Tusler Risk Matrix Guide", "Scenario Scripts"],
+  "baselineEngagement": "40%",
+  "targetEngagement": "85%",
+  "baselineScore": "65/100",
+  "attritionTarget": "< 5%",
+  "transferTarget": "> 70%",
+  "resultsKPI": "Course Success Rate",
+  "risks": [
+    { "risk": "Complexity of rules", "impact": "Medium", "likelihood": "Low", "mitigation": "Tutorial videos" }
+  ],
+  "platform": "Web (HTML/JS)",
+  "timeline": [
+    { "phase": "Dev", "dur": "4 weeks", "activity": "Build engine" }
+  ]
+}

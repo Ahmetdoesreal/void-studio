@@ -1,0 +1,363 @@
+{
+  "gppt_version": "v51",
+  "export_date": "2026-03-29T02:39:23.794Z",
+  "redo_version": "2.4.6",
+  "originality": {
+    "score": 97,
+    "closestMatch": "LoyaltyQuest",
+    "closestSimilarity": 3,
+    "isPlagiarismRisk": false
+  },
+  "state": {
+    "step": 12,
+    "totalSteps": 12,
+    "domain": "edu",
+    "projectType": "Digital Platform",
+    "projectTitle": "a",
+    "teamName": "a",
+    "proposer": "a",
+    "organisation": "a",
+    "targetPopulation": "a",
+    "sampleSize": "",
+    "problemStatement": "a",
+    "startDate": "2026-03-01",
+    "proposalDate": "2026-04-01",
+    "courseCode": "SEN0414",
+    "deliverableArea": "Python CLI Game / Quiz Engine",
+    "deliverableAreas": [
+      "Python CLI Game / Quiz Engine"
+    ],
+    "inScope": [
+      "a"
+    ],
+    "outScope": [
+      "a"
+    ],
+    "frs": [
+      {
+        "id": "FR1",
+        "desc": "a",
+        "priority": "Must"
+      }
+    ],
+    "nfrs": [
+      {
+        "id": "NFR1",
+        "attr": "Usability",
+        "desc": "a",
+        "target": ""
+      }
+    ],
+    "successCriteria": [
+      "a"
+    ],
+    "userStories": [
+      {
+        "role": "a",
+        "want": "a",
+        "soThat": "a",
+        "acc": "a"
+      }
+    ],
+    "theories": [
+      "sdt"
+    ],
+    "playerTypes": {
+      "achiever": 25,
+      "explorer": 25,
+      "socialiser": 25,
+      "killer": 25
+    },
+    "hexad": {
+      "philanthropist": 0,
+      "socialiser": 0,
+      "freeSpirit": 0,
+      "achiever": 0,
+      "player": 0,
+      "disruptor": 0
+    },
+    "octalysis": {
+      "epic": 0,
+      "development": 0,
+      "empowerment": 0,
+      "ownership": 0,
+      "social": 0,
+      "scarcity": 0,
+      "unpredictability": 0,
+      "avoidance": 0
+    },
+    "mechanics": [
+      "pts"
+    ],
+    "sixDim": {
+      "what": "a",
+      "why": "a",
+      "who": "a",
+      "when": "a",
+      "how": "a",
+      "where": "a"
+    },
+    "narrativeTheme": "a",
+    "narrativeArc": "Hero's Journey (departure → trials → return)",
+    "characters": "a",
+    "storyWorld": "a",
+    "conceptMappings": [
+      {
+        "concept": "a",
+        "mechanic": "a",
+        "dynamic": "a",
+        "aesthetic": "a",
+        "rationale": "a"
+      }
+    ],
+    "mdaAnalysis": {
+      "mechanics": "",
+      "dynamics": "",
+      "aesthetics": ""
+    },
+    "gameDuration": "60",
+    "introText": "a",
+    "preGameSetup": "a",
+    "sessionSteps": [
+      {
+        "phase": "a",
+        "duration": "a",
+        "facilitator": "a",
+        "player": "a"
+      },
+      {
+        "phase": "a",
+        "duration": "a",
+        "facilitator": "a",
+        "player": "a"
+      },
+      {
+        "phase": "a",
+        "duration": "a",
+        "facilitator": "a",
+        "player": "a"
+      },
+      {
+        "phase": "a",
+        "duration": "a",
+        "facilitator": "a",
+        "player": "a"
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "SC-01",
+        "name": "a",
+        "title": "a",
+        "setup": "a",
+        "objective": "a",
+        "winCondition": "a",
+        "loseCondition": "a",
+        "maxPoints": 0,
+        "duration": "a",
+        "difficulty": "Standard",
+        "storyboard": "a",
+        "algorithm": "a",
+        "outcome": "a",
+        "activities": [
+          {
+            "id": "ACT-01",
+            "action": "a",
+            "description": "a",
+            "trigger": "a",
+            "winCondition": "a",
+            "winResult": "a",
+            "winPoints": 1,
+            "loseCondition": "a",
+            "loseResult": "a",
+            "losePoints": 1,
+            "neutralCondition": "a",
+            "neutralResult": "a",
+            "neutralPoints": 1,
+            "timer": "a"
+          }
+        ]
+      },
+      {
+        "id": "SC-02",
+        "name": "a",
+        "title": "a",
+        "setup": "a",
+        "objective": "a",
+        "winCondition": "a",
+        "loseCondition": "a",
+        "maxPoints": 1,
+        "duration": "a",
+        "difficulty": "Hard",
+        "storyboard": "a",
+        "algorithm": "a",
+        "outcome": "a",
+        "activities": [
+          {
+            "id": "ACT-01",
+            "action": "a",
+            "description": "a",
+            "trigger": "a",
+            "winCondition": "a",
+            "winResult": "a",
+            "winPoints": 1,
+            "loseCondition": "a",
+            "loseResult": "a",
+            "losePoints": 1,
+            "neutralCondition": "a",
+            "neutralResult": "a",
+            "neutralPoints": 1,
+            "timer": "a"
+          }
+        ]
+      }
+    ],
+    "scoringSystem": {
+      "basis": "a",
+      "bonuses": "a",
+      "penalties": "a",
+      "badges": "a"
+    },
+    "socialFeatures": {
+      "forums": true,
+      "clubs": false,
+      "leaderboard": false,
+      "notifications": false,
+      "analytics": false
+    },
+    "rewardTiers": {
+      "elite": "a",
+      "professional": "a",
+      "access": "a"
+    },
+    "executionLog": [],
+    "leaderboardConfig": {
+      "categories": []
+    },
+    "risks": [],
+    "tuslerRisks": [
+      {
+        "risk": "a",
+        "category": "Tiger 🐯",
+        "prob": "High",
+        "impact": "High",
+        "preventive": "a",
+        "responsive": "a"
+      }
+    ],
+    "supportTeam": [
+      {
+        "role": "a",
+        "name": "a",
+        "resp": "a"
+      },
+      {
+        "role": "a",
+        "name": "a",
+        "resp": "a"
+      },
+      {
+        "role": "a",
+        "name": "a",
+        "resp": "a"
+      },
+      {
+        "role": "a",
+        "name": "a",
+        "resp": "a"
+      }
+    ],
+    "facilitatorRole": "a",
+    "bloomOutcomes": [
+      {
+        "level": "Apply",
+        "outcome": "a",
+        "activity": "a",
+        "assessment": "a"
+      }
+    ],
+    "kirkpatrick": {
+      "l1": "a",
+      "l2": "a",
+      "l3": "a",
+      "l4": "a"
+    },
+    "kpis": [],
+    "futureEnhancements": [],
+    "dataCollection": "",
+    "continuousImprovement": "a",
+    "appendices": [
+      "Glossary of Terms"
+    ],
+    "timeline": [],
+    "baselineEngagement": "",
+    "targetEngagement": "",
+    "baselineScore": "",
+    "attritionTarget": "",
+    "transferTarget": "",
+    "resultsKPI": "",
+    "analyticsplatform": "",
+    "usedRefs": {},
+    "gamePurpose": "",
+    "gameSubject": "",
+    "gameMethod": "",
+    "gameMeasurement": "",
+    "gamePlayers": "",
+    "gamePoints": "",
+    "gameAchievements": "",
+    "gameBadges": "",
+    "gameOverview": "",
+    "dur_preDesign": "2 weeks",
+    "dur_design": "3 weeks",
+    "dur_impl": "4 weeks",
+    "dur_ops": "8 weeks",
+    "dur_post": "2 weeks",
+    "teamMembers": [
+      {
+        "id": "a",
+        "name": "a",
+        "surname": "a",
+        "email": "a",
+        "phone": "a"
+      },
+      {
+        "id": "a",
+        "name": "a",
+        "surname": "a",
+        "email": "a",
+        "phone": "a"
+      },
+      {
+        "id": "a",
+        "name": "a",
+        "surname": "a",
+        "email": "a",
+        "phone": "a"
+      }
+    ],
+    "deliverableJust": "a",
+    "sdtAutonomy": "a",
+    "sdtCompetence": "a",
+    "sdtRelatedness": "a",
+    "platform": "a",
+    "narrativeEvolution": "a",
+    "socialRationale": "a",
+    "communityStandards": "a",
+    "currencyName": "a",
+    "pricingModel": "a",
+    "adaptiveDifficulty": "a",
+    "personalisation": "a",
+    "lbCategories": [
+      "Absolute Score"
+    ],
+    "wf_dash": "a",
+    "wf_asset": "a",
+    "wf_portfolio": "a",
+    "logPrivacy": "",
+    "lbVisibility": "Public (opt-out available)",
+    "lbReset": "Seasonal (per sprint)",
+    "dcMethods": {
+      "dc_auto": true
+    }
+  }
+}

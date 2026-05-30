@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Void Studio — Build your software company office from the void. A gamified SDLC simulation with AI-powered game logic." />
+  <title>Void Studio — Office in the Void</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/assets/index-UqL2Y5Xp.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-R-KdpZJ1.css">
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <span class="logo-void">VOID</span>
+        <span class="logo-studio">STUDIO</span>
+      </div>
+      <p class="loading-subtitle">Initializing the void...</p>
+      <div class="loading-bar-container">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+      <p class="loading-status" id="loading-status">Loading engine...</p>
+      <div class="loading-llm-toggle">
+        <label class="toggle-label" id="llm-toggle-container">
+          <input type="checkbox" id="llm-toggle" checked />
+          <span class="toggle-slider"></span>
+          <span class="toggle-text">Enable AI Game Master (Phi-3.5 Mini — ~1.5GB download)</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD Overlay -->
+  <div id="hud" class="hud hidden">
+    <!-- Top Bar: Phase Progress -->
+    <div class="hud-top">
+      <div class="phase-progress" id="phase-progress">
+        <div class="phase-node" data-phase="0">
+          <div class="phase-dot active"></div>
+          <span class="phase-label">Requirements</span>
+        </div>
+        <div class="phase-connector"></div>
+        <div class="phase-node" data-phase="1">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Design</span>
+        </div>
+        <div class="phase-connector"></div>
+        <div class="phase-node" data-phase="2">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Implementation</span>
+        </div>
+        <div class="phase-connector"></div>
+        <div class="phase-node" data-phase="3">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Testing</span>
+        </div>
+        <div class="phase-connector"></div>
+        <div class="phase-node" data-phase="4">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Deployment</span>
+        </div>
+        <div class="phase-connector"></div>
+        <div class="phase-node" data-phase="5">
+          <div class="phase-dot"></div>
+          <span class="phase-label">Maintenance</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Left Panel: Resources -->
+    <div class="hud-left">
+      <div class="resource-panel glass-panel">
+        <h3 class="panel-title">Resources</h3>
+        <div class="resource-item" id="resource-budget">
+          <span class="resource-icon">💰</span>
+          <div class="resource-info">
+            <span class="resource-name">Budget</span>
+            <div class="resource-bar-container">
+              <div class="resource-bar budget-bar" style="width: 100%"></div>
+            </div>
+            <span class="resource-value">$100,000</span>
+          </div>
+        </div>
+        <div class="resource-item" id="resource-morale">
+          <span class="resource-icon">😊</span>
+          <div class="resource-info">
+            <span class="resource-name">Team Morale</span>
+            <div class="resource-bar-container">
+              <div class="resource-bar morale-bar" style="width: 80%"></div>
+            </div>
+            <span class="resource-value">80%</span>
+          </div>
+        </div>
+        <div class="resource-item" id="resource-techdebt">
+          <span class="resource-icon">⚠️</span>
+          <div class="resource-info">
+            <span class="resource-name">Tech Debt</span>
+            <div class="resource-bar-container">
+              <div class="resource-bar techdebt-bar" style="width: 10%"></div>
+            </div>
+            <span class="resource-value">10%</span>
+          </div>
+        </div>
+        <div class="resource-item" id="resource-time">
+          <span class="resource-icon">⏰</span>
+          <div class="resource-info">
+            <span class="resource-name">Time Left</span>
+            <div class="resource-bar-container">
+              <div class="resource-bar time-bar" style="width: 100%"></div>
+            </div>
+            <span class="resource-value">30 days</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Current Objective -->
+    <div class="hud-right">
+      <div class="objective-panel glass-panel">
+        <h3 class="panel-title">Current Objective</h3>
+        <p class="objective-text" id="objective-text">Gather project requirements from stakeholders</p>
+        <div class="objective-tasks" id="objective-tasks">
+          <div class="task-item">
+            <span class="task-check">☐</span>
+            <span class="task-text">Interview stakeholders</span>
+          </div>
+          <div class="task-item">
+            <span class="task-check">☐</span>
+            <span class="task-text">Document requirements</span>
+          </div>
+          <div class="task-item">
+            <span class="task-check">☐</span>
+            <span class="task-text">Get sign-off</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Status -->
+      <div class="ai-panel glass-panel" id="ai-panel">
+        <div class="ai-status">
+          <div class="ai-indicator" id="ai-indicator"></div>
+          <span class="ai-label" id="ai-label">AI Game Master</span>
+        </div>
+        <p class="ai-thought" id="ai-thought">Standing by...</p>
+      </div>
+    </div>
+
+    <!-- Bottom Center: Action Buttons -->
+    <div class="hud-bottom">
+      <button class="action-btn primary-btn" id="btn-advance" title="Complete current task">
+        <span class="btn-icon">▶</span>
+        <span class="btn-text">Execute Task</span>
+      </button>
+      <button class="action-btn secondary-btn" id="btn-review" title="Review current state">
+        <span class="btn-icon">📋</span>
+        <span class="btn-text">Review</span>
+      </button>
+      <button class="action-btn secondary-btn" id="btn-consult" title="Consult AI Game Master">
+        <span class="btn-icon">🤖</span>
+        <span class="btn-text">Consult AI</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Decision Panel (slides in from right) -->
+  <div id="decision-panel" class="decision-panel hidden">
+    <div class="decision-content glass-panel">
+      <div class="decision-header">
+        <span class="decision-type" id="decision-type">⚡ EVENT</span>
+        <h2 class="decision-title" id="decision-title">Scope Creep Emergency</h2>
+      </div>
+      <p class="decision-description" id="decision-description">
+        The stakeholder just called an emergency meeting. They want to add three new features before the deadline.
+      </p>
+      <div class="decision-options" id="decision-options">
+        <!-- Options dynamically inserted -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase Transition Overlay -->
+  <div id="phase-transition" class="phase-transition hidden">
+    <div class="transition-content">
+      <div class="transition-phase-badge" id="transition-badge">PHASE COMPLETE</div>
+      <h1 class="transition-title" id="transition-title">Requirements Gathered</h1>
+      <p class="transition-subtitle" id="transition-subtitle">New office space materializing...</p>
+      <div class="transition-unlocks" id="transition-unlocks">
+        <!-- Unlock items dynamically inserted -->
+      </div>
+      <button class="action-btn primary-btn transition-btn" id="btn-continue">
+        <span class="btn-text">Continue to Next Phase</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Intro / Start Screen -->
+  <div id="intro-screen" class="intro-screen hidden">
+    <div class="intro-content">
+      <div class="intro-logo">
+        <span class="logo-void glow">VOID</span>
+        <span class="logo-studio">STUDIO</span>
+      </div>
+      <p class="intro-tagline">Build your software company from nothing.<br/>Every phase of development shapes your world.</p>
+      <div class="intro-story glass-panel">
+        <p>You are the Project Manager of a software company that exists... nowhere. Your office is the void itself — empty, dark, infinite. But with each step of the development lifecycle you complete, reality bends to your will. Desks materialize. Walls form. Screens flicker to life.</p>
+        <p>Complete the SDLC. Build your office. Survive the chaos.</p>
+      </div>
+      <button class="action-btn primary-btn start-btn" id="btn-start">
+        <span class="btn-icon">🚀</span>
+        <span class="btn-text">Enter the Void</span>
+      </button>
+    </div>
+  </div>
+
+</body>
+</html>

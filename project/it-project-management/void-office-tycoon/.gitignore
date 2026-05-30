@@ -1,0 +1,8 @@
+server/.venv/
+server/data/sessions/*.json
+server/data/logs/*.json
+client/node_modules/
+client/dist/
+client/src/assets/sprites/habbo_raw/
+*.pyc
+__pycache__/

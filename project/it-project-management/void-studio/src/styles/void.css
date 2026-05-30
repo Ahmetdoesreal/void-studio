@@ -1,0 +1,94 @@
+/* ============================================
+   VOID STUDIO — Void Visual Effects (CSS)
+   Starfield, nebula, ambient particles
+   ============================================ */
+
+/* Starfield background layer (behind Three.js canvas) */
+#canvas-container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(108, 99, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 212, 170, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(30, 30, 60, 0.3) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Void vignette overlay */
+#canvas-container::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(10, 10, 15, 0.6) 100%);
+  pointer-events: none;
+}
+
+/* Scan-line effect (subtle) */
+.hud::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Ambient glow effects for void atmosphere */
+@keyframes nebulaShift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Phase-specific void color transitions */
+.void-phase-requirements #canvas-container::before {
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(108, 99, 255, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 212, 170, 0.04) 0%, transparent 50%);
+}
+
+.void-phase-design #canvas-container::before {
+  background:
+    radial-gradient(ellipse at 30% 70%, rgba(168, 85, 247, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(108, 99, 255, 0.08) 0%, transparent 50%);
+}
+
+.void-phase-implementation #canvas-container::before {
+  background:
+    radial-gradient(ellipse at 40% 60%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 40%, rgba(168, 85, 247, 0.06) 0%, transparent 50%);
+}
+
+.void-phase-testing #canvas-container::before {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(34, 197, 94, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 70%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+}
+
+.void-phase-deployment #canvas-container::before {
+  background:
+    radial-gradient(ellipse at 40% 40%, rgba(245, 158, 11, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 60%, rgba(34, 197, 94, 0.06) 0%, transparent 50%);
+}
+
+.void-phase-maintenance #canvas-container::before {
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(0, 212, 170, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(108, 99, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+}

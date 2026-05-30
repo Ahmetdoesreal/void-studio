@@ -1,0 +1,1098 @@
+{
+  "gppt_version": "v51",
+  "export_date": "2026-03-29T00:28:11.097Z",
+  "redo_version": "2.4.6",
+  "originality": {
+    "score": 0,
+    "closestMatch": "[COM0463] Iron Triangle Tycoon",
+    "closestSimilarity": 100,
+    "isPlagiarismRisk": true
+  },
+  "state": {
+    "step": 13,
+    "totalSteps": 13,
+    "domain": "academic",
+    "projectType": "Digital Tycoon Management Game",
+    "projectTitle": "Iron Triangle Tycoon: Balance Scope, Time & Cost (COM0463)",
+    "teamName": "IKU-PMGames-Squad",
+    "proposer": "Yusuf Altunel",
+    "organisation": "Istanbul Kültür University, Computer Engineering Dept.",
+    "targetPopulation": "COM0463 IT Project Management students (3rd/4th year undergraduates, n≈40)",
+    "sampleSize": 40,
+    "problemStatement": "Students understand the iron triangle (scope/time/cost) theoretically but make systematic errors when asked to trade off constraints under pressure. A tycoon game creates a living, breathing project where all three constraints are simultaneously active and visibly interdependent — a scope increase makes the time meter spike and the cost bar turn red, instantly.",
+    "startDate": "2026-09-01",
+    "proposalDate": "2026-03-13",
+    "courseCode": "COM0463",
+    "deliverableArea": "Browser-based Tycoon Management Educational Game — COM0463",
+    "deliverableAreas": [
+      "Stakeholder Management",
+      "Risk Management",
+      "Communication Skills",
+      "Decision-Making Under Uncertainty",
+      "Team Dynamics"
+    ],
+    "inScope": [
+      "SVG triangle",
+      "8 levers",
+      "Random Event deck",
+      "15 scenarios",
+      "Client Satisfaction",
+      "Project Portfolio PDF"
+    ],
+    "outScope": [
+      "Multiplayer team tycoon (Phase 2)",
+      "Mobile (Phase 2)",
+      "Custom scenario creator (Phase 2)"
+    ],
+    "frs": [
+      {
+        "id": "FR-IT-01",
+        "desc": "SVG animated iron triangle: 3 vertices (Scope/Time/Cost); updates in real time on every lever pull",
+        "priority": "Must"
+      },
+      {
+        "id": "FR-IT-02",
+        "desc": "8 constraint levers; each with formula-driven effect on all 3 triangle metrics; side-effects visible before confirmation",
+        "priority": "Must"
+      },
+      {
+        "id": "FR-IT-03",
+        "desc": "15-card Random Event deck; each event changes scenario parameters; must choose Accept/Reject/Negotiate",
+        "priority": "Must"
+      },
+      {
+        "id": "FR-IT-04",
+        "desc": "Client Satisfaction score (0–100); decreases if triangle out of balance >3 turns",
+        "priority": "Must"
+      },
+      {
+        "id": "FR-IT-05",
+        "desc": "Project Portfolio: all 15 completed scenarios stored with score, debrief, and lever history; PDF export",
+        "priority": "Should"
+      },
+      {
+        "id": "FR-IT-06",
+        "desc": "Post-project analysis panel: lever history timeline, satisfaction trajectory chart, optimal path comparison",
+        "priority": "Should"
+      }
+    ],
+    "nfrs": [
+      {
+        "id": "NFR-IT-01",
+        "attr": "Performance",
+        "desc": "Triangle animation update on lever pull",
+        "target": "<200ms from lever click to triangle repaint"
+      },
+      {
+        "id": "NFR-IT-02",
+        "attr": "Pedagogy",
+        "desc": "Optimal path comparison must be provably optimal for each scenario",
+        "target": "AI solver confirms optimal path for all 15 scenarios before release"
+      }
+    ],
+    "successCriteria": [],
+    "userStories": [
+      {
+        "id": "US-IT-01",
+        "role": "Student",
+        "want": "pull constraint levers and see the iron triangle update instantly in all three dimensions",
+        "soThat": "I feel the interdependence of scope, time, and cost as a physical sensation",
+        "acc": "SVG triangle redraws in <200ms; all 3 metrics update simultaneously; colour changes green→amber→red based on balance",
+        "points": 13,
+        "priority": "Must",
+        "sprint": "Sprint 1",
+        "acceptance": [
+          "The iron triangle visualisation updates all three constraint dimensions within 500ms of any lever adjustment, with smooth animation showing the proportion change",
+          "Pulling one lever beyond a configured threshold triggers a visual warning indicator on the other two constraint dimensions before the student can confirm the adjustment",
+          "The triangle state is recorded in the scenario log at each decision event and the full lever history is available in the post-scenario portfolio export"
+        ],
+        "gameRole": "Project Manager"
+      },
+      {
+        "id": "US-IT-02",
+        "role": "Student",
+        "want": "respond to a random Client Whim event with Accept/Reject/Negotiate",
+        "soThat": "I practise scope change negotiation under time pressure",
+        "acc": "Event card pops up; 60-second decision timer; each option previews its triangle impact before confirmation",
+        "points": 8,
+        "priority": "Must",
+        "sprint": "Sprint 1",
+        "acceptance": [
+          "The Client Whim event modal displays the specific constraint impact of each option (Accept/Reject/Negotiate) in quantified KPI deltas before the student must respond",
+          "The student's selection is applied to the triangle state within 1 second of confirmation and the resulting triangle position is visible immediately in the main view",
+          "The event ID, student response, and KPI delta outcome are logged in the scenario record and visible in the instructor's session analytics dashboard"
+        ],
+        "gameRole": "Project Manager"
+      },
+      {
+        "id": "US-IT-03",
+        "role": "Student",
+        "want": "see my completed scenarios in a Project Portfolio with scores and lever history",
+        "soThat": "I have a graded artefact that demonstrates my constraint management improvement",
+        "acc": "Portfolio panel shows all scenarios; each entry: score, satisfaction trajectory chart, lever history, debrief notes; PDF export",
+        "points": 5,
+        "priority": "Should",
+        "sprint": "Sprint 2",
+        "acceptance": [
+          "The Project Portfolio page displays all completed scenarios with the scenario name, final score, completion date, and a mini triangle visualisation of the final state",
+          "The lever history playback for any completed scenario can be launched from the portfolio page and shows the full decision sequence as an animated replay",
+          "The portfolio is exportable as a PDF with one scenario summary per page, formatted for use as a student reflection artefact or assessment submission"
+        ],
+        "gameRole": "Project Manager"
+      }
+    ],
+    "theories": [
+      "sdt",
+      "flow",
+      "mda",
+      "bloom"
+    ],
+    "playerTypes": {
+      "achiever": 25,
+      "explorer": 25,
+      "socialiser": 25,
+      "killer": 25
+    },
+    "hexad": {},
+    "octalysis": {},
+    "mechanics": [
+      "pts",
+      "lb",
+      "progress",
+      "challenge"
+    ],
+    "sixDim": {
+      "what": "15 project scenarios (3 per COM0463 topic chapter); 3 resource dials (Scope 0–100%, Time 0–100 days, Cost $0–$500K); 8 constraint levers (Add Feature, Cut Feature, Add Resource, Remove Resource, Fast-Track, Crash Time, Defer Phase, Change Quality Standard); Random Event deck (15 events: client whims, vendor failures, team illness, regulatory changes); Project Health indicator; Client Satisfaction score; Board of Directors approval mechanics",
+      "why": "Flow: Scenario 1 = single constraint slider adjustment; Scenario 15 = simultaneous triple constraint crisis with random events. SDT Competence: correct lever combinations restore triangle balance; wrong ones cascade. MDA: Mechanics=lever pull; Dynamics=cascade discovery; Aesthetic=Challenge+Mastery.",
+      "who": "Achievers 40% (portfolio score, leaderboard), Explorers 35% (discover unusual lever combinations), Free Spirits 25% (find Pareto-optimal solutions)",
+      "when": "5 scenarios per chapter block (3 chapter blocks over 12 weeks). Each scenario: 15–20 min.",
+      "how": "The triangle is visible at all times. Every lever pull immediately updates all three dials. Students cannot hide from the consequences of their decisions. Client Satisfaction score decreases if the triangle goes out of balance for >3 turns.",
+      "where": "Vanilla JS + SVG animated triangle, single-file browser app."
+    },
+    "narrativeTheme": "You're the PM of a tech startup. The client is watching every decision. The Board wants ROI. The triangle glows green when you're in control — and turns blazing red when you're not. One wrong lever pull and the whole project collapses.",
+    "narrativeArc": "Rising Action: A project manager takes control of a complex IT project with three competing constraints — Cost, Time, and Scope — all demanding attention simultaneously. Every decision shifts the balance of the Iron Triangle. Early phases reveal how resource allocation affects downstream project health. The KPI dashboard turns abstract PM theory into visible real-time consequence. Climax: A multi-front Iron Triangle crisis strikes in the Execution phase — budget overrun, schedule slip, and scope creep arrive simultaneously, requiring integrated PMBOK change management decisions under maximum pressure. Falling Action: The project reaches its closing phase in better or worse shape depending on every prior decision. Resolution: Final project delivery report connects every tycoon management decision to the specific COM0463 constraint management principle it demonstrated.",
+    "characters": "Project Manager (Student): Acts as PM making decisions under Iron Triangle constraints facing stakeholder pressures and resource conflicts.\nStakeholder NPCs: Configurable characters representing client, sponsor, team member, and regulator with defined Power/Interest positions.\nGame Master (Facilitator): Human instructor triggering event cards, adjusting parameters, guiding debrief connected to Marchewka theory.",
+    "storyWorld": "The Iron Triangle Tycoon world is a fully simulated project environment where the classic PM constraint triad — Scope, Time, and Cost — are living, interactive forces that respond to every management decision. The project command centre dashboard shows all three KPIs in real time. Stakeholder demand events represent the sponsor, client, and regulator pulling the triangle in competing directions. Crisis events model the compounding consequences of ignored constraint violations — consequences that any COM0463 graduate must understand how to prevent and manage.",
+    "conceptMappings": [
+      {
+        "concept": "Iron triangle interdependence",
+        "mechanic": "3 dials (Scope/Time/Cost) permanently visible; all 3 update on every lever pull",
+        "dynamic": "Add Feature → Scope +10%, Time +12%, Cost +8% (auto-calculated)",
+        "aesthetic": "Sensation + Discovery",
+        "rationale": "Real-time automatic interdependence calculation makes the theoretical triangle viscerally experienced — students feel the cascade before they understand it formulaically"
+      },
+      {
+        "concept": "Resource leveling vs crashing",
+        "mechanic": "Add Resource lever reduces time by allocating cost; Crash Time lever reduces time by spending budget exponentially",
+        "dynamic": "Add Resource: −5 days, +$20K. Crash Time: −3 days, +$60K. Students discover when each is appropriate.",
+        "aesthetic": "Strategy + Challenge",
+        "rationale": "The non-linear cost of crashing vs linear cost of resourcing is the key PM principle — the tycoon game makes students discover it through experimentation, not lecture"
+      },
+      {
+        "concept": "Scope creep and change control",
+        "mechanic": "Random Event deck periodically spawns \"Client Whim\" events demanding feature addition; student must accept, reject, or negotiate",
+        "dynamic": "Accept: triangle destabilises. Reject: client satisfaction −15%. Negotiate: requires 2-turn delay but preserves satisfaction.",
+        "aesthetic": "Challenge + Strategy",
+        "rationale": "Every real project has uncontrolled external scope pressure — the random event deck simulates this and forces students to practise the accept/reject/negotiate decision under time pressure"
+      }
+    ],
+    "mdaAnalysis": {
+      "mechanics": "Iron Triangle resource management (Cost/Time/Scope), Decision event system (PMBOK project scenarios), KPI dashboard (earned value metrics), Stakeholder demand events, Crisis response options, Team PM+Sponsor mode, Project delivery outcome leaderboard.",
+      "dynamics": "The competing KPI system creates genuine tension between Iron Triangle dimensions — improving scope performance often degrades cost performance, mirroring real project management trade-off dynamics. Stakeholder demand events inject realistic pressure for constraint renegotiation. Crisis response options require PMBOK change management knowledge to resolve without cascading KPI damage.",
+      "aesthetics": "Challenge (Iron Triangle management demands genuine PMBOK constraint knowledge), Strategy (long-horizon resource allocation mirrors real PM planning), Accomplishment (successful project delivery with all three KPIs in green creates genuine achievement), Submission (tycoon management perspective creates authentic engagement with COM0463 constraint trade-off dilemmas)."
+    },
+    "gameDuration": "",
+    "introText": "You have just been appointed Project Manager of a complex IT delivery. The Iron Triangle is your responsibility: Cost, Time, and Scope must all be managed simultaneously — and they will fight each other for your attention. The KPI dashboard shows your project health in real time across all three constraint dimensions. Stakeholder demand events will push you to expand scope, compress schedule, and cut budget all at once. Use your COM0463 knowledge of earned value management, change control, and scope management to keep all three KPIs in the green and deliver the project successfully.",
+    "preGameSetup": {
+      "environmentConfig": "Arrange seating for individual device use. Confirm browser compatibility on all student devices or lab PCs. Project facilitator dashboard on classroom screen. Test session timer and leaderboard display.",
+      "materialsDistribution": "Each student accesses the game via shared URL or QR code. Distribute session handout with game rules summary and XP table. Confirm all students can see the projected leaderboard.",
+      "initialLogEntry": "Facilitator logs session start, date, class size, game variant, and initial difficulty setting in the session log."
+    },
+    "sessionSteps": [
+      {
+        "phase": "Scenario briefing",
+        "duration": "3 min",
+        "activity": "Read project brief: initial scope, budget, timeline, and client expectations. Triangle starts in balance.",
+        "facilitator": "Instructor previews scenario with class; no guidance given",
+        "player": "Read brief; understand starting triangle position"
+      },
+      {
+        "phase": "Project management (SC-01)",
+        "duration": "15–20 min",
+        "activity": "Pull levers, respond to random events, track triangle health. Aim: reach project completion with Satisfaction ≥75%.",
+        "facilitator": "Monitor class dashboard; pause at turn 5 for discussion",
+        "player": "Active lever management; event triage"
+      },
+      {
+        "phase": "Post-project debrief",
+        "duration": "5 min",
+        "activity": "Analysis panel: lever history, satisfaction trajectory, triangle heat map at every turn, alternative optimal path.",
+        "facilitator": "Project optimal path; lead discussion on why it was better",
+        "player": "Compare own path to optimal; note cascade patterns"
+      },
+      {
+        "phase": "Portfolio entry",
+        "duration": "2 min",
+        "activity": "Each completed scenario is automatically added to student's Project Portfolio with score and debrief notes.",
+        "facilitator": "Collect portfolio as semester artefact",
+        "player": "Review portfolio; note improvement across scenarios"
+      }
+    ],
+    "scenarios": [
+      {
+        "id": "SC-01",
+        "name": "Budget Crisis",
+        "title": "Iron Triangle Tycoon — Budget Crisis",
+        "setup": "Sprint 7, $80K over budget. Client satisfaction 61%. Deadline in 15 game-turns.",
+        "objective": "Restore triangle balance; reach project completion with satisfaction ≥75%",
+        "winCondition": "Project delivered with satisfaction ≥75%, cost within 5% of target",
+        "loseCondition": "Client satisfaction drops to 0, or cost exceeds target by >20%",
+        "maxPoints": 300,
+        "duration": "20 min",
+        "difficulty": "Standard",
+        "storyboard": "Budget crisis alert → Lever selection → Triangle update → Random event (client demands new feature) → Lever adjustment → Turn 10 mid-point check → Delivery → Debrief",
+        "algorithm": "PortfolioScore = satisfaction_pct×150 + cost_variance_inverted×100 + time_remaining×50",
+        "outcome": "Win (satisfaction ≥75%, cost ≤5% over): +300 + Portfolio Star. Partial (50–74%): +120. Fail: −40 + Mandatory debrief.",
+        "activities": [
+          {
+            "id": "ACT-01",
+            "action": "Identify which lever to pull to reduce cost by $20K without increasing scope or time",
+            "description": "Budget crisis: $80K over. Student must select the correct lever (Cut Feature or Remove Resource) and justify the choice.",
+            "trigger": "Budget Crisis event activates at turn 1",
+            "winCondition": "Correct lever selected; cost reduces ≥$20K; triangle returns to amber (not green yet)",
+            "winResult": "+80 XP + Cost Controller badge progress",
+            "winPoints": 80,
+            "loseCondition": "Wrong lever selected (e.g. Crash Time costs more, worsening crisis)",
+            "loseResult": "Cost increases; triangle turns red; client satisfaction −10%",
+            "losePoints": 0,
+            "neutralCondition": "Correct lever but over-correction (cost drops >$40K, scope impact)",
+            "neutralResult": "+40 XP; triangle partially restored",
+            "neutralPoints": 40,
+            "timer": "90 seconds"
+          },
+          {
+            "id": "ACT-02",
+            "action": "Respond to a Client Whim event demanding a new feature mid-crisis",
+            "description": "Turn 6: Client Whim card — \"Add analytics dashboard by next sprint.\" Student must choose: Accept, Reject, or Negotiate (2-turn delay).",
+            "trigger": "Client Whim event card drawn at turn 6",
+            "winCondition": "Negotiate selected; delay accepted; feature queued for Phase 2; satisfaction maintained",
+            "winResult": "+120 XP + Scope Guardian badge + satisfaction maintained at current level",
+            "winPoints": 120,
+            "loseCondition": "Accept selected; scope expands; triangle destabilises further",
+            "loseResult": "Triangle in red; −20 satisfaction; cascade event triggered next turn",
+            "losePoints": -20,
+            "neutralCondition": "Reject selected; feature not added; client satisfaction −10%",
+            "neutralResult": "+60 XP; satisfaction −10%; triangle partially stable",
+            "neutralPoints": 60,
+            "timer": "2 minutes"
+          }
+        ]
+      },
+      {
+        "id": "SC-02",
+        "name": "Triple Crisis",
+        "title": "Iron Triangle Tycoon — Triple Constraint Crisis",
+        "setup": "All three constraints simultaneously out of balance: scope +20%, cost +15%, time −8 days.",
+        "objective": "Restore triangle to green within 5 turns",
+        "winCondition": "Triangle returns to green (all 3 constraints within target) within 5 turns",
+        "loseCondition": "Triangle stays red after 7 turns",
+        "maxPoints": 400,
+        "duration": "20 min",
+        "difficulty": "Hard",
+        "storyboard": "Triple alert → Emergency lever sequence → Random event complicates recovery → Satisfaction drops → Final lever combination → Triangle recovered → Portfolio update",
+        "algorithm": "TripleCrisisScore = recovery_turns_saved×60 + satisfaction_at_recovery×200",
+        "outcome": "Recovery in 3 turns: +400 + Triple Crisis Master badge. 4–5 turns: +200. Failure: −50.",
+        "activities": [
+          {
+            "id": "ACT-01",
+            "action": "Design a 3-lever sequence that restores all three constraints simultaneously",
+            "description": "Pull levers in optimal order: Cut Feature (reduces scope, cost, prevents time extension) → Remove Resource (reduces cost) → Fast-Track (uses budget to reduce time).",
+            "trigger": "Triple Crisis scenario begins",
+            "winCondition": "3-lever sequence restores all constraints to green within 3 turns",
+            "winResult": "+250 XP + Iron Triangle Master badge",
+            "winPoints": 250,
+            "loseCondition": "Sub-optimal sequence worsens at least 1 constraint",
+            "loseResult": "0 XP this turn; retry allowed",
+            "losePoints": 0,
+            "neutralCondition": "2/3 constraints restored in 3 turns",
+            "neutralResult": "+100 XP; 1 constraint still in amber",
+            "neutralPoints": 100,
+            "timer": "3 turns (4.5 minutes)"
+          }
+        ]
+      }
+    ],
+    "scoringSystem": {
+      "basis": "PortfolioScore = satisfaction×150 + cost_variance_inverted×100 + time_remaining×50.",
+      "bonuses": "Triangle never turns red: +100. Client Whim Negotiated (not accepted): +60. All 15 scenarios: +200 portfolio completion bonus.",
+      "penalties": "Triangle stays red 3+ turns: −20/turn. Client satisfaction drops to 0: scenario ends with −100.",
+      "badges": "Portfolio Star, Cost Controller, Scope Guardian, Triple Crisis Master, Iron Triangle Champion (all green)"
+    },
+    "socialFeatures": {},
+    "rewardTiers": {
+      "elite": "Iron Triangle Champion (all 15 scenarios, satisfaction ≥75%): 5-pt course bonus",
+      "professional": "Triple Crisis Master (all SC-02 scenarios recovered ≤5 turns): 3-pt bonus",
+      "access": "Portfolio Starter (any 5 scenarios): participation credit"
+    },
+    "executionLog": [],
+    "leaderboardConfig": {},
+    "risks": [],
+    "tuslerRisks": [
+      {
+        "risk": "Technical Platform Failure During Session",
+        "category": "Tiger",
+        "prob": "High",
+        "impact": "High",
+        "mitigation": "Conduct full platform test on target lab devices 24h before session. Prepare a paper-based fallback version of the PM tycoon game challenges. Verify browser compatibility on all student devices.",
+        "responsive": "Switch to prepared paper-based fallback immediately. Instructor verbally presents COM0463 PM challenges; students answer on printed worksheets. Session data manually entered into system post-session."
+      },
+      {
+        "risk": "Widespread Rule Misunderstanding at Session Start",
+        "category": "Tiger",
+        "prob": "High",
+        "impact": "High",
+        "mitigation": "Provide multi-modal game introduction: verbal briefing, printed rule card, and in-game tutorial overlay for the PM tycoon game. Conduct a 2-minute practice round before official scoring begins.",
+        "responsive": "Facilitator pauses game immediately on detecting widespread confusion. Re-delivers rule explanation using a specific worked example. Q&A window opened before resuming. Game timer reset if necessary."
+      },
+      {
+        "risk": "Overemphasis on Winning Over Learning",
+        "category": "Puppy",
+        "prob": "High",
+        "impact": "Low",
+        "mitigation": "Design PM tycoon game scoring to reward both performance and COM0463 PM concept demonstration. Integrate mandatory reflection checkpoints mid-session where students must explain their decision rationale.",
+        "responsive": "Instructor intervenes to redirect student focus to COM0463 PM learning objectives. Post-session assessment weights conceptual understanding over game performance score explicitly."
+      },
+      {
+        "risk": "Student Disengagement After Early Failure",
+        "category": "Tiger",
+        "prob": "High",
+        "impact": "Medium",
+        "mitigation": "Implement adaptive difficulty that reduces challenge intensity if a student is failing repeatedly in the PM tycoon game. Provide visible progress indicators so students always see incremental advancement.",
+        "responsive": "Facilitator provides individual encouragement and targeted hint. Adaptive system reduces challenge difficulty for the next COM0463 PM task. Optional easier entry point offered without public announcement."
+      },
+      {
+        "risk": "Assessment Misalignment with Course Learning Outcomes",
+        "category": "Alligator",
+        "prob": "Low",
+        "impact": "High",
+        "mitigation": "Conduct formal COM0463 PM curriculum alignment review before deployment. Map every PM tycoon game challenge item to specific course learning outcome statements in the alignment matrix.",
+        "responsive": "Instructor conducts post-session targeted debrief correcting any COM0463 PM misconceptions surfaced by game challenge outcomes. Misaligned challenge items flagged for removal before next session."
+      },
+      {
+        "risk": "PMBOK Methodology Applied Incorrectly Through Game",
+        "category": "Alligator",
+        "prob": "Low",
+        "impact": "High",
+        "mitigation": "Conduct subject matter expert review of all PM tycoon game PMBOK challenge scenarios before deployment. Map every decision point to a specific Marchewka chapter and PMBOK process group.",
+        "responsive": "Instructor leads targeted post-session debrief correcting PMBOK misconceptions surfaced by PM tycoon game outcomes. Challenge items producing widespread incorrect PMBOK reasoning flagged for redesign."
+      },
+      {
+        "risk": "Students Fixate on Single KPI, Ignoring Triple Constraint Dynamics",
+        "category": "Tiger",
+        "prob": "High",
+        "impact": "High",
+        "mitigation": "Implement KPI imbalance detection: if any single KPI is ignored for >3 consecutive decision events, the game triggers a Stakeholder Alert event forcing attention to the neglected constraint dimension.",
+        "responsive": "Instructor uses single-KPI fixation examples in post-session debrief as teachable moments about COM0463 integrated constraint management. Marchewka triple constraint chapter reference provided with specific fixation examples."
+      },
+      {
+        "risk": "Crisis Event Overwhelms Students Without Sufficient PMBOK Scaffolding",
+        "category": "Tiger",
+        "prob": "High",
+        "impact": "Medium",
+        "mitigation": "Provide PMBOK decision scaffolding within crisis events: each crisis option displays its expected impact on all three KPI dimensions plus the relevant Marchewka chapter reference before the student must commit.",
+        "responsive": "Instructor pauses session during widespread crisis paralysis to deliver a brief PMBOK crisis response framework refresher using the active crisis event as the teaching example before students continue."
+      },
+      {
+        "risk": "Sponsor Role in Team Mode Creates Adversarial Rather Than Collaborative Dynamic",
+        "category": "Puppy",
+        "prob": "High",
+        "impact": "Low",
+        "mitigation": "Brief both PM and Sponsor role students on the collaborative intent of the team mode before session. Structure Sponsor demands as negotiation opportunities rather than constraints, with explicit compromise outcomes designed into the event system.",
+        "responsive": "Facilitator intervenes if PM-Sponsor dynamic becomes genuinely adversarial. Brief paired debrief conducted to reset collaborative frame. Event severity reduced for the remainder of the session to allow relationship recovery."
+      }
+    ],
+    "supportTeam": [
+      {
+        "role": "Frontend Developer (SVG/JS)",
+        "name": "",
+        "resp": "SVG triangle animation, lever physics, Random Event deck, Portfolio PDF"
+      },
+      {
+        "role": "PM Scenarios Designer",
+        "name": "",
+        "resp": "15 scenario briefs; optimal path verification; Client Whim event bank"
+      },
+      {
+        "role": "COM0463 Instructor",
+        "name": "Yusuf Altunel",
+        "resp": "Scenario-chapter alignment; assessment calibration; Portfolio rubric"
+      }
+    ],
+    "facilitatorRole": "",
+    "bloomOutcomes": [
+      {
+        "level": "Remember",
+        "bloom_k": "1",
+        "outcome": "Recall 8 constraint levers and their primary effect on the iron triangle",
+        "activity": "Lever selection sidebar tooltip",
+        "assessment": "Post-scenario quiz: match lever to primary effect (target ≥80%)"
+      },
+      {
+        "level": "Understand",
+        "bloom_k": "2",
+        "outcome": "Explain the cascade effect of adding scope on time and cost",
+        "activity": "Triangle live update animation on lever pull",
+        "assessment": "Post-debrief reflection: cascade explanation scored on PM rubric"
+      },
+      {
+        "level": "Apply",
+        "bloom_k": "3",
+        "outcome": "Apply correct lever sequence to restore a budget crisis within 5 turns",
+        "activity": "Budget Crisis scenario (SC-01)",
+        "assessment": "Budget crisis resolved within 5 turns in ≥6/15 scenarios"
+      },
+      {
+        "level": "Analyse",
+        "bloom_k": "4",
+        "outcome": "Analyse the optimal lever sequence for a triple constraint crisis",
+        "activity": "Triple Crisis scenario (SC-02)",
+        "assessment": "Triple crisis recovery in ≤5 turns in ≥2/3 triple crisis scenarios"
+      },
+      {
+        "level": "Evaluate",
+        "bloom_k": "5",
+        "outcome": "Evaluate trade-off between client satisfaction loss (Reject) vs triangle destabilisation (Accept) for a Client Whim event",
+        "activity": "Client Whim event response decision",
+        "assessment": "Negotiate selected in ≥60% of Client Whim events across portfolio"
+      }
+    ],
+    "kirkpatrick": {
+      "l1": "\"How much did Iron Triangle Tycoon make the constraint triple feel real?\" (1–5, target ≥4.0)",
+      "l2": "Iron triangle question correctness: +26% vs baseline (baseline 52%)",
+      "l3": "Constraint management decisions in semester project: ≥70% correct trade-offs applied (baseline 31%)",
+      "l4": "Final exam constraint chapter (8 of 40 marks): mean ≥5.8/8 (baseline 2.9/8)"
+    },
+    "kpis": [
+      {
+        "level": "L1",
+        "metric": "Post-session NPS >= 7.0",
+        "method": "Google Forms post-session",
+        "baseline": "Lecture NPS 5.2",
+        "target": ">= 7.0"
+      },
+      {
+        "level": "L2",
+        "metric": "Stakeholder quiz improvement >= 25%",
+        "method": "10q quiz before and 48h after",
+        "baseline": "Pre: ~55%",
+        "target": "Post: >= 70%"
+      },
+      {
+        "level": "L3",
+        "metric": "Stakeholder register quality >= 75%",
+        "method": "Assignment rubric",
+        "baseline": "Prior cohort: 62%",
+        "target": ">= 75%"
+      },
+      {
+        "level": "L4",
+        "metric": "Final assignment stakeholder section >= 75/100",
+        "method": "Grade comparison",
+        "baseline": "Prior: 68/100",
+        "target": ">= 75/100"
+      }
+    ],
+    "futureEnhancements": [
+      "AI Stakeholder Simulation: NPC stakeholder agents with dynamic behaviour.",
+      "Real-Time PM Metrics Dashboard: Live constraint tracking responding to student decisions.",
+      "Expanded Tusler Event Library: 20+ additional risk event cards.",
+      "Cross-Course PM Tournament: Multi-section competitions with industry PM judges.",
+      "NLP Debrief Analysis: Discussion analysis surfacing cognitive patterns in student reasoning."
+    ],
+    "dataCollection": "",
+    "continuousImprovement": "Monthly retrospective: vote patterns, win rates, NPS. Quarterly Kirkpatrick L2: revise debrief prompts if improvement <20%. Annual Marchewka alignment review. Peer facilitator network. Student feedback reviewed within 48h.",
+    "appendices": [
+      "Glossary of Terms",
+      "Game Component Inventory",
+      "Sample Game Session Log",
+      "Storyboard Visuals",
+      "Risk Register"
+    ],
+    "timeline": [],
+    "baselineEngagement": "",
+    "targetEngagement": "",
+    "baselineScore": "",
+    "attritionTarget": "",
+    "transferTarget": "",
+    "resultsKPI": "",
+    "analyticsplatform": "",
+    "usedRefs": {},
+    "gamePurpose": "Build intuitive understanding of project triple constraint trade-offs through repeated decision consequence (Bloom L3-L4).",
+    "gameSubject": "Iron Triangle, project constraints, budget management, schedule compression — Marchewka Chapters 9, 8",
+    "gameMethod": "Flow: difficulty scales with project complexity; students experience non-linear trade-off consequences (crashing schedule increases cost non-linearly).",
+    "gameMeasurement": "Pre/post quiz improvement ≥20% measured 48h after session; L3 transfer assessed via next assignment grade",
+    "gamePlayers": "COM0463 IT Project Management students, Year 3/4, n≈30",
+    "gamePoints": "+15 XP project delivered within all 3 constraints; +30 XP for optimal trade-off decision; -20 XP constraint violation",
+    "gameAchievements": "Triangle Master: deliver 3 projects without violating any constraint; Budget Saver: deliver under budget 5 times",
+    "gameBadges": "Iron Triangle Expert badge: perfect score across all 10 project scenarios; Constraint Navigator: never exceed any constraint",
+    "gameOverview": "A tycoon management game for COM0463 where students balance scope, time, and cost on a live project dashboard — every decision shifts the Iron Triangle.",
+    "playerRoles": [
+      {
+        "name": "Project Manager",
+        "side": "PM Team",
+        "desc": "Student acting as PM making project decisions",
+        "abilities": [
+          "Make project decisions",
+          "Allocate resources",
+          "Manage stakeholders"
+        ],
+        "objectives": [
+          "Deliver project within constraints",
+          "Achieve ≥80% Bloom L3+ outcomes"
+        ],
+        "scoring": {
+          "correctDecision": 15,
+          "onTimeDelivery": 30,
+          "riskMitigated": 20
+        }
+      }
+    ],
+    "gameSides": [
+      {
+        "name": "PM Team",
+        "roles": [
+          "Project Manager"
+        ],
+        "winCondition": "Deliver project meeting all three Iron Triangle constraints"
+      }
+    ],
+    "winConditions": [
+      {
+        "side": "PM Team",
+        "condition": "Deliver project within scope, time, and budget constraints",
+        "points": 100
+      },
+      {
+        "side": "PM Team",
+        "condition": "Achieve ≥80% score on post-game PM concept quiz",
+        "points": 50
+      }
+    ],
+    "gamePhases": [
+      {
+        "name": "Project Initiation",
+        "seq": 1,
+        "duration": "5 min",
+        "description": "Receive project brief; form team; identify initial risks",
+        "actions": [
+          "Read project charter",
+          "Identify key stakeholders",
+          "Create initial risk log"
+        ],
+        "facilitator": "Distribute project brief; explain game rules; start timer"
+      },
+      {
+        "name": "Execution — Constraint Dashboard Management",
+        "seq": 2,
+        "duration": "20 min",
+        "description": "Students manage a live project dashboard balancing scope, time, and cost through decisions",
+        "actions": [
+          "Make PM decisions",
+          "Respond to events",
+          "Track constraint status"
+        ],
+        "facilitator": "Trigger event cards; monitor constraint dashboard; prompt reflection"
+      },
+      {
+        "name": "Project Closure & Debrief",
+        "seq": 3,
+        "duration": "10 min",
+        "description": "Review decisions; connect to COM0463 theory; reflect on PM lessons",
+        "actions": [
+          "Present project outcome",
+          "Justify key decisions",
+          "Identify lessons learned"
+        ],
+        "facilitator": "Structured debrief: connect decisions to Marchewka chapters; ask 'what if' questions"
+      }
+    ],
+    "eventCards": [
+      {
+        "id": "EV-01",
+        "name": "Budget Cut",
+        "trigger": "Round 5",
+        "effect": "Client reduces budget by 20% — student must descope or crash schedule",
+        "pmConcept": "Iron Triangle Trade-off (Ch 9)"
+      },
+      {
+        "id": "EV-02",
+        "name": "Resource Conflict",
+        "trigger": "Round 7",
+        "effect": "Two critical tasks compete for same resource — student must prioritise",
+        "pmConcept": "Resource Allocation"
+      },
+      {
+        "id": "EV-03",
+        "name": "Scope Creep",
+        "trigger": "Random in rounds 3-8",
+        "effect": "New requirement added — student must negotiate with stakeholder to defer or accommodate",
+        "pmConcept": "Scope Management"
+      }
+    ],
+    "roleScoring": [
+      {
+        "role": "Project Manager",
+        "action": "Correct PM decision made",
+        "points": 15,
+        "type": "base"
+      },
+      {
+        "role": "Project Manager",
+        "action": "Deliver sprint/milestone on time",
+        "points": 30,
+        "type": "bonus"
+      },
+      {
+        "role": "Project Manager",
+        "action": "Risk successfully mitigated",
+        "points": 20,
+        "type": "bonus"
+      },
+      {
+        "role": "Project Manager",
+        "action": "Constraint violated",
+        "points": -25,
+        "type": "penalty"
+      },
+      {
+        "role": "Project Manager",
+        "action": "Team morale drop (poor decision)",
+        "points": -10,
+        "type": "penalty"
+      }
+    ],
+    "teamFormationRules": "Groups of 3-4 students per team. Each student takes PM role in rotation. Teams compete on final project score.",
+    "gameIntroScript": "Welcome to Iron Triangle Tycoon! You are the Project Manager. Your project faces real-world constraints and unexpected events. Every decision affects scope, time, and budget. Make PM-correct choices to earn XP and deliver successfully. The class leaderboard shows who delivers projects most effectively.",
+    "physicalArtifacts": [
+      {
+        "type": "Digital Game Interface",
+        "description": "Browser-based game accessible via URL",
+        "qty": "1 per student",
+        "material": "HTML5 web application"
+      },
+      {
+        "type": "Facilitator Dashboard",
+        "description": "Instructor view showing all student progress",
+        "qty": "1 per session",
+        "material": "Digital — same application, facilitator mode"
+      }
+    ],
+    "environmentalSetup": {
+      "zones": [
+        {
+          "name": "Workstation Area",
+          "desc": "Individual or paired PC/laptop stations",
+          "requirement": "COM0463 Lecture Theatre or Computer Lab"
+        },
+        {
+          "name": "Projection Zone",
+          "desc": "Instructor screen for demo and announcements",
+          "requirement": "Projector or TV display"
+        }
+      ],
+      "equipment": [
+        "Browser-compatible devices for all students",
+        "Stable internet connection",
+        "Instructor display"
+      ],
+      "accessibility": "All interactions digital; screen-reader compatible; keyboard navigable"
+    },
+    "learningContentDetails": {
+      "teachingSubject": "COM0463: IT Project Management — WBS, risk management, stakeholder communication, scheduling, Iron Triangle — Marchewka Chapters 6-13",
+      "declarativeKnowledge": "Game briefings define PM frameworks through project scenario context (e.g., Tusler risk categories introduced via in-game events)",
+      "proceduralKnowledge": "Students apply PM decision-making skills with immediate consequence feedback (constraint violations visible on live dashboard)",
+      "methodology": "Problem-based learning: receive project brief → make decisions → face consequences → debrief → connect to theory",
+      "furtherSources": [
+        "Marchewka 'IT Project Management' 5th Ed",
+        "PMBOK Guide",
+        "Tusler Risk Classification 2006"
+      ]
+    },
+    "secondaryBenefits": [
+      "Enhance teamwork and collaborative problem-solving under time pressure",
+      "Foster adaptability and project leadership in ambiguous situations",
+      "Bridge theoretical course content with practical application through experience",
+      "Develop communication and persuasion skills in academic context"
+    ],
+    "dataCollectionPlan": {
+      "responsible": "Course Facilitator / Gamification Team",
+      "fields": [
+        "Student ID (anonymised)",
+        "Session date",
+        "Score per round",
+        "Decision log",
+        "Role assigned",
+        "Final placement"
+      ],
+      "method": "Automated digital log + end-of-session survey",
+      "analysis": "Post-session: score correlation with COM0463 project assignment assessment performance; engagement survey NPS"
+    },
+    "glossary": [
+      {
+        "term": "Iron Triangle",
+        "definition": "The three project constraints: scope, time, and cost — changing one affects the others"
+      },
+      {
+        "term": "WBS",
+        "definition": "Work Breakdown Structure — a hierarchical decomposition of project deliverables"
+      },
+      {
+        "term": "Tusler Classification",
+        "definition": "Risk categorisation framework: Tiger (H×H), Alligator (L×H), Puppy (H×L), Kitten (L×L)"
+      },
+      {
+        "term": "Stakeholder",
+        "definition": "Any individual or group with interest in or impact on the project outcome"
+      },
+      {
+        "term": "Sprint",
+        "definition": "A time-boxed iteration in an Agile project delivering a defined increment"
+      },
+      {
+        "term": "Crashing",
+        "definition": "A schedule compression technique adding resources to shorten critical path at increased cost"
+      }
+    ],
+    "rewardStructure": {
+      "elite": "Iron Triangle Master badge + 'Perfect Delivery' certificate for achieving all-green KPI project delivery in a session",
+      "professional": "Constraint Manager badge + leaderboard recognition for achieving ≥2 green KPIs at final project delivery",
+      "access": "Participation certificate + 'PM Cadet' badge for maintaining at least one KPI in green through all four project phases"
+    },
+    "school": "Istanbul Kültür University — Computer Engineering Department",
+    "semester": "2025-2026 Spring Semester",
+    "continuousImprovements": [
+      {
+        "name": "Adaptive PMBOK Difficulty",
+        "description": "Implement algorithm-driven difficulty adjustment that scales Iron Triangle constraint challenge complexity per student based on demonstrated COM0463 PMBOK knowledge, ensuring appropriate stretch across all skill levels.",
+        "category": "Game Design"
+      },
+      {
+        "name": "PMBOK Ontology Integration",
+        "description": "Extend the tycoon game challenge pool using a formal PMBOK process group ontology, enabling systematic verification that all COM0463 knowledge areas are covered proportionally across sessions.",
+        "category": "Ontology Engineering"
+      },
+      {
+        "name": "LLM PM Coach",
+        "description": "Integrate an LLM-powered coaching layer that generates Marchewka-referenced hints and explanations for Iron Triangle constraint decisions, reducing facilitator dependency for in-session PMBOK guidance.",
+        "category": "AI/ML Enhancement"
+      },
+      {
+        "name": "Cross-Session PM Analytics",
+        "description": "Implement longitudinal tracking of Iron Triangle constraint PMBOK knowledge across multiple sessions to identify persistent knowledge gaps and generate targeted COM0463 review recommendations.",
+        "category": "Analytics"
+      },
+      {
+        "name": "PMBOK Assessment Export",
+        "description": "Add certified assessment mode exporting individual PMBOK knowledge profiles as grade-ready reports aligned to COM0463 course learning outcomes rubric with Marchewka chapter references.",
+        "category": "Infrastructure"
+      }
+    ],
+    "conceptualMap": [
+      {
+        "concept": "Triple Constraint Model",
+        "mechanic": "KPI Dashboard (Cost/Time/Scope)",
+        "description": "Three simultaneous KPI metrics directly operationalise the PMBOK triple constraint model — students experience how optimising one dimension always affects the other two.",
+        "courseReference": "Marchewka Ch 6: Triple Constraint Framework"
+      },
+      {
+        "concept": "Earned Value Management",
+        "mechanic": "CPI and SPI Metrics",
+        "description": "Cost Performance Index and Schedule Performance Index KPIs directly implement PMBOK EVM metrics — students apply EVM diagnostic reasoning in a live consequence environment.",
+        "courseReference": "Marchewka Ch 11: Earned Value Management"
+      },
+      {
+        "concept": "Integrated Change Control",
+        "mechanic": "Decision Event System",
+        "description": "Decision events requiring trade-off choices between cost, time, and scope operationalise PMBOK integrated change control — changes must be evaluated across all constraint dimensions.",
+        "courseReference": "Marchewka Ch 6: Integrated Change Control"
+      },
+      {
+        "concept": "Stakeholder Demand Management",
+        "mechanic": "Stakeholder Events (scope expansion requests)",
+        "description": "Stakeholder demand events model the PMBOK stakeholder management reality that scope expansion requests arrive continuously and must be managed without derailing the triple constraint.",
+        "courseReference": "Marchewka Ch 13: Stakeholder Engagement"
+      },
+      {
+        "concept": "Project Phase Management",
+        "mechanic": "Four-Phase Structure",
+        "description": "Four game phases (Initiation/Planning/Execution/Closing) mirror the PMBOK process group sequence — each phase intensifies constraint management demands in alignment with Marchewka's project lifecycle model.",
+        "courseReference": "Marchewka Ch 2-5: Project Lifecycle and Process Groups"
+      }
+    ],
+    "leaderboardDetails": {
+      "display": [
+        "Student Name",
+        "Total XP",
+        "Badges Earned",
+        "Session Rank",
+        "Personal XP % = (player XP / total class XP) × 100",
+        "PM KPI Score"
+      ],
+      "personalFormula": "Personal XP % = (player XP / total class XP) × 100",
+      "classWideMetrics": [
+        "Class average PM KPI accuracy",
+        "Top XP earner per session",
+        "Most improved XP across sessions",
+        "Average session completion rate"
+      ],
+      "recognition": "Session leaders earn bonus XP and leaderboard recognition",
+      "updateFrequency": "Real-time update after each phase; final standing after session end"
+    },
+    "rewardStructureDetail": {
+      "intrinsic": [
+        "Genuine understanding of Iron Triangle constraint dynamics developed through managing all three dimensions simultaneously",
+        "Real PMBOK earned value management comprehension built through live KPI consequence rather than formula memorisation",
+        "Social recognition from class project delivery outcome comparison and semester-long Iron Triangle leaderboard"
+      ],
+      "extrinsic": {
+        "teamBased": [
+          {
+            "badge": "Class Triple-Green Champions",
+            "trigger": "Class-wide session with highest number of all-green project deliveries",
+            "type": "Class Achievement"
+          },
+          {
+            "badge": "PM-Sponsor Team Victory",
+            "trigger": "PM+Sponsor pair achieving all-green KPI delivery in team mode",
+            "type": "Team Badge"
+          }
+        ],
+        "individual": [
+          {
+            "badge": "Iron Triangle Master",
+            "trigger": "Achieving all three KPIs in green at final project delivery",
+            "points": 100
+          },
+          {
+            "badge": "Budget Champion",
+            "trigger": "Maintaining cost KPI in green through all four project phases",
+            "points": 50
+          },
+          {
+            "badge": "Schedule Protector",
+            "trigger": "Maintaining schedule KPI in green through Execution phase crisis",
+            "points": 40
+          },
+          {
+            "badge": "Scope Manager",
+            "trigger": "Accepting zero unauthorised scope changes across a full session",
+            "points": 60
+          }
+        ]
+      }
+    },
+    "socialInteraction": {
+      "collaboration": "PM+Sponsor team mode assigns competing priorities — PM controls cost/time, Sponsor controls scope demands — requiring negotiated change request resolution that directly models real PM-sponsor relationship dynamics.",
+      "competition": "Class leaderboard creates competitive comparison of Iron Triangle management quality; project outcome tier visibility drives peer performance benchmarking across constraint management strategies.",
+      "communityBuilding": "Post-session delivery comparison showing diverse project outcomes builds shared understanding of COM0463 constraint trade-off theory; different KPI outcomes generate authentic peer discussion of PM philosophy."
+    },
+    "instructorRole": "The instructor should only be assigned the role of questioning the game. No additional roles beyond questioning should be assigned. The instructor's focus is on facilitating reflection, probing understanding, and guiding critical thinking — not participating in game mechanics. If the instructor participates as a player, grading objectivity and the psychological safety of students may be compromised.",
+    "gameDurationRules": "No single game should exceed 30 minutes of active gameplay. Total session including introduction and debrief: 30 minutes. Recommended timing: Introduction 5 min + Active gameplay 20 min + Debrief & reflection 5 min. Instructor may pause at any time for teaching moments. Games exceeding time limit are concluded at the current phase boundary.",
+    "references": [
+      {
+        "citation": "Marchewka, J.T. (2015). Information Technology Project Management (5th ed.). John Wiley & Sons.",
+        "relevance": "Core textbook — PM framework for scope, risk, stakeholder and communication mechanics."
+      },
+      {
+        "citation": "PMI. (2021). A Guide to the Project Management Body of Knowledge (PMBOK® Guide, 7th ed.). Project Management Institute.",
+        "relevance": "PMBOK knowledge areas mapped to game scenarios and scoring dimensions."
+      },
+      {
+        "citation": "Kapp, K.M. (2012). The Gamification of Learning and Instruction. Pfeiffer.",
+        "relevance": "Foundational gamification theory underpinning XP, badge, and leaderboard design."
+      },
+      {
+        "citation": "Deterding, S., Dixon, D., Khaled, R. & Nacke, L. (2011). From game design elements to gamefulness: Defining gamification. Proceedings of MindTrek 2011.",
+        "relevance": "Conceptual basis for gamification approach and mechanics selection."
+      },
+      {
+        "citation": "Kerzner, H. (2017). Project Management: A Systems Approach to Planning, Scheduling, and Controlling (12th ed.). Wiley.",
+        "relevance": "Systems-level PM theory supporting tycoon and simulation game mechanics."
+      }
+    ],
+    "teamMembers": [
+      {
+        "id": "",
+        "name": "[Student Name]",
+        "surname": "[Surname]",
+        "email": "[student@iku.edu.tr]",
+        "phone": ""
+      },
+      {
+        "id": "",
+        "name": "[Student Name]",
+        "surname": "[Surname]",
+        "email": "[student@iku.edu.tr]",
+        "phone": ""
+      },
+      {
+        "id": "",
+        "name": "[Student Name]",
+        "surname": "[Surname]",
+        "email": "[student@iku.edu.tr]",
+        "phone": ""
+      }
+    ],
+    "gameDynamics": {
+      "progressionSystems": "Game structured in four project phases (Initiation, Planning, Execution, Closing), each with phase-specific Iron Triangle challenges. KPI thresholds tighten as the project advances. Project delivery outcome (On Time/On Budget/Full Scope) determines leaderboard tier and badge award.",
+      "feedbackLoops": "Real-time KPI dashboard provides continuous visual feedback on all three constraint dimensions. Decision event outcomes (crisis resolved/escalated) provide immediate consequence feedback. Phase transition report provides a structured feedback checkpoint. Final project delivery report provides comprehensive PM decision quality assessment.",
+      "competition": "Leaderboard by project delivery outcome tier (All Green / Two Green / One Green / Project Failed). Weekly Iron Triangle Master badge for achieving all three KPI targets in minimum decision events. Class-wide project outcome distribution is displayed post-session to stimulate discussion of PM strategy variety.",
+      "collaboration": "Team PM mode pairs students in PM role (controls Cost/Time) and Sponsor role (controls Scope demands and stakeholder events). Competing priorities must be negotiated through structured change request process, mirroring real PM-sponsor dynamics. Team project delivery outcome displayed on paired leaderboard.",
+      "adaptability": "KPI threshold values and decision event pool configurable by COM0463 topic focus. Phase duration adjustable for session length. Stakeholder demand event frequency and severity configurable per cohort level. Crisis event pool swappable to cover different PMBOK knowledge areas per session."
+    },
+    "customizationPlan": {},
+    "gameMechanicsDetail": {
+      "elements": [
+        {
+          "name": "Points & XP",
+          "purpose": "Quantify learning performance and motivate continued engagement",
+          "ontology": "earn condition = correct in-game decision or task completion; value = 5-100 XP; tracked per player per session; displayed on dashboard"
+        },
+        {
+          "name": "Badges & Achievements",
+          "purpose": "Reward specific accomplishments beyond cumulative score",
+          "ontology": "trigger = discrete game event; acquisition = one-time per session; visible on player profile and leaderboard"
+        },
+        {
+          "name": "Leaderboard",
+          "purpose": "Provide social comparison and competitive engagement",
+          "ontology": "ranking = descending XP order; scope = class-wide session; updated after each phase; anonymised for export"
+        },
+        {
+          "name": "Session Timer",
+          "purpose": "Create urgency and model real-world time constraints",
+          "ontology": "duration = configured per phase; expiry = triggers phase transition; visible countdown displayed at all times"
+        },
+        {
+          "name": "Resource Economy",
+          "purpose": "Model multi-variable constraint management under scarcity",
+          "ontology": "resource = abstract units (budget/time/quality); economy = input-output relationships; deficit = penalty event"
+        },
+        {
+          "name": "Decision Event System",
+          "purpose": "Introduce realistic management scenarios requiring domain knowledge",
+          "ontology": "event = timed decision prompt; option = 2-4 choices with modelled outcomes; consequence = resource delta applied"
+        },
+        {
+          "name": "KPI Dashboard",
+          "purpose": "Provide real-time feedback on management effectiveness",
+          "ontology": "KPI = domain metric; threshold = red/amber/green; KPI state = displayed continuously and updated per decision"
+        }
+      ]
+    },
+    "gameEndConditions": {
+      "condition1": {
+        "check": "Has the player's enterprise achieved all three KPI targets within the round limit?",
+        "result": "ENTERPRISE SUCCESS",
+        "outcome": "Game ends. Full XP and Business Architect badge awarded. Debrief commences.",
+        "type": "win"
+      },
+      "condition2": {
+        "check": "Has the player's budget reached zero or a critical KPI dropped to red for 3 consecutive rounds?",
+        "result": "ENTERPRISE COLLAPSE",
+        "outcome": "Game ends. Partial XP for KPIs achieved. Instructor reviews decision analysis in debrief.",
+        "type": "lose"
+      },
+      "condition3": {
+        "check": "Has the session timer reached 0?",
+        "result": "TIME LIMIT REACHED",
+        "outcome": "Game concludes at current round boundary. XP awarded for KPIs met. Full debrief commences.",
+        "type": "draw"
+      }
+    },
+    "sdtAutonomy": "Students autonomously select which Iron Triangle constraint management approach to deploy against project management challenges without prescribed sequences. Different strategy combinations produce different project outcome scenarios, allowing exploration of PMBOK methodology trade-offs through self-directed experimentation aligned to COM0463 knowledge areas. Students control their own game pacing within the session timer.",
+    "sdtCompetence": "Each correctly applied project management tool or decision in the tycoon management game delivers XP feedback tied to the PMBOK knowledge area addressed. The upgrade or mastery tree makes PM methodology progression explicitly visible, with advanced tools unlocking only after foundational PMBOK processes are demonstrated. Difficulty scaling within COM0463 topic areas ensures students are challenged at their developing frontier of PM understanding.",
+    "sdtRelatedness": "Class-wide project outcome leaderboard after each session creates cohort-level comparison of PM decision quality. Optional team PM mode pairs students in complementary project roles, requiring joint PMBOK-based decisions. Post-session debriefs where students explain their PM strategy choices to the class create peer teaching moments grounded in COM0463 methodology and Marchewka frameworks.",
+    "playerPersonas": [
+      {
+        "name": "The PM Methodologist",
+        "description": "Applies PMBOK process group logic to all in-game decisions. Motivated by achieving full PMBOK domain mastery badge set. Strong theoretical foundation from COM0463 coursework.",
+        "motivations": [
+          "Achieve PMBOK knowledge area mastery across all challenge tiers",
+          "Complete full upgrade or mastery tree in minimum sessions",
+          "Top leaderboard via PMBOK accuracy rather than resource spending"
+        ],
+        "challenges": [
+          "Needs game mechanics to accurately reflect PMBOK methodology",
+          "Over-methodical analysis can exhaust session time during rapid challenge sequences"
+        ]
+      },
+      {
+        "name": "The Pragmatic Problem Solver",
+        "description": "Learns PM principles through consequence-driven decisions. Discovers PMBOK applicability through challenge outcome feedback rather than prior theory.",
+        "motivations": [
+          "Keep project health above 50% through the final boss challenge",
+          "Discover the most effective PM approach through experimentation",
+          "Learn PMBOK knowledge area applicability through challenge outcome feedback"
+        ],
+        "challenges": [
+          "Trial-and-error approach may not converge on correct PM methodology in time-limited sessions",
+          "Needs post-session debrief to link game outcomes to specific PMBOK process groups"
+        ]
+      }
+    ],
+    "deliverableJust": "A browser-based tycoon/dashboard is uniquely suited because: (1) Active decision-making with immediate consequence creates stronger encoding than passive delivery; (2) Game mechanics directly parallel domain processes (see Concept-to-Game Mapping); (3) Performance logging enables objective Bloom L3+ skill assessment.",
+    "howEthics": "Student participation is voluntary; equivalent written task available for opt-outs. All performance data anonymised in aggregate reports. Data collected under KVKK and GDPR, disclosed in course syllabus. Assessment based on participation and reflection, not competitive ranking. Instructor monitors emotional wellbeing; distress triggers private check-in.",
+    "platform": "Browser-based web application; any modern browser. No installation required. Compatible with IKU computer labs, student devices, and mobile browsers.",
+    "narrativeEvolution": "Phase 1 — Initiation (KPI Baseline): The project begins with all three KPIs in green. First scope request arrives from the sponsor. Students make initial resource allocation decisions. Cost variance and schedule performance index begin tracking. COM0463 concept: project initiation, scope baseline, and Marchewka Chapter 6 cost and schedule integration.\n\nPhase 2 — Planning Crisis: A scope change request arrives simultaneously with a budget constraint from the sponsor. The Iron Triangle tension becomes visible: accepting scope expands cost; compressing schedule to compensate risks quality. COM0463 concept: integrated change control, scope and schedule trade-offs, and Marchewka Chapter 10 risk integration.\n\nPhase 3 — Execution Storm: Multiple KPIs enter amber simultaneously. Earned value metrics (CPI and SPI) provide diagnostic data for corrective action decisions. Crisis response options require selecting the correct PMBOK corrective action. COM0463 concept: earned value management, schedule control, and Marchewka Chapter 11 project monitoring.\n\nPhase 4 — Closing Delivery: Final project delivery report generated. All-green delivery earns Iron Triangle Master badge. Partial delivery triggers gap analysis. Debrief connects every tycoon decision to COM0463 constraint management theory, Marchewka Chapters 6, 10, 11, and the triple constraint model.",
+    "lbCats": "Participant Names | Total XP | Badges | Session Rank | Personal Points % = (player XP / total class XP) x 100 | Villager Win Rate | Vampire Win Rate",
+    "whyMotivation": "Students are motivated through three SDT core drives: Autonomy — Iron Triangle tycoon management strategy selection without prescribed answers allows genuine PMBOK methodology reasoning rather than answer retrieval, transforming passive knowledge recall into active strategic decision-making. Competence — the progression structure aligned to PMBOK knowledge areas creates a transparent mastery ladder where PM understanding feels like tangible capability growth and not just test performance. Relatedness — class leaderboard and team PM mode connect individual PM knowledge to a shared project challenge narrative, reducing the isolation of individual PM problem-solving. Through the Octalysis lens, the dominant Core Drives are Development & Accomplishment (PM progression), Challenge (game events demand real PMBOK knowledge), Social Influence (class leaderboard and team mode), and Epic Meaning (protecting the project from failure).",
+    "personaList": "Persona 1 — The PM Methodologist: Deep PMBOK theory background. Approaches the tycoon game analytically, applying PMBOK process group sequencing to all decisions. Derives satisfaction from correct methodology application. May become frustrated if game mechanics do not accurately reflect PMBOK best practices.\n\nPersona 2 — The Pragmatic Problem Solver: Moderate PM knowledge, prefers learning through practical project management decisions rather than theory. Discovers PMBOK principles through trial-and-error in the tycoon game. Risk: may develop misconceptions if incorrect decisions are not debriefed in post-session review.\n\nPersona 3 — The Budget Optimizer: Focused on resource efficiency above all other project constraints. May underinvest in PM tools and be surprised by late-game scope creep or risk events. Needs instructor prompts to apply full PMBOK constraint management.",
+    "logPrivacy": "Activity logs retained 6 months. Accessible only to facilitator and research team. Student identifiers anonymised in aggregate reports. Data per KVKK and GDPR. Students informed via course syllabus. Data destruction certificate at academic year end.",
+    "techStack": {
+      "software": [
+        {
+          "name": "Tycoon Simulation Engine",
+          "role": "Resource management, decision trees, and outcome calculation",
+          "stack": "Browser-based HTML5/JS; state-machine architecture"
+        },
+        {
+          "name": "Player Dashboard Interface",
+          "role": "Real-time XP, badge display, and progress tracking per player",
+          "stack": "Responsive single-page web app; mobile-compatible"
+        },
+        {
+          "name": "Facilitator Control Panel",
+          "role": "Game phase control, timer management, and result override capability",
+          "stack": "Password-protected admin view within same HTML bundle"
+        },
+        {
+          "name": "Export & Report Module",
+          "role": "Session log, grade-ready CSV, and PDF summary generation",
+          "stack": "Client-side PDF/CSV generation; no backend required"
+        }
+      ],
+      "hardware": [
+        {
+          "name": "Instructor Laptop/Tablet",
+          "role": "Facilitator control panel and shared display projection"
+        },
+        {
+          "name": "Student Devices (BYOD)",
+          "role": "Individual player interfaces; any modern browser; IKU lab PCs available"
+        },
+        {
+          "name": "Classroom Projector/Screen",
+          "role": "Shared leaderboard and phase announcement display"
+        }
+      ],
+      "gameComponents": [
+        "Resource dashboard",
+        "Decision event deck",
+        "Outcome calculator",
+        "Leaderboard module",
+        "Session export log"
+      ]
+    }
+  }
+}

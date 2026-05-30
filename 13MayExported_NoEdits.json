@@ -1,0 +1,904 @@
+{
+  "gppt_version": "2.0.0",
+  "exported_at": "2026-05-13T09:52:51.600Z",
+  "state": {
+    "ideaBrief": {
+      "title": "Crisis Command: IT Risk Protocol",
+      "domain": "IT project risk management and PMBOK risk response training",
+      "audience": "40 final-year COM0463 IT Project Management students",
+      "coreMetaphor": "A project war-room simulation where students triage risk signals, allocate limited budget, and keep a software infrastructure project alive through escalating crises.",
+      "successVision": "After three sessions, students can classify likelihood and impact, justify mitigation choices, and transfer risk register decisions into later project deliverables."
+    },
+    "projectTitle": "Crisis Command: IT Risk Protocol",
+    "organisation": "Istanbul Kultur University",
+    "courseCode": "COM0463",
+    "domain": "IT project risk management and PMBOK risk response training",
+    "deliverableArea": "Web-based crisis simulation for risk identification, likelihood-impact classification, mitigation planning, event logging, and reflective debriefing",
+    "proposalDate": "2026-03-28",
+    "startDate": "2026-04-15",
+    "teamMembers": [
+      {
+        "name": "Deniz",
+        "surname": "Aksoy",
+        "email": "deniz.aksoy@example.edu",
+        "role": "Project lead and scenario owner"
+      },
+      {
+        "name": "Aylin",
+        "surname": "Kaya",
+        "email": "aylin.kaya@example.edu",
+        "role": "Risk taxonomy analyst"
+      },
+      {
+        "name": "Mert",
+        "surname": "Demir",
+        "email": "mert.demir@example.edu",
+        "role": "Simulation engine designer"
+      },
+      {
+        "name": "Ece",
+        "surname": "Yilmaz",
+        "email": "ece.yilmaz@example.edu",
+        "role": "Assessment and debrief coordinator"
+      }
+    ],
+    "problemStatement": "In the COM0463 IT Project Management cohort of 40 students, the draft baseline shows static risk-register work producing only 45% active participation and an average 65/100 risk-analysis score. Students often treat risk registers as paperwork, confuse likelihood with impact, and under-prioritise high-exposure threats until the cost is visible. Crisis Command addresses this gap by turning risk classification and mitigation into a measurable simulation where every decision changes project health, budget, event logs, and debrief evidence.",
+    "targetPopulation": "40 final-year IT Project Management students enrolled in COM0463, working individually during lab sessions and reviewing outcomes in instructor-led debriefs.",
+    "successCriteria": [
+      "Reach at least 80% accuracy in Tusler risk classification by the end of the third play session.",
+      "Increase active participation from the 45% static-exercise baseline to at least 85% during simulation sessions.",
+      "Improve Bloom L4 analysis rubric scores by 30% compared with the pre-game diagnostic.",
+      "Reduce major likelihood-impact misclassification errors from about 35% to below 15% in the post-test.",
+      "Achieve at least 70% transfer of risk-response reasoning into the next course project risk register."
+    ],
+    "bloomOutcomes": [
+      {
+        "level": "L1 Remember",
+        "bloom_k": 1,
+        "outcome": "Recall the definitions of likelihood, impact, exposure, mitigation, contingency, and residual risk.",
+        "activity": "Warm-up card sort before the first simulation round",
+        "assessment": "Five-item terminology quiz"
+      },
+      {
+        "level": "L2 Understand",
+        "bloom_k": 2,
+        "outcome": "Explain why a risk can have low probability but still require planning because of high impact.",
+        "activity": "Pair discussion after contrasting risk cards",
+        "assessment": "Short written explanation scored by rubric"
+      },
+      {
+        "level": "L3 Apply",
+        "bloom_k": 3,
+        "outcome": "Apply Tusler-style risk categories to live project events under budget and schedule constraints.",
+        "activity": "Turn-based classification and mitigation selection",
+        "assessment": "Automated classification accuracy and rationale check"
+      },
+      {
+        "level": "L4 Analyse",
+        "bloom_k": 4,
+        "outcome": "Analyse trade-offs between preventive and responsive actions when several risks compete for limited budget.",
+        "activity": "Mid-game risk autopsy on the most expensive decision",
+        "assessment": "Instructor rubric for cause-effect reasoning"
+      },
+      {
+        "level": "L5 Evaluate",
+        "bloom_k": 5,
+        "outcome": "Evaluate whether the final risk-response portfolio matches the team's stated risk appetite.",
+        "activity": "Post-game defence of mitigation choices",
+        "assessment": "Peer and instructor scoring of decision justification"
+      },
+      {
+        "level": "L6 Create",
+        "bloom_k": 6,
+        "outcome": "Create a revised PMBOK-style risk register for a new software project using evidence from the simulation.",
+        "activity": "Capstone risk-register redesign",
+        "assessment": "Submitted artifact with transfer rubric"
+      }
+    ],
+    "theories": [
+      "sdt",
+      "mda",
+      "flow",
+      "hexad",
+      "octalysis",
+      "bloom",
+      "kirkpatrick",
+      "tusler"
+    ],
+    "narrativeTheme": "Crisis Command places COM0463 students inside the control room of a software infrastructure project days before launch. Each turn brings uncertain risk signals, stakeholder pressure, and limited mitigation budget. Self-Determination Theory shapes meaningful autonomy, competence feedback, and relatedness through shared debriefs. Mechanics-Dynamics-Aesthetics guides the translation from risk-card mechanics to pressure-filled decision dynamics and a project-war-room aesthetic. Bloom Taxonomy structures progression from remembering terms to creating a revised risk register. HEXAD balances achievement, social proof, ownership, and collaboration. Octalysis keeps white-hat motivation stronger than scarcity or avoidance. Flow Theory keeps challenge rising with student skill. Kirkpatrick four-level evaluation measures reaction, learning, behaviour transfer, and course results, while Tusler risk categorization gives the classification language for each crisis.",
+    "gameOverview": "Students play as junior project managers protecting a critical software delivery. In each round they inspect risk cards, classify exposure, spend limited mitigation budget, trigger or avoid events, and then read a risk autopsy. The final debrief converts gameplay evidence into a PMBOK-style risk register and reflection portfolio.",
+    "sdtAutonomy": "Autonomy is supported because students choose which risks to accept, monitor, prevent, transfer, or respond to, and every choice can be defended in their own debrief rationale.",
+    "sdtCompetence": "Competence grows through immediate feedback: the dashboard shows whether a classification improved project health, protected budget, or created later exposure.",
+    "sdtRelatedness": "Relatedness is built through shared debriefs, peer comparison of decision rationales, and team discussion about how different strategies protected the same project.",
+    "hexad": {
+      "Achiever": 25,
+      "Disruptor": 5,
+      "FreeSpirit": 15,
+      "Philanthropist": 15,
+      "Player": 15,
+      "Socialiser": 25
+    },
+    "rewardStructure": {
+      "elite": "Top performers earn the Crisis Strategist distinction, a highlighted debrief example, and the option to present their risk autopsy to the class.",
+      "professional": "Students who meet the accuracy and reflection thresholds receive a Senior Risk Analyst badge and a portfolio-ready risk register artifact.",
+      "access": "All participants unlock the debrief report, scenario replay notes, and practice risk cards for revision before the next assessment."
+    },
+    "octalysis": {
+      "epicMeaning": 0.8,
+      "development": 0.9,
+      "accomplishment": 0.8,
+      "empowerment": 0.8,
+      "ownership": 0.6,
+      "social": 0.7,
+      "scarcity": 0.3,
+      "unpredictability": 0.4,
+      "avoidance": 0.2
+    },
+    "mechanics": [
+      "risk-card triage",
+      "budget-token allocation",
+      "scenario event deck",
+      "risk heat-map dashboard",
+      "decision timer",
+      "post-turn risk autopsy",
+      "mitigation tool unlocks",
+      "team debrief board"
+    ],
+    "conceptMappings": [
+      {
+        "concept": "Risk identification",
+        "mechanic": "Risk-card discovery queue"
+      },
+      {
+        "concept": "Likelihood-impact analysis",
+        "mechanic": "Two-axis risk heat-map placement"
+      },
+      {
+        "concept": "Risk response planning",
+        "mechanic": "Preventive versus responsive budget-token choice"
+      },
+      {
+        "concept": "Contingency reserve",
+        "mechanic": "Emergency budget pool unlocked during crisis turns"
+      },
+      {
+        "concept": "Lessons learned",
+        "mechanic": "Post-turn risk autopsy and debrief board"
+      }
+    ],
+    "mdaAnalysis": {
+      "mechanics": "Players draw risk cards, classify exposure, allocate budget tokens, choose preventive or responsive actions, and inspect an event log after every turn.",
+      "dynamics": "The class experiences escalating pressure as ignored risks create cascading project-health losses, forcing trade-offs between speed, certainty, and mitigation depth.",
+      "aesthetics": "The desired feeling is a focused project war room: urgency, competence growth, relief after good prioritisation, and reflective confidence during the debrief."
+    },
+    "scenarios": [
+      {
+        "id": "SC-01",
+        "title": "Infrastructure Failure",
+        "setup": "A high-impact deployment dependency fails during the migration window because earlier technical debt was classified too low.",
+        "winCondition": "The player correctly classifies the exposure, spends contingency budget, and keeps project health above 80%.",
+        "loseCondition": "If health drops below 50%, losePoints=0 and no punitive grade is applied; the session pauses for a coached analysis of what was missed.",
+        "outcome": "Students see how early preventive work changes later crisis cost and update their risk register rationale.",
+        "neutralCondition": "If health remains between 50% and 80%, the facilitator asks for a trade-off justification before the next turn."
+      },
+      {
+        "id": "SC-02",
+        "title": "Vendor Delay Shock",
+        "setup": "A supplier delay appears with moderate probability but major schedule impact, forcing students to compare transfer, mitigation, and acceptance.",
+        "winCondition": "The player selects a response plan that protects the critical path and documents the reasoning in the event log.",
+        "loseCondition": "If the schedule pressure exceeds the threshold, losePoints=0; the student receives a debrief prompt instead of a penalty.",
+        "outcome": "The class distinguishes probability from impact and discusses why apparently unlikely risks can still deserve planning.",
+        "neutralCondition": "If the chosen action is partially effective, the simulation offers a recovery decision in the next turn."
+      },
+      {
+        "id": "SC-03",
+        "title": "Scope Creep Escalation",
+        "setup": "A stakeholder requests an urgent feature while unresolved quality risks are already consuming budget.",
+        "winCondition": "The player recognises the compound risk, protects the baseline, and allocates effort to the highest exposure item.",
+        "loseCondition": "If budget is exhausted, losePoints=0 and no punitive outcome is used; the debrief frames the failure as evidence for better prioritisation.",
+        "outcome": "Students connect stakeholder pressure, scope control, and risk response planning in one visible cascade.",
+        "neutralCondition": "If the player splits budget evenly, project health remains stable but the report flags weak prioritisation."
+      }
+    ],
+    "gamePhases": [
+      {
+        "seq": 1,
+        "name": "Signal scan",
+        "description": "Players inspect new risk signals and estimate likelihood and impact.",
+        "duration": "5 min per turn"
+      },
+      {
+        "seq": 2,
+        "name": "Mitigation choice",
+        "description": "Players allocate limited budget to preventive, responsive, transfer, or acceptance actions.",
+        "duration": "4 min per turn"
+      },
+      {
+        "seq": 3,
+        "name": "Event resolution",
+        "description": "The system resolves consequences, updates project health, and writes the audit log.",
+        "duration": "2 min per turn"
+      },
+      {
+        "seq": 4,
+        "name": "Debrief conversion",
+        "description": "Gameplay evidence is converted into risk-register updates and learning reflections.",
+        "duration": "20 min"
+      }
+    ],
+    "userStories": [
+      {
+        "id": "US-01",
+        "role": "Student",
+        "want": "to see the probability and impact of a high-exposure risk before spending mitigation budget",
+        "soThat": "I can prioritise scarce resources using a defensible risk appetite instead of guessing.",
+        "acc": "Given a revealed risk card, When I inspect its likelihood and impact data, Then the interface shows the recommended classification and allows me to justify my choice."
+      },
+      {
+        "id": "US-02",
+        "role": "Student",
+        "want": "to compare preventive and responsive mitigation options during each turn",
+        "soThat": "I can learn how early action changes project health, budget, and schedule outcomes.",
+        "acc": "Given a risk with at least two responses, When I select a mitigation, Then the simulation updates health, budget, and the event log with the rationale."
+      },
+      {
+        "id": "US-03",
+        "role": "Instructor",
+        "want": "to review each student's classification history and debrief notes",
+        "soThat": "I can assess Bloom L4 analysis and give targeted feedback after the game.",
+        "acc": "Given a completed session, When I open the debrief panel, Then I can see risk choices, consequences, reflections, and rubric scores."
+      },
+      {
+        "id": "US-04",
+        "role": "Facilitator",
+        "want": "to trigger controlled crisis events from the event deck",
+        "soThat": "the class experiences uncertainty while still following the planned learning sequence.",
+        "acc": "Given a selected event card, When I trigger it, Then all active dashboards receive the event and the audit log records the trigger time."
+      },
+      {
+        "id": "US-05",
+        "role": "Project team",
+        "want": "to export a risk autopsy report after the simulation",
+        "soThat": "we can convert game evidence into a formal PMBOK-style risk register and lessons-learned artifact.",
+        "acc": "Given the final round is complete, When export is selected, Then the system produces a report with decisions, outcomes, KPIs, and reflection prompts."
+      }
+    ],
+    "frs": [
+      {
+        "id": "FR-01",
+        "description": "System shall allow players to classify incoming risks into Tusler categories using likelihood, impact, urgency, and mitigation cost."
+      },
+      {
+        "id": "FR-02",
+        "description": "System shall track project health, budget, schedule pressure, and unresolved risk exposure across ten simulation turns."
+      },
+      {
+        "id": "FR-03",
+        "description": "System shall trigger scenario events when unresolved risks accumulate beyond threshold values."
+      },
+      {
+        "id": "FR-04",
+        "description": "System shall log every risk classification, mitigation choice, event trigger, budget change, and debrief submission in an audit-grade event record."
+      },
+      {
+        "id": "FR-05",
+        "description": "System shall generate a post-simulation risk autopsy report that links decisions to PMBOK risk management concepts and instructor rubric evidence."
+      }
+    ],
+    "nfrs": [
+      {
+        "id": "NFR-01",
+        "attr": "Performance",
+        "desc": "Turn transitions and dashboard updates shall remain fast enough for classroom play.",
+        "target": "p95 response time under 500ms during a 40-student lab session"
+      },
+      {
+        "id": "NFR-02",
+        "attr": "Usability",
+        "desc": "New players shall understand the first classification task without facilitator intervention.",
+        "target": "Tutorial completion under 5 minutes and SUS score above 80"
+      },
+      {
+        "id": "NFR-03",
+        "attr": "Privacy",
+        "desc": "Student identifiers and decision logs shall follow GDPR and KVKK expectations for classroom analytics.",
+        "target": "Pseudonymised exports, consent notice before play, and no raw personal data in shared reports"
+      },
+      {
+        "id": "NFR-04",
+        "attr": "Accessibility",
+        "desc": "Risk cards, alerts, and score changes shall be readable for students with common visual-access needs.",
+        "target": "WCAG 2.1 AA contrast, keyboard access, and non-colour-only status indicators"
+      },
+      {
+        "id": "NFR-05",
+        "attr": "Reliability",
+        "desc": "The simulation shall preserve session state during normal browser refreshes or short connection drops.",
+        "target": "No more than one lost turn per 40-student lab session"
+      }
+    ],
+    "gameDuration": "A 75-minute lab session: 10 minutes briefing, 45 minutes of five to seven simulation turns, 10 minutes risk autopsy, and 10 minutes guided transfer to a project risk register.",
+    "sessionSteps": [
+      {
+        "seq": 1,
+        "name": "Briefing and diagnostic",
+        "description": "Instructor reviews PMBOK risk terms, explains Tusler categories, runs the pre-quiz, and demonstrates one sample card.",
+        "duration": "10 min"
+      },
+      {
+        "seq": 2,
+        "name": "Risk triage rounds",
+        "description": "Students classify risk cards, allocate budget, and watch health, schedule, and exposure indicators change after each turn.",
+        "duration": "30 min"
+      },
+      {
+        "seq": 3,
+        "name": "Crisis escalation",
+        "description": "Event cards trigger consequences from unresolved risks, requiring students to revise mitigation priorities under pressure.",
+        "duration": "15 min"
+      },
+      {
+        "seq": 4,
+        "name": "Risk autopsy and transfer",
+        "description": "Students review event logs, defend decisions, complete reflection prompts, and revise a PMBOK-style risk register.",
+        "duration": "20 min"
+      }
+    ],
+    "kpis": [
+      {
+        "level": "L1",
+        "metric": "Perceived realism and usefulness of the simulation",
+        "method": "Post-session Likert survey with two open reflection prompts",
+        "target": "Average rating at least 4.0 out of 5"
+      },
+      {
+        "level": "L2",
+        "metric": "Risk classification and response knowledge",
+        "method": "Pre/post quiz plus delayed 48-hour rubric-scored reflection",
+        "target": "At least 30% improvement over baseline and 80% rubric average"
+      },
+      {
+        "level": "L2",
+        "metric": "Bloom L4 analysis quality",
+        "method": "Delayed 48-hour analysis of one failed or partially successful turn",
+        "target": "80% of students identify cause, consequence, and alternative response"
+      },
+      {
+        "level": "L3",
+        "metric": "Transfer to later project work",
+        "method": "Instructor scoring of the next submitted risk register four weeks after play",
+        "target": "At least 70% of students reuse evidence-based prioritisation"
+      },
+      {
+        "level": "L4",
+        "metric": "Course-level project risk quality",
+        "method": "Comparison of final project risk-register scores against the previous cohort",
+        "target": "15% improvement in risk-management rubric performance"
+      }
+    ],
+    "logPrivacy": "The platform records risk decisions, timestamps, scenario events, budget changes, and reflection submissions for learning analytics only. Logs are pseudonymised for peer review, visible to the instructor for grading, and handled with GDPR and KVKK-aligned consent, retention, and deletion rules.",
+    "dataCollectionPlan": "Data collection uses pre/post quizzes, delayed 48-hour reflection rubrics, in-game event logs, debrief notes, and final risk-register artifacts. Each record is tied to a course pseudonym, aggregated for class analytics, and exported only as evidence for COM0463 learning outcomes.",
+    "tuslerRisks": [
+      {
+        "id": "R-01",
+        "category": "Tiger",
+        "prob": "High",
+        "impact": "High",
+        "mitigation": "Require code review checkpoints and contingency budget before high-risk deployment choices are allowed.",
+        "preventive": "Introduce an early technical-debt audit card and force a mitigation plan before the migration event deck is unlocked.",
+        "responsive": "Trigger an emergency refactor turn with reduced scope and a guided debrief on root cause."
+      },
+      {
+        "id": "R-02",
+        "category": "Alligator",
+        "prob": "Low",
+        "impact": "High",
+        "mitigation": "Prepare backup facilitator scripts and alternate event paths for rare but severe classroom or system disruptions.",
+        "preventive": "Test the browser build and export flow before the lab session begins.",
+        "responsive": "Move to paper risk cards while preserving the same debrief rubric and learning objectives."
+      },
+      {
+        "id": "R-03",
+        "category": "Puppy",
+        "prob": "High",
+        "impact": "Low",
+        "mitigation": "Use quick hints and low-stakes practice cards so common minor misclassifications are corrected without stopping play.",
+        "preventive": "Add a two-minute tutorial on the difference between probability and impact.",
+        "responsive": "Show corrective feedback on the next card and ask for one sentence of revised rationale."
+      },
+      {
+        "id": "R-04",
+        "category": "Kitten",
+        "prob": "Low",
+        "impact": "Low",
+        "mitigation": "Track minor usability issues in the event log and batch them for later improvement instead of interrupting the class.",
+        "preventive": "Use a simple interface with clear labels and keyboard-accessible actions.",
+        "responsive": "Facilitator notes the issue, offers a workaround, and continues the scenario."
+      }
+    ],
+    "supportTeam": [
+      {
+        "name": "Deniz",
+        "role": "Lead designer and project presenter"
+      },
+      {
+        "name": "Course instructor",
+        "role": "Facilitator, rubric owner, and debrief moderator"
+      },
+      {
+        "name": "Lab assistant",
+        "role": "Technical support and event-log monitor during classroom play"
+      }
+    ],
+    "facilitatorRole": "The facilitator introduces the risk vocabulary, controls crisis pacing, watches the audit log for confusion, and turns failure states into guided debrief questions rather than penalties.",
+    "wf_dash": "Dashboard layout: top bar shows round, timer, budget, project health, and schedule pressure; centre panel shows the active risk card and heat-map; right rail shows the audit event log; bottom actions allow classify, mitigate, accept, transfer, or request hint.",
+    "wf_asset": "Risk-card asset: header shows category and risk title; body lists probability, impact, trigger signal, and mitigation cost; footer contains preventive and responsive action buttons plus a short PMBOK concept tag for later debrief review.",
+    "wf_portfolio": "Portfolio screen: student pseudonym and session summary at top; tabs for Decisions, Event Log, Reflections, KPI Evidence, and Revised Risk Register; export button produces a classroom-safe PDF with no raw personal data.",
+    "inScope": "In scope are the interactive risk dashboard, Tusler classification cards, budget allocation, event triggers, audit logging, risk autopsy report, and compassion model where failed turns use losePoints=0 with no punitive scoring.",
+    "outScope": "Out of scope are real-time multiplayer networking, integration with industrial Jira instances, VR or AR interfaces, real-money rewards, and storage of personally identifying analytics beyond the course assessment need.",
+    "whyMotivation": "The design uses visible consequences, autonomy over mitigation choices, competence feedback, and class debriefs to make abstract risk management feel concrete without depending only on points or leaderboards.",
+    "howEthics": "The ethics model uses consent, pseudonymised analytics, GDPR and KVKK-aware log handling, transparent grading rubrics, accessible interaction patterns, and non-punitive recovery prompts for unsuccessful decisions."
+  },
+  "_audit": {
+    "sysLog": [
+      {
+        "ts": "2026-05-13T09:38:33.075Z",
+        "level": "L2",
+        "msg": "GPPT v2.0.10 booting",
+        "ctx": {}
+      },
+      {
+        "ts": "2026-05-13T09:38:33.090Z",
+        "level": "L2",
+        "msg": "Ontology loaded: 38 Components / 5 Bonuses / 3 Penalties",
+        "ctx": {}
+      },
+      {
+        "ts": "2026-05-13T09:38:33.113Z",
+        "level": "L2",
+        "msg": "Recompute: 0.0/800 in 3.0ms (119 steps)",
+        "ctx": {
+          "trigger": "boot"
+        }
+      },
+      {
+        "ts": "2026-05-13T09:38:33.114Z",
+        "level": "L2",
+        "msg": "GPPT v2.0.10 ready",
+        "ctx": {
+          "scoringMethods": 40
+        }
+      },
+      {
+        "ts": "2026-05-13T09:39:00.377Z",
+        "level": "L1",
+        "msg": "Import: file picker file selected: void_studio_proposal_com0463.json (52883 bytes)",
+        "ctx": {
+          "filename": "void_studio_proposal_com0463.json",
+          "size": 52883
+        }
+      },
+      {
+        "ts": "2026-05-13T09:39:00.377Z",
+        "level": "L1",
+        "msg": "Import: source resolved",
+        "ctx": {
+          "sourcePath": "file-picker",
+          "sourceFilename": "void_studio_proposal_com0463.json",
+          "txtLen": 52781
+        }
+      },
+      {
+        "ts": "2026-05-13T09:39:00.377Z",
+        "level": "L1",
+        "msg": "Import: markdown fences stripped before parse",
+        "ctx": {
+          "strippedBytes": 1,
+          "sourcePath": "file-picker"
+        }
+      },
+      {
+        "ts": "2026-05-13T09:39:00.378Z",
+        "level": "L1",
+        "msg": "Import: parsed JSON · 104 filled / 6 empty fields",
+        "ctx": {
+          "bytes": 52780,
+          "topLevelKeys": [
+            "gppt_version",
+            "export_date",
+            "redo_version",
+            "state"
+          ],
+          "hasNestedState": true,
+          "gpptVersion": "v51",
+          "incomingFilledCount": 104,
+          "incomingEmptyCount": 6,
+          "incomingFilledFields": [
+            "step",
+            "totalSteps",
+            "domain",
+            "projectType",
+            "projectTitle",
+            "proposer",
+            "organisation",
+            "targetPopulation",
+            "sampleSize",
+            "problemStatement"
+          ],
+          "sourcePath": "file-picker",
+          "sourceFilename": "void_studio_proposal_com0463.json"
+        }
+      },
+      {
+        "ts": "2026-05-13T09:39:00.380Z",
+        "level": "L4",
+        "msg": "Import REJECTED (imported) · 3 mismatch · 69 unknown · 0 reductions · 38 ok",
+        "ctx": {
+          "source": "imported",
+          "fileSize": 52780,
+          "ok": false,
+          "mismatches": [
+            "inScope: arrayString (expected string)",
+            "outScope: arrayString (expected string)",
+            "dataCollectionPlan: object (expected string)"
+          ],
+          "unknownKeys": [
+            "step",
+            "totalSteps",
+            "projectType",
+            "teamName",
+            "proposer",
+            "sampleSize",
+            "dur_preDesign",
+            "dur_design",
+            "dur_impl",
+            "dur_ops",
+            "dur_post",
+            "deliverableJust",
+            "deliverableAreas",
+            "playerTypes",
+            "sixDim",
+            "narrativeArc",
+            "narrativeEvolution",
+            "characters",
+            "storyWorld",
+            "introText",
+            "preGameSetup",
+            "scoringSystem",
+            "socialFeatures",
+            "socialRationale",
+            "communityStandards",
+            "rewardTiers",
+            "currencyName",
+            "pricingModel",
+            "adaptiveDifficulty",
+            "personalisation",
+            "executionLog",
+            "leaderboardConfig",
+            "lbCategories",
+            "lbVisibility",
+            "lbReset",
+            "risks",
+            "kirkpatrick",
+            "futureEnhancements",
+            "dataCollection",
+            "dcMethods",
+            "continuousImprovement",
+            "appendices",
+            "timeline",
+            "baselineEngagement",
+            "targetEngagement",
+            "baselineScore",
+            "attritionTarget",
+            "transferTarget",
+            "resultsKPI",
+            "analyticsplatform",
+            "usedRefs",
+            "gamePurpose",
+            "gameSubject",
+            "gameMethod",
+            "gameMeasurement",
+            "gamePlayers",
+            "gamePoints",
+            "gameAchievements",
+            "gameBadges",
+            "platform",
+            "instructorRole",
+            "gameDurationRules",
+            "school",
+            "semester",
+            "references",
+            "glossary",
+            "techStack",
+            "socialInteraction",
+            "gameDynamics"
+          ],
+          "reductions": [],
+          "acceptedCount": 38
+        }
+      },
+      {
+        "ts": "2026-05-13T09:39:07.294Z",
+        "level": "L4",
+        "msg": "Import abandoned by user after rejection",
+        "ctx": {
+          "mismatches": 3,
+          "unknown": 69
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.696Z",
+        "level": "L1",
+        "msg": "Import: file picker file selected: it_risk_proposal_com0463_gppt_v2_0_10.json (24921 bytes)",
+        "ctx": {
+          "filename": "it_risk_proposal_com0463_gppt_v2_0_10.json",
+          "size": 24921
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.696Z",
+        "level": "L1",
+        "msg": "Import: source resolved",
+        "ctx": {
+          "sourcePath": "file-picker",
+          "sourceFilename": "it_risk_proposal_com0463_gppt_v2_0_10.json",
+          "txtLen": 24921
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.697Z",
+        "level": "L1",
+        "msg": "Import: markdown fences stripped before parse",
+        "ctx": {
+          "strippedBytes": 1,
+          "sourcePath": "file-picker"
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.697Z",
+        "level": "L1",
+        "msg": "Import: parsed JSON · 45 filled / 0 empty fields",
+        "ctx": {
+          "bytes": 24920,
+          "topLevelKeys": [
+            "gppt_version",
+            "exported_at",
+            "state"
+          ],
+          "hasNestedState": true,
+          "gpptVersion": "2.0.10",
+          "incomingFilledCount": 45,
+          "incomingEmptyCount": 0,
+          "incomingFilledFields": [
+            "ideaBrief",
+            "projectTitle",
+            "organisation",
+            "courseCode",
+            "domain",
+            "deliverableArea",
+            "proposalDate",
+            "startDate",
+            "problemStatement",
+            "targetPopulation"
+          ],
+          "sourcePath": "file-picker",
+          "sourceFilename": "it_risk_proposal_com0463_gppt_v2_0_10.json"
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.698Z",
+        "level": "L3",
+        "msg": "Import accepted (imported) · 0 mismatch · 0 unknown · 0 reductions · 45 ok",
+        "ctx": {
+          "source": "imported",
+          "fileSize": 24920,
+          "ok": true,
+          "mismatches": [],
+          "unknownKeys": [],
+          "reductions": [],
+          "acceptedCount": 45
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.699Z",
+        "level": "L3",
+        "msg": "Imported: 45/45 fields filled (100.0%)",
+        "ctx": {
+          "fields": 45,
+          "filledCount": 45,
+          "emptyCount": 0,
+          "filledSample": "ideaBrief(object=5), projectTitle(string=32), organisation(string=26), courseCode(string=7), domain(string=59), deliverableArea(string=148), proposalDate(string=10), startDate(string=10)",
+          "emptySample": ""
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.711Z",
+        "level": "L2",
+        "msg": "Recompute: 800.0/800 in 7.0ms (130 steps)",
+        "ctx": {
+          "trigger": "import"
+        }
+      },
+      {
+        "ts": "2026-05-13T09:50:23.714Z",
+        "level": "L2",
+        "msg": "Post-import recompute: 800.0/800",
+        "ctx": {
+          "total": 800,
+          "dimScores": {
+            "D1": 100,
+            "D2": 100,
+            "D3": 100,
+            "D4": 100,
+            "D5": 100,
+            "D6": 100,
+            "D7": 100,
+            "D8": 100
+          },
+          "stateFilledCount": 45,
+          "stateEmptySample": ""
+        }
+      },
+      {
+        "ts": "2026-05-13T09:51:43.775Z",
+        "level": "L2",
+        "msg": "Recompute: 800.0/800 in 1.0ms (130 steps)",
+        "ctx": {
+          "trigger": "onboarding_complete"
+        }
+      }
+    ],
+    "changeLog": [
+      {
+        "ts": "2026-05-13T09:51:37.736Z",
+        "path": "ideaBrief",
+        "oldVal": {
+          "title": "Crisis Command: IT Risk Protocol",
+          "domain": "IT project risk management and PMBOK risk response training",
+          "audience": "40 final-year COM0463 IT Project Management students",
+          "coreMetaphor": "A project war-room simulation where students triage risk signals, allocate limited budget, and keep a software infrastructure project alive through escalating crises.",
+          "successVision": "After three sessions, students can classify likelihood and impact, justify mitigation choices, and transfer risk register decisions into later project deliverables."
+        },
+        "newVal": {
+          "title": "Crisis Command: IT Risk Protocol",
+          "domain": "IT project risk management and PMBOK risk response training",
+          "audience": "40 final-year COM0463 IT Project Management students",
+          "coreMetaphor": "A project war-room simulation where students triage risk signals, allocate limited budget, and keep a software infrastructure project alive through escalating crises.",
+          "successVision": "After three sessions, students can classify likelihood and impact, justify mitigation choices, and transfer risk register decisions into later project deliverables."
+        },
+        "source": "onboarding"
+      },
+      {
+        "ts": "2026-05-13T09:51:38.926Z",
+        "path": "ideaBrief",
+        "oldVal": {
+          "title": "Crisis Command: IT Risk Protocol",
+          "domain": "IT project risk management and PMBOK risk response training",
+          "audience": "40 final-year COM0463 IT Project Management students",
+          "coreMetaphor": "A project war-room simulation where students triage risk signals, allocate limited budget, and keep a software infrastructure project alive through escalating crises.",
+          "successVision": "After three sessions, students can classify likelihood and impact, justify mitigation choices, and transfer risk register decisions into later project deliverables."
+        },
+        "newVal": {
+          "title": "Crisis Command: IT Risk Protocol",
+          "domain": "IT project risk management and PMBOK risk response training",
+          "audience": "40 final-year COM0463 IT Project Management students",
+          "coreMetaphor": "A project war-room simulation where students triage risk signals, allocate limited budget, and keep a software infrastructure project alive through escalating crises.",
+          "successVision": "After three sessions, students can classify likelihood and impact, justify mitigation choices, and transfer risk register decisions into later project deliverables."
+        },
+        "source": "onboarding"
+      }
+    ],
+    "lastEvaluation": {
+      "totalScore": 800,
+      "dimensionScores": {
+        "D1": {
+          "dim": "D1",
+          "componentSum": 100,
+          "bonus": 5,
+          "penalty": 0,
+          "raw": 105,
+          "score": 100,
+          "componentCount": 4
+        },
+        "D2": {
+          "dim": "D2",
+          "componentSum": 100,
+          "bonus": 0,
+          "penalty": 0,
+          "raw": 100,
+          "score": 100,
+          "componentCount": 5
+        },
+        "D3": {
+          "dim": "D3",
+          "componentSum": 100,
+          "bonus": 0,
+          "penalty": 0,
+          "raw": 100,
+          "score": 100,
+          "componentCount": 4
+        },
+        "D4": {
+          "dim": "D4",
+          "componentSum": 100,
+          "bonus": 5,
+          "penalty": 0,
+          "raw": 105,
+          "score": 100,
+          "componentCount": 6
+        },
+        "D5": {
+          "dim": "D5",
+          "componentSum": 100,
+          "bonus": 0,
+          "penalty": 0,
+          "raw": 100,
+          "score": 100,
+          "componentCount": 7
+        },
+        "D6": {
+          "dim": "D6",
+          "componentSum": 100,
+          "bonus": 0,
+          "penalty": 0,
+          "raw": 100,
+          "score": 100,
+          "componentCount": 4
+        },
+        "D7": {
+          "dim": "D7",
+          "componentSum": 94,
+          "bonus": 15,
+          "penalty": 0,
+          "raw": 109,
+          "score": 100,
+          "componentCount": 3
+        },
+        "D8": {
+          "dim": "D8",
+          "componentSum": 100,
+          "bonus": 0,
+          "penalty": 0,
+          "raw": 100,
+          "score": 100,
+          "componentCount": 5
+        }
+      },
+      "evaluationId": "eval_mp3vr6vx",
+      "evaluatedAt": "2026-05-13T09:51:43.775Z",
+      "logCount": 130
+    },
+    "scoreHistory": [
+      {
+        "ts": "2026-05-13T09:38:33.113Z",
+        "total": 0,
+        "dimScores": {
+          "D1": 0,
+          "D2": 0,
+          "D3": 0,
+          "D4": 0,
+          "D5": 0,
+          "D6": 0,
+          "D7": 0,
+          "D8": 0
+        },
+        "trigger": "boot"
+      },
+      {
+        "ts": "2026-05-13T09:50:23.711Z",
+        "total": 800,
+        "dimScores": {
+          "D1": 100,
+          "D2": 100,
+          "D3": 100,
+          "D4": 100,
+          "D5": 100,
+          "D6": 100,
+          "D7": 100,
+          "D8": 100
+        },
+        "trigger": "import"
+      }
+    ]
+  }
+}
