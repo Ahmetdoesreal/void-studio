@@ -827,28 +827,403 @@ function queueCenterFullscreenContent(behavior = 'auto') {
 
 function setFullscreenZoom(value, centerContent = false) {
   game.fullscreen.zoom = clampZoom(value);
+  if (activeOfficeMap?.scene?.mode === 'fullscreen') {
+    activeOfficeMap.scene.setZoomFromUi(game.fullscreen.zoom);
+    if (centerContent) activeOfficeMap.scene.centerOnContent();
+    return;
+  }
   render();
-  if (centerContent) queueCenterFullscreenContent('auto');
 }
 
 function fitFullscreenMap(behavior = 'auto') {
-  const scrollEl = document.querySelector('[data-fullscreen-scroll]');
-  const bounds = fullscreenContentBounds();
-  const usableWidth = scrollEl ? Math.max(320, scrollEl.clientWidth - 40) : 0;
-  const usableHeight = scrollEl ? Math.max(320, scrollEl.clientHeight - 138) : 0;
-  const fitZoom = scrollEl
-    ? Math.min(usableWidth / bounds.width, usableHeight / bounds.height) * 0.9
-    : 0.35;
-  game.fullscreen.zoom = clampZoom(fitZoom);
-  game.fullscreen.hasAutoSnapped = true;
+  if (activeOfficeMap?.scene?.mode === 'fullscreen') {
+    activeOfficeMap.scene.fitToContent();
+    return;
+  }
+  game.fullscreen.hasAutoSnapped = false;
   render();
-  requestAnimationFrame(() => centerFullscreenBounds(bounds, behavior));
 }
 
 function queueFitFullscreenMap(force = false, behavior = 'auto') {
   if (!game.session || !isFullscreenRoute()) return;
   if (!force && game.fullscreen.hasAutoSnapped) return;
   requestAnimationFrame(() => fitFullscreenMap(behavior));
+}
+
+let activeOfficeMap = null;
+
+function tileCenter(world, x, y) {
+  const pos = isoCellPosition(world, x, y);
+  return { x: pos.left, y: pos.top + 24 };
+}
+
+function spriteDisplaySize(size = 'medium') {
+  return {
+    small: { width: 38, height: 54, lift: 4 },
+    low: { width: 48, height: 34, lift: 10 },
+    medium: { width: 54, height: 68, lift: 3 },
+    wide: { width: 86, height: 64, lift: 4 },
+    tall: { width: 56, height: 82, lift: 0 },
+    wall: { width: 58, height: 80, lift: 2 }
+  }[size] || { width: 54, height: 68, lift: 3 };
+}
+
+function mapCellFromWorldPoint(world, worldX, worldY) {
+  return cellFromBoardPoint(world, worldX, worldY - 24);
+}
+
+class OfficeMapScene extends Phaser.Scene {
+  constructor(mode) {
+    super('OfficeMapScene');
+    this.mode = mode;
+    this.dragStart = null;
+    this.didDrag = false;
+    this.hoverCell = null;
+  }
+
+  preload() {
+    Object.entries(sprites).forEach(([key, url]) => {
+      this.load.image(key, url);
+    });
+  }
+
+  create() {
+    if (activeOfficeMap) activeOfficeMap.scene = this;
+    this.cameras.main.setBackgroundColor('#02030a');
+    this.renderMap();
+    this.setupCamera();
+    this.setupInput();
+  }
+
+  renderMap() {
+    this.children.removeAll(true);
+    const world = worldState();
+    const dims = boardDimensions(world);
+    this.cameras.main.setBounds(0, 0, dims.width, dims.height);
+    this.drawBackground(dims);
+    this.drawFineGrid(world);
+    this.drawTiles(world);
+    this.drawRoomWalls(world);
+    this.drawSampleFurniture(world);
+    this.drawWorldObjects(world);
+    this.drawPlacementPreview(world);
+  }
+
+  drawBackground(dims) {
+    const bg = this.add.graphics().setDepth(0);
+    bg.fillGradientStyle(0x02030a, 0x0a1020, 0x111827, 0x2b3150, 1);
+    bg.fillRect(0, 0, dims.width, dims.height);
+  }
+
+  drawFineGrid(world) {
+    const size = worldTileSize(world);
+    const subcellCount = subcellsPerCell(world);
+    const alpha = this.mode === 'fullscreen' ? 0.16 : 0.12;
+    const grid = this.add.graphics().setDepth(20);
+
+    for (let index = 0; index <= size; index += 1) {
+      const isChunk = index % subcellCount === 0;
+      const isBoundary = index === 0 || index === size;
+      const color = isBoundary ? 0xe6ecf6 : isChunk ? 0xb8cdf0 : 0xc5d6ee;
+      const lineAlpha = isBoundary ? alpha * 2.2 : isChunk ? alpha * 1.85 : alpha;
+      const lineWidth = isBoundary ? 1.2 : isChunk ? 0.9 : 0.45;
+      grid.lineStyle(lineWidth, color, lineAlpha);
+
+      const west = fineCellPosition(world, 0, index);
+      const east = fineCellPosition(world, size, index);
+      const north = fineCellPosition(world, index, 0);
+      const south = fineCellPosition(world, index, size);
+      grid.lineBetween(west.left, west.top + 24, east.left, east.top + 24);
+      grid.lineBetween(north.left, north.top + 24, south.left, south.top + 24);
+    }
+  }
+
+  drawTiles(world) {
+    const path = pathSet();
+    const player = playerCell();
+    const preview = placementPreview();
+    const keys = collectRenderableCellKeys(world, path, player);
+
+    [...keys]
+      .map(key => key.split(',').map(Number))
+      .sort(([ax, ay], [bx, by]) => (ax + ay) - (bx + by) || ay - by || ax - bx)
+      .forEach(([x, y]) => {
+        const key = coordKey(x, y);
+        const isPath = path.has(key);
+        const isStart = world.start.x === x && world.start.y === y;
+        const isEnd = world.end.x === x && world.end.y === y;
+        const lightSide = x >= Math.floor(worldTileSize(world) * 0.68);
+        const previewCell = preview.cells?.some(cell => Number(cell.x) === x && Number(cell.y) === y);
+        const department = departmentAt(x, y);
+        const shouldDrawVoid = isPath || isStart || isEnd || blackholeAt(x, y) || blackholeDangerAt(x, y) || department || previewCell;
+        if (!isSampleOfficeFloor(x, y) && !shouldDrawVoid) return;
+
+        const center = tileCenter(world, x, y);
+        const spriteKey = spriteKeyForUrl(floorSpriteForCell(x, y, { isPath, isStart, isEnd, lightSide }));
+        const tile = this.add.image(center.x, center.y, spriteKey)
+          .setDisplaySize(48, 48)
+          .setDepth(100 + x + y);
+        tile.setAlpha(isSampleOfficeFloor(x, y) || isPath || isStart || isEnd ? 0.92 : 0.45);
+
+        if (department) tile.setTint(0x8fb7d9);
+        if (blackholeDangerAt(x, y)) tile.setTint(0x8b3940);
+        if (previewCell) tile.setTint(preview.valid ? 0x7ccf83 : 0xe77764).setAlpha(0.8);
+      });
+  }
+
+  drawRoomWalls(world) {
+    const wall = this.add.graphics().setDepth(760);
+    const runs = mergeWallSegments(sampleOfficeWallSegments());
+    runs.forEach(run => {
+      const height = run.edge === 'south' || run.edge === 'east' ? 18 : 24;
+      const start = wallRunPoint(world, run, run.start);
+      const end = wallRunPoint(world, run, run.end);
+      const points = [
+        new Phaser.Math.Vector2(start.left, start.top + 24),
+        new Phaser.Math.Vector2(end.left, end.top + 24),
+        new Phaser.Math.Vector2(end.left, end.top + 24 - height),
+        new Phaser.Math.Vector2(start.left, start.top + 24 - height)
+      ];
+      const fill = run.edge === 'north' || run.edge === 'west' ? 0x516577 : 0x35485a;
+      wall.fillStyle(fill, 0.94);
+      wall.fillPoints(points, true);
+      wall.lineStyle(1, 0xbcd0dc, 0.42);
+      wall.strokePoints(points, true);
+    });
+  }
+
+  drawSampleFurniture(world) {
+    for (const item of SAMPLE_OFFICE.furniture) {
+      const x = Number(item.x);
+      const y = Number(item.y);
+      if (blackholeAt(x, y) || departmentAt(x, y) || departmentAnchorAt(x, y)) continue;
+      if (world.end.x === x && world.end.y === y) continue;
+
+      const fine = fineCoordForFurniture(item);
+      const pos = fineCellPosition(world, fine.x, fine.y);
+      const size = spriteDisplaySize(item.size);
+      const sprite = this.add.image(pos.left, pos.top + 48 - size.lift, item.sprite)
+        .setOrigin(0.5, 1)
+        .setDisplaySize(size.width, size.height)
+        .setDepth(900 + fine.x + fine.y);
+      sprite.setPipelineData?.('pixelArt', true);
+    }
+  }
+
+  drawWorldObjects(world) {
+    const path = pathSet();
+    const player = playerCell();
+    const keys = collectRenderableCellKeys(world, path, player);
+
+    [...keys]
+      .map(key => key.split(',').map(Number))
+      .sort(([ax, ay], [bx, by]) => (ax + ay) - (bx + by) || ay - by || ax - bx)
+      .forEach(([x, y]) => {
+        const isStart = world.start.x === x && world.start.y === y;
+        const isEnd = world.end.x === x && world.end.y === y;
+        const blackhole = blackholeAt(x, y);
+        const anchorDepartment = departmentAnchorAt(x, y);
+        const objectSprite = getWorldObjectSprite({ isStart, isEnd, blackhole, department: anchorDepartment });
+        const center = tileCenter(world, x, y);
+
+        if (objectSprite) {
+          const key = spriteKeyForUrl(objectSprite);
+          const isPortal = isEnd;
+          const isHole = Boolean(blackhole);
+          const object = this.add.image(center.x, center.y + (isHole ? 18 : 30), key)
+            .setOrigin(0.5, 1)
+            .setDepth(1000 + x + y);
+          object.setDisplaySize(isPortal ? 88 : isHole ? 70 : 64, isPortal ? 88 : isHole ? 70 : 82);
+        }
+
+        if (player.x === x && player.y === y && !game.session.finalResult) {
+          this.add.image(center.x, center.y + 18, 'player')
+            .setOrigin(0.5, 1)
+            .setDisplaySize(44, 44)
+            .setDepth(1200 + x + y);
+        }
+      });
+  }
+
+  drawPlacementPreview(world) {
+    if (!game.placement.departmentId || !game.placement.previewAnchor) return;
+    const preview = placementPreview();
+    const graphics = this.add.graphics().setDepth(1350);
+    graphics.lineStyle(2, preview.valid ? 0x7ccf83 : 0xe77764, 0.95);
+    graphics.fillStyle(preview.valid ? 0x7ccf83 : 0xe77764, 0.16);
+    preview.cells.forEach(cell => {
+      const center = tileCenter(world, cell.x, cell.y);
+      graphics.fillEllipse(center.x, center.y, 38, 22);
+      graphics.strokeEllipse(center.x, center.y, 38, 22);
+    });
+  }
+
+  setupCamera() {
+    const bounds = fullscreenContentBounds();
+    const cam = this.cameras.main;
+    const usableWidth = Math.max(320, cam.width - (this.mode === 'fullscreen' ? 40 : 24));
+    const usableHeight = Math.max(260, cam.height - (this.mode === 'fullscreen' ? 156 : 24));
+    const fitZoom = Phaser.Math.Clamp(
+      Math.min(usableWidth / bounds.width, usableHeight / bounds.height) * 0.92,
+      MIN_MAP_ZOOM,
+      MAX_MAP_ZOOM
+    );
+    const zoom = this.mode === 'fullscreen' && game.fullscreen.hasAutoSnapped
+      ? clampZoom(game.fullscreen.zoom)
+      : fitZoom;
+    cam.setZoom(zoom);
+    cam.centerOn((bounds.minLeft + bounds.maxLeft) / 2, (bounds.minTop + bounds.maxTop) / 2 + 16);
+    if (this.mode === 'fullscreen') {
+      game.fullscreen.zoom = zoom;
+      game.fullscreen.hasAutoSnapped = true;
+      this.updateZoomLabel();
+    }
+  }
+
+  setupInput() {
+    const cam = this.cameras.main;
+
+    this.input.on('pointerdown', pointer => {
+      this.dragStart = {
+        x: pointer.x,
+        y: pointer.y,
+        scrollX: cam.scrollX,
+        scrollY: cam.scrollY
+      };
+      this.didDrag = false;
+    });
+
+    this.input.on('pointermove', pointer => {
+      if (this.dragStart && pointer.isDown) {
+        const dx = pointer.x - this.dragStart.x;
+        const dy = pointer.y - this.dragStart.y;
+        if (Math.abs(dx) + Math.abs(dy) > 4) this.didDrag = true;
+        if (this.didDrag) {
+          cam.scrollX = this.dragStart.scrollX - dx / cam.zoom;
+          cam.scrollY = this.dragStart.scrollY - dy / cam.zoom;
+          return;
+        }
+      }
+      this.updateHover(pointer);
+    });
+
+    this.input.on('pointerup', pointer => {
+      const wasDrag = this.didDrag;
+      this.dragStart = null;
+      this.didDrag = false;
+      if (!wasDrag && this.mode !== 'fullscreen') this.handleClick(pointer);
+    });
+
+    this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
+      const nextZoom = Phaser.Math.Clamp(cam.zoom * (deltaY > 0 ? 0.88 : 1.12), MIN_MAP_ZOOM, MAX_MAP_ZOOM);
+      const before = cam.getWorldPoint(pointer.x, pointer.y);
+      cam.setZoom(nextZoom);
+      const after = cam.getWorldPoint(pointer.x, pointer.y);
+      cam.scrollX += before.x - after.x;
+      cam.scrollY += before.y - after.y;
+      if (this.mode === 'fullscreen') {
+        game.fullscreen.zoom = nextZoom;
+        this.updateZoomLabel();
+      }
+    });
+  }
+
+  updateHover(pointer) {
+    const cell = mapCellFromWorldPoint(worldState(), pointer.worldX, pointer.worldY);
+    if (!cell) return;
+    if (this.hoverCell?.x === cell.x && this.hoverCell?.y === cell.y) return;
+    this.hoverCell = cell;
+    const title = worldCellTitle(cell.x, cell.y, cellInfo(cell.x, cell.y));
+    this.game.canvas.title = title;
+
+    if (this.mode === 'fullscreen') {
+      game.fullscreen.hoverCell = cell;
+      const label = document.querySelector('[data-fullscreen-hover]');
+      if (label) label.textContent = `${cell.x},${cell.y}`;
+      return;
+    }
+
+    if (game.placement.departmentId) {
+      game.placement.previewAnchor = cell;
+      this.renderMap();
+    }
+  }
+
+  async handleClick(pointer) {
+    const cell = mapCellFromWorldPoint(worldState(), pointer.worldX, pointer.worldY);
+    if (!cell || !canAct()) return;
+    if (game.placement.departmentId) {
+      await placeDepartment(cell.x, cell.y);
+      return;
+    }
+    if (!pathSet().has(coordKey(cell.x, cell.y))) {
+      await buildWorldCell(cell.x, cell.y);
+    }
+  }
+
+  updateZoomLabel() {
+    const label = document.querySelector('[data-fullscreen-zoom]');
+    if (label) label.textContent = `${Math.round(this.cameras.main.zoom * 100)}%`;
+  }
+
+  fitToContent() {
+    this.setupCamera();
+  }
+
+  centerOnContent() {
+    const bounds = fullscreenContentBounds();
+    this.cameras.main.centerOn((bounds.minLeft + bounds.maxLeft) / 2, (bounds.minTop + bounds.maxTop) / 2 + 16);
+  }
+
+  setZoomFromUi(nextZoom) {
+    this.cameras.main.setZoom(clampZoom(nextZoom));
+    if (this.mode === 'fullscreen') {
+      game.fullscreen.zoom = this.cameras.main.zoom;
+      this.updateZoomLabel();
+    }
+  }
+}
+
+function destroyPhaserMap() {
+  if (!activeOfficeMap) return;
+  activeOfficeMap.game?.destroy(true);
+  activeOfficeMap = null;
+}
+
+function mountPhaserMap() {
+  const mapEl = document.querySelector('[data-phaser-map]');
+  if (!mapEl) {
+    destroyPhaserMap();
+    return;
+  }
+
+  destroyPhaserMap();
+
+  const mode = mapEl.dataset.mapMode || 'dashboard';
+  const rect = mapEl.getBoundingClientRect();
+  activeOfficeMap = { game: null, element: mapEl, mode, scene: null };
+  const phaserGame = new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: mapEl,
+    width: Math.max(320, Math.floor(rect.width || mapEl.clientWidth || 800)),
+    height: Math.max(260, Math.floor(rect.height || mapEl.clientHeight || 520)),
+    backgroundColor: '#02030a',
+    pixelArt: true,
+    antialias: false,
+    roundPixels: true,
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      autoCenter: Phaser.Scale.NO_CENTER
+    },
+    scene: new OfficeMapScene(mode)
+  });
+
+  activeOfficeMap.game = phaserGame;
+}
+
+function commitRender(html) {
+  appEl.innerHTML = html;
+  requestAnimationFrame(() => mountPhaserMap());
 }
 
 function lightProgress() {
@@ -865,27 +1240,26 @@ function render() {
   document.body.classList.toggle('fullscreen-active', Boolean(game.session && isFullscreenRoute()));
 
   if (game.screen === 'loading') {
-    appEl.innerHTML = '<main class="loading-view">Loading Void Office Tycoon...</main>';
+    commitRender('<main class="loading-view">Loading Void Office Tycoon...</main>');
     return;
   }
 
   if (game.session && isFullscreenRoute()) {
-    appEl.innerHTML = renderFullscreenMap();
-    queueFitFullscreenMap();
+    commitRender(renderFullscreenMap());
     return;
   }
 
   if (game.screen === 'start') {
-    appEl.innerHTML = renderStart();
+    commitRender(renderStart());
     return;
   }
 
   if (game.screen === 'report') {
-    appEl.innerHTML = renderReport();
+    commitRender(renderReport());
     return;
   }
 
-  appEl.innerHTML = renderDashboard();
+  commitRender(renderDashboard());
 }
 
 function renderStart() {
@@ -983,9 +1357,6 @@ function renderFullscreenMap() {
   const subcellCount = subcellsPerCell(world);
   const player = playerCell();
   const zoom = clampZoom(game.fullscreen.zoom);
-  const { width: boardWidth, height: boardHeight } = boardDimensions(world);
-  const scaledWidth = Math.ceil(boardWidth * zoom);
-  const scaledHeight = Math.ceil(boardHeight * zoom);
   const hover = game.fullscreen.hoverCell
     ? `${game.fullscreen.hoverCell.x},${game.fullscreen.hoverCell.y}`
     : `${player.x},${player.y}`;
@@ -1014,27 +1385,12 @@ function renderFullscreenMap() {
         <div><span>Points</span><strong>${session.points}</strong></div>
         <div><span>Player</span><strong>${player.x},${player.y}</strong></div>
         <div><span>Hover</span><strong data-fullscreen-hover>${hover}</strong></div>
-        <div><span>Zoom</span><strong>${Math.round(zoom * 100)}%</strong></div>
+        <div><span>Zoom</span><strong data-fullscreen-zoom>${Math.round(zoom * 100)}%</strong></div>
         <div><span>Subcells</span><strong>${subcellCount}x${subcellCount}</strong></div>
       </div>
 
-      <div class="fullscreen-map-scroll world-scroll" data-fullscreen-scroll aria-label="Read-only fullscreen office map">
-        <div class="fullscreen-map-scale" style="width: ${scaledWidth}px; height: ${scaledHeight}px;">
-          <div
-            class="world-board fullscreen-world-board"
-            style="--board-width: ${boardWidth}px; --board-height: ${boardHeight}px; transform: scale(${zoom});"
-          >
-            ${renderFineGridLayer(world)}
-            ${renderWorldCells(world, { readOnly: true })}
-            ${renderSampleOfficeOverlays(world)}
-            <div
-              class="fullscreen-hover-layer"
-              data-fullscreen-hover-layer
-              data-map-zoom="${zoom}"
-              aria-label="Read-only coordinate hover layer"
-            ></div>
-          </div>
-        </div>
+      <div class="phaser-map-shell fullscreen-phaser-map" aria-label="Fullscreen office map">
+        <div class="phaser-map" data-phaser-map data-map-mode="fullscreen"></div>
       </div>
     </main>
   `;
@@ -1063,7 +1419,6 @@ function renderWorldPanel() {
   const world = worldState();
   const tileSize = worldTileSize(world);
   const subcellCount = subcellsPerCell(world);
-  const { width: boardWidth, height: boardHeight } = boardDimensions(world);
   return `
     <div class="panel-heading">
       <div>
@@ -1079,13 +1434,8 @@ function renderWorldPanel() {
       <div><strong>${world.blackholes.length}</strong><span>blackholes</span></div>
     </div>
     ${renderPlacementBanner()}
-    <div class="world-scroll" aria-label="Isometric ${tileSize} by ${tileSize} office map">
-      <div class="world-board" style="--board-width: ${boardWidth}px; --board-height: ${boardHeight}px;">
-        ${renderFineGridLayer(world)}
-        ${renderWorldCells(world)}
-        ${renderSampleOfficeOverlays(world)}
-        <div class="world-hit-layer" data-action="world-board-hit" aria-label="Build on the ${tileSize} by ${tileSize} office grid"></div>
-      </div>
+    <div class="phaser-map-shell dashboard-phaser-map" aria-label="Interactive ${tileSize} by ${tileSize} office map">
+      <div class="phaser-map" data-phaser-map data-map-mode="dashboard"></div>
     </div>
     <div class="world-legend">
       <span><i class="legend-chip path"></i>built path</span>

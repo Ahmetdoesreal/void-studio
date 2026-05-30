@@ -510,6 +510,49 @@ h3 {
     linear-gradient(90deg, #02030a 0%, #080914 38%, #17132a 66%, #4c3e7c 100%);
 }
 
+.phaser-map-shell {
+  position: relative;
+  overflow: hidden;
+  height: min(72vh, 760px);
+  border: 1px solid #262b35;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 83% 28%, rgba(129, 116, 181, 0.24), transparent 23%),
+    radial-gradient(circle at 72% 68%, rgba(85, 199, 178, 0.12), transparent 25%),
+    linear-gradient(90deg, #02030a 0%, #080914 42%, #111827 72%, #2b3150 100%);
+  touch-action: none;
+}
+
+.dashboard-phaser-map {
+  min-height: 520px;
+  cursor: grab;
+}
+
+.fullscreen-phaser-map {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  cursor: grab;
+}
+
+.phaser-map-shell:active {
+  cursor: grabbing;
+}
+
+.phaser-map,
+.phaser-map canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.phaser-map canvas {
+  image-rendering: pixelated;
+}
+
 .world-board {
   position: relative;
   width: var(--board-width);
