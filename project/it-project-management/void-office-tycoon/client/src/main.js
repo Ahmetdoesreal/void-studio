@@ -194,8 +194,21 @@ const game = {
     hasAutoSnapped: false
   },
   debugOpen: false,
-  showCorrectAnswers: false
+  showCorrectAnswers: false,
+  showTutorial: false
 };
+
+const MAX_PLAYS_PER_MINIGAME = 2;
+
+function minigamePlaysRemaining(minigameId) {
+  const history = game.session?.minigameHistory || [];
+  const played = history.filter(entry => entry.minigameId === minigameId).length;
+  return Math.max(0, MAX_PLAYS_PER_MINIGAME - played);
+}
+
+function allMinigamesExhausted() {
+  return minigames.every(m => minigamePlaysRemaining(m.id) <= 0);
+}
 
 async function boot() {
   try {
@@ -1130,7 +1143,10 @@ class OfficeMapScene extends Phaser.Scene {
 
   updateHover(pointer) {
     const cell = mapCellFromWorldPoint(worldState(), pointer.worldX, pointer.worldY);
-    if (!cell) return;
+    if (!cell) {
+      this.game.canvas.style.cursor = '';
+      return;
+    }
     if (this.hoverCell?.x === cell.x && this.hoverCell?.y === cell.y) return;
     this.hoverCell = cell;
     const title = worldCellTitle(cell.x, cell.y, cellInfo(cell.x, cell.y));
@@ -1141,6 +1157,25 @@ class OfficeMapScene extends Phaser.Scene {
       const label = document.querySelector('[data-fullscreen-hover]');
       if (label) label.textContent = `${cell.x},${cell.y}`;
       return;
+    }
+
+    // Dynamic cursor based on cell type
+    if (canAct()) {
+      const info = cellInfo(cell.x, cell.y);
+      if (game.placement.departmentId) {
+        const preview = placementPreview({ x: cell.x, y: cell.y });
+        this.game.canvas.style.cursor = preview.valid ? 'copy' : 'not-allowed';
+      } else if (info.blackhole || info.danger) {
+        this.game.canvas.style.cursor = 'not-allowed';
+      } else if (info.isPath || info.department) {
+        this.game.canvas.style.cursor = 'grab';
+      } else if (isAdjacentToPath(cell.x, cell.y)) {
+        this.game.canvas.style.cursor = 'cell';
+      } else {
+        this.game.canvas.style.cursor = 'default';
+      }
+    } else {
+      this.game.canvas.style.cursor = 'default';
     }
 
     if (game.placement.departmentId) {
@@ -1259,7 +1294,70 @@ function render() {
     return;
   }
 
+  if (game.showTutorial) {
+    commitRender(renderDashboard() + renderTutorial());
+    return;
+  }
+
   commitRender(renderDashboard());
+}
+
+function renderTutorial() {
+  return `
+    <div class="tutorial-overlay">
+      <div class="tutorial-card">
+        <div class="tutorial-header">
+          <span class="tutorial-badge">HOW TO PLAY</span>
+          <h2>Void Office Tycoon</h2>
+          <p class="tutorial-subtitle">Build your IT office, escape the void!</p>
+        </div>
+        <div class="tutorial-steps">
+          <div class="tutorial-step">
+            <div class="tutorial-step-icon">🎮</div>
+            <div class="tutorial-step-content">
+              <h3>Step 1 — Play Minigames</h3>
+              <p>Complete <strong>Scope Fog</strong>, <strong>Bug Rain</strong>, and <strong>Budget Rift</strong> minigames to earn points. Each minigame can be played up to <strong>2 times</strong>.</p>
+            </div>
+          </div>
+          <div class="tutorial-step">
+            <div class="tutorial-step-icon">🛤️</div>
+            <div class="tutorial-step-content">
+              <h3>Step 2 — Build Paths</h3>
+              <p>Click on cells <strong>adjacent to existing paths</strong> to extend your office corridor. Each tile costs <strong>2 points</strong>. Start from position (1,16).</p>
+            </div>
+          </div>
+          <div class="tutorial-step">
+            <div class="tutorial-step-icon">🏢</div>
+            <div class="tutorial-step-content">
+              <h3>Step 3 — Buy Departments</h3>
+              <p>Use points to buy <strong>Scope Desk</strong>, <strong>Bug Lab</strong>, <strong>Sprint Floor</strong>, <strong>Risk Vault</strong>, and <strong>Stakeholder Booth</strong>. Place them next to your path.</p>
+            </div>
+          </div>
+          <div class="tutorial-step">
+            <div class="tutorial-step-icon">⚖️</div>
+            <div class="tutorial-step-content">
+              <h3>Step 4 — Balance Resources</h3>
+              <p>Keep <strong>Budget</strong>, <strong>Team</strong>, and <strong>Quality</strong> above 0. If any reaches 0, the office collapses!</p>
+            </div>
+          </div>
+          <div class="tutorial-step">
+            <div class="tutorial-step-icon">🌀</div>
+            <div class="tutorial-step-content">
+              <h3>Step 5 — Escape the Void</h3>
+              <p>Build all departments, connect the path to the <strong>nebula light</strong> at (30,16), and open the <strong>Portal Room</strong> to win!</p>
+            </div>
+          </div>
+        </div>
+        <div class="tutorial-warnings">
+          <div class="tutorial-warning">⚠️ Avoid <strong>blackholes</strong> — they destroy your path!</div>
+          <div class="tutorial-warning">💡 Use the <strong>cell cursor</strong> to find buildable tiles on the map</div>
+        </div>
+        <button class="tutorial-start-btn" data-action="dismiss-tutorial">
+          Got it, let's build! 🚀
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 function renderStart() {
@@ -1658,7 +1756,7 @@ function renderBacklogPanel() {
         }).join('')}
       </div>
       ${game.debugOpen && game.showCorrectAnswers ? renderCorrectBacklogOrder(itemsById) : ''}
-      <button data-action="submit-minigame" data-minigame-id="scope_fog" ${!canAct() ? 'disabled' : ''}>Submit Backlog</button>
+      <button data-action="submit-minigame" data-minigame-id="scope_fog" ${!canAct() || minigamePlaysRemaining('scope_fog') <= 0 ? 'disabled' : ''}>Submit Backlog</button>
     </section>
   `;
 }
@@ -1676,26 +1774,33 @@ function renderCorrectBacklogOrder(itemsById) {
 
 function renderMinigamePanel() {
   const active = activeScenario();
+  const remaining = minigamePlaysRemaining(active.id);
+  const exhausted = remaining <= 0;
   return `
     <section class="sandbox-panel">
       <div class="panel-heading">
         <h2>Minigames</h2>
-        <span>${escapeHtml(active.title)}</span>
+        <span>${escapeHtml(active.title)} — ${remaining > 0 ? `${remaining} play${remaining > 1 ? 's' : ''} left` : 'Completed ✓'}</span>
       </div>
       <div class="minigame-tabs">
-        ${minigames.map(item => `
-          <button class="${game.activeMinigame === item.id ? 'selected' : ''}" data-action="select-minigame" data-minigame-id="${item.id}">
+        ${minigames.map(item => {
+          const rem = minigamePlaysRemaining(item.id);
+          return `
+          <button class="${game.activeMinigame === item.id ? 'selected' : ''} ${rem <= 0 ? 'minigame-completed' : ''}" data-action="select-minigame" data-minigame-id="${item.id}">
             ${escapeHtml(item.title)}
+            <small class="minigame-plays-badge">${rem > 0 ? `${rem}` : '✓'}</small>
           </button>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
-      ${renderMinigame(active)}
+      ${exhausted ? '<div class="minigame-exhausted">This minigame has been completed. Try another one or build your office!</div>' : renderMinigame(active)}
       ${game.lastResult ? `
         <div class="result-box compact">
           <strong>${escapeHtml(game.lastResult.title)}: ${game.lastResult.success ? 'success' : 'failed'}</strong>
           <p>${game.lastResult.pointsEarned} points. ${formatDelta(game.lastResult.resourceChange)}</p>
         </div>
       ` : ''}
+      ${allMinigamesExhausted() ? '<div class="minigame-exhausted all-done">All minigames completed! Focus on building paths and departments.</div>' : ''}
     </section>
   `;
 }
@@ -1725,7 +1830,7 @@ function renderBugRain() {
         </button>
       `).join('')}
     </div>
-    <button data-action="submit-minigame" data-minigame-id="bug_rain" ${!canAct() ? 'disabled' : ''}>Submit Triage</button>
+    <button data-action="submit-minigame" data-minigame-id="bug_rain" ${!canAct() || minigamePlaysRemaining('bug_rain') <= 0 ? 'disabled' : ''}>Submit Triage</button>
   `;
 }
 
@@ -1751,7 +1856,7 @@ function renderBudgetRift() {
         `;
       }).join('')}
     </div>
-    <button data-action="submit-minigame" data-minigame-id="budget_rift" ${!canAct() ? 'disabled' : ''}>Commit Trade-off</button>
+    <button data-action="submit-minigame" data-minigame-id="budget_rift" ${!canAct() || minigamePlaysRemaining('budget_rift') <= 0 ? 'disabled' : ''}>Commit Trade-off</button>
   `;
 }
 
@@ -2009,7 +2114,8 @@ async function handleStart(event) {
     game.session = response.session;
     localStorage.setItem(STORAGE_KEY, game.session.sessionId);
     game.screen = 'dashboard';
-    game.notice = 'Session started.';
+    game.showTutorial = true;
+    game.notice = '';
     game.backlogOrder = [...START_BACKLOG_ORDER];
     game.activeMinigame = 'scope_fog';
     game.fullscreen.hasAutoSnapped = false;
@@ -2023,6 +2129,12 @@ async function handleClick(event) {
   if (!actionEl) return;
 
   const action = actionEl.dataset.action;
+  if (action === 'dismiss-tutorial') {
+    game.showTutorial = false;
+    game.notice = 'Session started. Good luck!';
+    render();
+    return;
+  }
   if (action === 'toggle-bug') {
     toggleBug(actionEl.dataset.bugId);
     render();

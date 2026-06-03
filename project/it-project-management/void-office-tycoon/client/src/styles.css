@@ -551,6 +551,7 @@ h3 {
 
 .phaser-map canvas {
   image-rendering: pixelated;
+  cursor: inherit;
 }
 
 .world-board {
@@ -1639,4 +1640,231 @@ h3 {
   button {
     width: 100%;
   }
+}
+
+/* ── Tutorial Overlay ───────────────────────────────── */
+
+@keyframes tutorialFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes tutorialSlideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 3, 10, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: tutorialFadeIn 0.4s ease-out;
+  padding: 24px;
+}
+
+.tutorial-card {
+  max-width: 620px;
+  width: 100%;
+  background: linear-gradient(145deg, rgba(18, 24, 42, 0.95), rgba(30, 38, 60, 0.88));
+  border: 1px solid rgba(184, 205, 240, 0.25);
+  border-radius: 20px;
+  padding: 36px 32px;
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 120px rgba(129, 116, 181, 0.08);
+  animation: tutorialSlideUp 0.5s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.tutorial-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.tutorial-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #7ccf83;
+  background: rgba(124, 207, 131, 0.12);
+  border: 1px solid rgba(124, 207, 131, 0.3);
+  border-radius: 20px;
+  padding: 4px 14px;
+  margin-bottom: 12px;
+}
+
+.tutorial-header h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #e6ecf6;
+  margin: 8px 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.tutorial-subtitle {
+  font-size: 0.92rem;
+  color: rgba(184, 205, 240, 0.7);
+  margin: 0;
+}
+
+.tutorial-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tutorial-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(184, 205, 240, 0.06);
+  border: 1px solid rgba(184, 205, 240, 0.1);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.tutorial-step:hover {
+  background: rgba(184, 205, 240, 0.1);
+  border-color: rgba(184, 205, 240, 0.2);
+}
+
+.tutorial-step-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(129, 116, 181, 0.15);
+}
+
+.tutorial-step-content h3 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #e6ecf6;
+  margin: 0 0 4px;
+}
+
+.tutorial-step-content p {
+  font-size: 0.82rem;
+  color: rgba(184, 205, 240, 0.8);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tutorial-step-content strong {
+  color: #b8cdf0;
+}
+
+.tutorial-warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.tutorial-warning {
+  font-size: 0.82rem;
+  color: rgba(230, 236, 246, 0.72);
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(231, 119, 100, 0.08);
+  border-left: 3px solid rgba(231, 119, 100, 0.5);
+}
+
+.tutorial-warning strong {
+  color: #e6ecf6;
+}
+
+.tutorial-start-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #02030a;
+  background: linear-gradient(135deg, #7ccf83, #55c7b2);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+  box-shadow: 0 4px 20px rgba(124, 207, 131, 0.3);
+  letter-spacing: 0.02em;
+}
+
+.tutorial-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(124, 207, 131, 0.4);
+  filter: brightness(1.08);
+}
+
+.tutorial-start-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(124, 207, 131, 0.25);
+}
+
+/* ── Minigame Completed States ──────────────────────── */
+
+.minigame-tabs button.minigame-completed {
+  opacity: 0.55;
+  position: relative;
+}
+
+.minigame-tabs button.minigame-completed::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 50%;
+  height: 1.5px;
+  background: rgba(184, 205, 240, 0.5);
+  pointer-events: none;
+}
+
+.minigame-tabs button.minigame-completed.selected {
+  opacity: 0.7;
+}
+
+.minigame-plays-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(184, 205, 240, 0.15);
+  color: rgba(184, 205, 240, 0.8);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.minigame-exhausted {
+  padding: 16px 14px;
+  font-size: 0.85rem;
+  color: rgba(184, 205, 240, 0.7);
+  background: rgba(184, 205, 240, 0.06);
+  border: 1px dashed rgba(184, 205, 240, 0.2);
+  border-radius: 10px;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.minigame-exhausted.all-done {
+  background: rgba(124, 207, 131, 0.08);
+  border-color: rgba(124, 207, 131, 0.25);
+  color: #7ccf83;
+  font-weight: 600;
 }

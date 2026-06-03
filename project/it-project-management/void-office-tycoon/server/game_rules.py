@@ -12,6 +12,7 @@ SUBCELLS_PER_CELL = 4
 WORLD_SIZE = CHUNK_COUNT
 BLACKHOLE_DANGER_RADIUS = 2
 PATH_BUILD_COST = 2
+MAX_PLAYS_PER_MINIGAME = 2
 
 DEFAULT_RESOURCES = {
     "budget": 70,
@@ -653,6 +654,17 @@ def record_minigame_result(
     ensure_action_allowed(session)
 
     scenario = normalize_scenario_id(payload.get("minigameId"), session)
+
+    # Enforce per-minigame play limit
+    play_count = sum(
+        1 for entry in session.get("minigameHistory", [])
+        if entry.get("minigameId") == scenario["minigameId"]
+    )
+    if play_count >= MAX_PLAYS_PER_MINIGAME:
+        raise RuleError(
+            f"{scenario['title']} has already been played {MAX_PLAYS_PER_MINIGAME} times."
+        )
+
     details = payload.get("details") if isinstance(payload.get("details"), dict) else {}
     success = bool(payload.get("success"))
     resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
