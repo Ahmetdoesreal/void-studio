@@ -11,8 +11,9 @@ CHUNK_COUNT = 32
 SUBCELLS_PER_CELL = 4
 WORLD_SIZE = CHUNK_COUNT
 BLACKHOLE_DANGER_RADIUS = 2
-PATH_BUILD_COST = 2
+PATH_BUILD_COST = 1
 MAX_PLAYS_PER_MINIGAME = 2
+STARTING_POINTS = 30
 
 DEFAULT_RESOURCES = {
     "budget": 70,
@@ -116,6 +117,39 @@ DEPARTMENT_FOOTPRINTS = {
         "cells": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 0, "y": 1}, {"x": 1, "y": 1}],
     },
 }
+
+# A "room" (a.k.a. subcell) is a ROOM_SIZE x ROOM_SIZE block of normal cells.
+# An office occupies whole rooms, not a subdivided single cell.
+ROOM_SIZE = 4
+
+# Office expansion shape presets in ROOM offsets. An expansion covers 1-3 rooms;
+# the shape is picked randomly when placing, then rotatable.
+EXPANSION_PRESETS = {
+    "single": [{"x": 0, "y": 0}],
+    "duo_h": [{"x": 0, "y": 0}, {"x": 1, "y": 0}],
+    "duo_v": [{"x": 0, "y": 0}, {"x": 0, "y": 1}],
+    "ell": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 0, "y": 1}],
+    "row": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0}],
+}
+EXPANSION_PRESET_IDS = list(EXPANSION_PRESETS)
+
+# Cost scales with how many rooms the rolled shape covers.
+CHUNK_PRICE = {1: 25, 2: 45, 3: 65}
+
+# Real Habbo furniture sprite keys (match client FURNI palette).
+# Desktop devices always sit ON a desk (rendered lifted), never on the floor.
+DESK_SURFACE = "desk"
+DESKTOP_ITEMS = ["monitor", "laptop", "imac"]
+STANDALONE_FURNITURE = [
+    "chair", "officeChair", "plant", "plantTall", "lamp",
+    "shelf", "books", "coffeeTable", "sofa", "table", "woodDesk",
+]
+OFFICE_FURNITURE = [DESK_SURFACE] + DESKTOP_ITEMS + STANDALONE_FURNITURE
+
+
+def expansion_cost(chunk_count: int) -> int:
+    return CHUNK_PRICE.get(int(chunk_count), CHUNK_PRICE[max(CHUNK_PRICE)])
+
 
 DEPARTMENT_CATALOG = [
     {
@@ -267,6 +301,81 @@ def rotated_offsets(department_id: str, rotation: int) -> list[dict[str, int]]:
     return sorted(normalized, key=lambda cell: (cell["y"], cell["x"]))
 
 
+def rotate_offsets(cells: list[dict[str, int]], rotation: int) -> list[dict[str, int]]:
+    """Rotate an arbitrary set of chunk offsets and re-normalise to origin."""
+    rotation = normalize_rotation(rotation)
+    rotated: list[dict[str, int]] = []
+    for cell in cells:
+        x = int(cell["x"])
+        y = int(cell["y"])
+        if rotation == 90:
+            x, y = y, -x
+        elif rotation == 180:
+            x, y = -x, -y
+        elif rotation == 270:
+            x, y = -y, x
+        rotated.append({"x": x, "y": y})
+    min_x = min(cell["x"] for cell in rotated)
+    min_y = min(cell["y"] for cell in rotated)
+    normalized = [{"x": cell["x"] - min_x, "y": cell["y"] - min_y} for cell in rotated]
+    return sorted(normalized, key=lambda cell: (cell["y"], cell["x"]))
+
+
+def preset_offsets(preset_id: str, rotation: int) -> list[dict[str, int]]:
+    cells = EXPANSION_PRESETS.get(preset_id, EXPANSION_PRESETS["single"])
+    return rotate_offsets(cells, rotation)
+
+
+def room_count_for_preset(preset_id: str, rotation: int) -> int:
+    return len(preset_offsets(preset_id, rotation))
+
+
+def occupied_cells_for_preset(
+    preset_id: str, anchor_cell: dict[str, int], rotation: int
+) -> list[dict[str, int]]:
+    """Expand a room-offset preset into every normal cell it covers. Each room is
+    a ROOM_SIZE x ROOM_SIZE block of cells."""
+    anchor_x = int(anchor_cell["x"])
+    anchor_y = int(anchor_cell["y"])
+    cells: list[dict[str, int]] = []
+    for room in preset_offsets(preset_id, rotation):
+        base_x = anchor_x + room["x"] * ROOM_SIZE
+        base_y = anchor_y + room["y"] * ROOM_SIZE
+        for dy in range(ROOM_SIZE):
+            for dx in range(ROOM_SIZE):
+                cells.append({"x": base_x + dx, "y": base_y + dy})
+    return cells
+
+
+def generate_office_furniture(
+    cells: list[dict[str, int]], rng: random.Random
+) -> list[dict[str, Any]]:
+    """Scatter furniture across the room's interior cells (one piece per cell),
+    keeping the north/west edge cells clear for the back walls."""
+    cellset = {(int(c["x"]), int(c["y"])) for c in cells}
+
+    def is_back_edge(x: int, y: int) -> bool:
+        return (x - 1, y) not in cellset or (x, y - 1) not in cellset
+
+    interior = [(x, y) for (x, y) in cellset if not is_back_edge(x, y)]
+    if not interior:
+        interior = list(cellset)
+    room_count = max(1, len(cells) // (ROOM_SIZE * ROOM_SIZE))
+    target = min(len(interior), room_count * rng.randint(4, 6))
+    chosen = rng.sample(interior, target) if target else []
+
+    items: list[dict[str, Any]] = []
+    for x, y in sorted(chosen, key=lambda c: (c[1], c[0])):
+        cell = {"x": x, "y": y}
+        if rng.random() < 0.45:
+            # Workstation: a desk with a computer sitting on top of it.
+            items.append({"cell": cell, "spriteId": DESK_SURFACE})
+            items.append({"cell": cell, "spriteId": rng.choice(DESKTOP_ITEMS), "lift": 1.6})
+        else:
+            items.append({"cell": cell, "spriteId": rng.choice(STANDALONE_FURNITURE)})
+    return items
+
+
 def occupied_cells_for_placement(
     department_id: str, anchor_cell: dict[str, int], rotation: int
 ) -> list[dict[str, int]]:
@@ -338,18 +447,27 @@ def perimeter_walls(occupied_cells: list[dict[str, int]]) -> list[dict[str, Any]
 
 
 def create_department_placement(
-    department_id: str, anchor_cell: dict[str, int], rotation: int
+    department_id: str,
+    anchor_cell: dict[str, int],
+    rotation: int,
+    preset_id: str = "single",
+    seed: str | None = None,
 ) -> dict[str, Any]:
     normalized_rotation = normalize_rotation(rotation)
-    occupied_cells = occupied_cells_for_placement(department_id, anchor_cell, normalized_rotation)
-    sprite_stacks: list[dict[str, Any]] = []
-    for cell in occupied_cells:
-        sprite_stacks.extend(subcell_stack_for_cell(department_id, cell))
+    if preset_id not in EXPANSION_PRESETS:
+        preset_id = "single"
+    occupied_cells = occupied_cells_for_preset(preset_id, anchor_cell, normalized_rotation)
+    rng = random.Random(
+        seed or f"{department_id}:{anchor_cell.get('x')},{anchor_cell.get('y')}:{preset_id}:{normalized_rotation}"
+    )
     return {
         "anchorCell": {"x": int(anchor_cell["x"]), "y": int(anchor_cell["y"])},
         "rotation": normalized_rotation,
+        "presetId": preset_id,
+        "chunkCount": room_count_for_preset(preset_id, normalized_rotation),
         "occupiedCells": occupied_cells,
-        "spriteStacks": sprite_stacks,
+        "furniture": generate_office_furniture(occupied_cells, rng),
+        "spriteStacks": [],
         "walls": perimeter_walls(occupied_cells),
         "subcellsPerCell": SUBCELLS_PER_CELL,
     }
@@ -380,8 +498,22 @@ def department_at_cell(
     return None
 
 
-def placement_touches_path(world: dict[str, Any], occupied_cells: list[dict[str, int]]) -> bool:
-    path = set(world.get("builtPath", []))
+def office_cell_keys(session: dict[str, Any]) -> set[str]:
+    """All normal cells occupied by offices (spawn room + built departments)."""
+    keys: set[str] = set()
+    spawn = session.get("world", {}).get("spawnOffice")
+    if isinstance(spawn, dict):
+        for cell in spawn.get("cells", []):
+            keys.add(coord_key(int(cell["x"]), int(cell["y"])))
+    for department in session.get("departments", {}).values():
+        if department.get("built"):
+            for cell in department_cells(department):
+                keys.add(coord_key(cell["x"], cell["y"]))
+    return keys
+
+
+def placement_touches_buildable(buildable: set[str], occupied_cells: list[dict[str, int]]) -> bool:
+    own = {coord_key(int(c["x"]), int(c["y"])) for c in occupied_cells}
     for cell in occupied_cells:
         neighbors = [
             coord_key(cell["x"] + 1, cell["y"]),
@@ -389,7 +521,7 @@ def placement_touches_path(world: dict[str, Any], occupied_cells: list[dict[str,
             coord_key(cell["x"], cell["y"] + 1),
             coord_key(cell["x"], cell["y"] - 1),
         ]
-        if any(neighbor in path for neighbor in neighbors):
+        if any(neighbor in buildable and neighbor not in own for neighbor in neighbors):
             return True
     return False
 
@@ -410,25 +542,26 @@ def validate_department_placement(
     session: dict[str, Any], department_id: str, placement: dict[str, Any]
 ) -> None:
     world = session["world"]
-    start_key = coord_key(world["start"]["x"], world["start"]["y"])
     end_key = coord_key(world["end"]["x"], world["end"]["y"])
     path = set(world.get("builtPath", []))
+    offices = office_cell_keys(session)
 
     for cell in placement["occupiedCells"]:
         x = int(cell["x"])
         y = int(cell["y"])
         key = coord_key(x, y)
         if not in_world_bounds(world, x, y):
-            raise RuleError("Department footprint must stay inside the 32x32 world.")
-        if key in {start_key, end_key} or key in path:
-            raise RuleError("Department footprints cannot overlap the office path or nebula gate.")
+            raise RuleError("Office must stay inside the 32x32 world.")
+        if key == end_key or key in path:
+            raise RuleError("Offices cannot overlap the corridor or the nebula gate.")
+        if key in offices:
+            raise RuleError("Offices cannot overlap the spawn office or another department.")
         if cell_touches_blackhole_danger(world, x, y):
-            raise RuleError("Department footprints cannot touch blackhole gravity fields.")
-        if department_at_cell(session, x, y, excluding_department_id=department_id):
-            raise RuleError("Department footprints cannot overlap another department.")
+            raise RuleError("Offices cannot touch blackhole gravity fields.")
 
-    if not placement_touches_path(world, placement["occupiedCells"]):
-        raise RuleError("Place the department next to the built office path.")
+    buildable = path | offices
+    if not placement_touches_buildable(buildable, placement["occupiedCells"]):
+        raise RuleError("Place the office next to your corridor or an existing office.")
 
 
 def reserved_world_cells() -> list[dict[str, int]]:
@@ -468,6 +601,22 @@ def generate_blackholes(seed: str) -> list[dict[str, Any]]:
     return blackholes
 
 
+def starting_office(start: dict[str, int]) -> list[str]:
+    """A small pre-built office room the player expands from, instead of a
+    single lonely tile. Stays inside the grid and ends at the front door so the
+    player marker faces the void."""
+    sx, sy = start["x"], start["y"]
+    offsets = [(0, -1), (1, -1), (0, 0), (1, 0), (0, 1), (1, 1), (2, 0)]
+    cells: list[str] = []
+    for ox, oy in offsets:
+        x, y = sx + ox, sy + oy
+        if 0 <= x < WORLD_SIZE and 0 <= y < WORLD_SIZE:
+            key = coord_key(x, y)
+            if key not in cells:
+                cells.append(key)
+    return cells
+
+
 def new_world(seed: str) -> dict[str, Any]:
     start = world_start()
     end = world_end()
@@ -480,6 +629,7 @@ def new_world(seed: str) -> dict[str, Any]:
         "pathBuildCost": PATH_BUILD_COST,
         "blackholes": generate_blackholes(seed),
         "builtPath": [coord_key(start["x"], start["y"])],
+        "spawnOffice": build_spawn_office({"start": start}, seed),
         "connectedToLight": False,
         "lostToBlackhole": None,
     }
@@ -513,45 +663,46 @@ def ensure_world(session: dict[str, Any]) -> dict[str, Any]:
         blackhole["dangerRadius"] = clamp_int(
             blackhole.get("dangerRadius", BLACKHOLE_DANGER_RADIUS), 0, 8
         )
+    # Spawn office: a single furnished chunk the player expands from.
+    if not isinstance(world.get("spawnOffice"), dict):
+        world["spawnOffice"] = build_spawn_office(world, session.get("sessionId", "spawn"))
+
     if "departments" in session:
         for department_id, department in session["departments"].items():
             department.setdefault("footprint", deepcopy(DEPARTMENT_FOOTPRINTS.get(department_id, {"cells": [{"x": 0, "y": 0}]})))
             department.setdefault("worldCell", None)
             department.setdefault("placement", None)
-            if department.get("built") and not department.get("placement"):
+            # Only synthesise a placement for legacy built departments missing one.
+            # Stored placements (shape + furniture) are preserved as authored.
+            if department.get("built") and not isinstance(department.get("placement"), dict):
                 anchor = department.get("worldCell") or deepcopy(DEPARTMENT_WORLD_CELLS.get(department_id, world_start()))
                 anchor = anchor if isinstance(anchor, dict) else world_start()
-                anchor = clamp_anchor_for_department(department_id, anchor, 0)
-                department["placement"] = create_department_placement(department_id, anchor, 0)
-                department["worldCell"] = deepcopy(department["placement"]["anchorCell"])
-            if department.get("placement"):
-                placement = department["placement"] if isinstance(department["placement"], dict) else {}
-                anchor = placement.get("anchorCell")
-                rotation = placement.get("rotation", 0)
-                if not isinstance(anchor, dict):
-                    anchor = department.get("worldCell") or deepcopy(DEPARTMENT_WORLD_CELLS.get(department_id, world_start()))
-                original_anchor = deepcopy(anchor)
-                anchor = clamp_anchor_for_department(department_id, anchor, rotation)
-                occupied = occupied_cells_for_placement(department_id, anchor, normalize_rotation(rotation))
-                existing_cells = [
-                    {"x": int(cell.get("x", -1)), "y": int(cell.get("y", -1))}
-                    for cell in placement.get("occupiedCells", [])
-                    if isinstance(cell, dict)
-                ]
-                normalized_cells = [{"x": cell["x"], "y": cell["y"]} for cell in occupied]
-                needs_normalized = (
-                    placement.get("subcellsPerCell") != SUBCELLS_PER_CELL
-                    or original_anchor.get("x") != anchor["x"]
-                    or original_anchor.get("y") != anchor["y"]
-                    or existing_cells != normalized_cells
-                    or any(not in_world_bounds(world, cell["x"], cell["y"]) for cell in occupied)
-                    or not isinstance(placement.get("spriteStacks"), list)
-                    or not isinstance(placement.get("walls"), list)
-                )
-                if needs_normalized:
-                    department["placement"] = create_department_placement(department_id, anchor, rotation)
+                anchor = {"x": clamp_int(anchor.get("x"), 0, WORLD_SIZE - 1), "y": clamp_int(anchor.get("y"), 0, WORLD_SIZE - 1)}
+                department["placement"] = create_department_placement(department_id, anchor, 0, "single")
+            if isinstance(department.get("placement"), dict):
+                department["placement"].setdefault("furniture", [])
+                department["placement"].setdefault("walls", [])
                 department["worldCell"] = deepcopy(department["placement"]["anchorCell"])
     return session
+
+
+def build_spawn_office(world: dict[str, Any], seed: str) -> dict[str, Any]:
+    """The spawn office is one room (ROOM_SIZE x ROOM_SIZE cells) anchored at the
+    start cell, which sits at its top-left corner."""
+    start = world.get("start", world_start())
+    ax, ay = int(start["x"]), int(start["y"])
+    cells = [
+        {"x": ax + dx, "y": ay + dy}
+        for dy in range(ROOM_SIZE)
+        for dx in range(ROOM_SIZE)
+        if 0 <= ax + dx < WORLD_SIZE and 0 <= ay + dy < WORLD_SIZE
+    ]
+    rng = random.Random(f"{seed}:spawn-office")
+    return {
+        "cells": cells,
+        "walls": perimeter_walls(cells),
+        "furniture": generate_office_furniture(cells, rng),
+    }
 
 
 def new_session(student_id: str | None = None) -> dict[str, Any]:
@@ -564,7 +715,7 @@ def new_session(student_id: str | None = None) -> dict[str, Any]:
         "studentId": clean_student_id[:80],
         "createdAt": timestamp,
         "updatedAt": timestamp,
-        "points": 0,
+        "points": STARTING_POINTS,
         "resources": deepcopy(DEFAULT_RESOURCES),
         "departments": new_departments(),
         "world": new_world(session_id),
@@ -681,7 +832,10 @@ def record_minigame_result(
         success = all(value >= 50 for value in projected.values())
         details["choiceLabel"] = BUDGET_RIFT_CHOICES[choice_id]["label"]
 
-    points_earned = scenario["points"] if success else 0
+    # Budget Rift is a judgement call rather than a skill check: making a choice
+    # always earns its points, while the resource trade-off is the real lesson.
+    awards_points = success or scenario["minigameId"] == "budget_rift"
+    points_earned = scenario["points"] if awards_points else 0
     session["points"] += points_earned
     apply_resource_delta(session, resource_delta)
     session["currentScenarioIndex"] = (int(session.get("currentScenarioIndex", 0)) + 1) % len(SCENARIOS)
@@ -716,6 +870,7 @@ def buy_department(
     department_id: str,
     anchor_cell: dict[str, Any] | None = None,
     rotation: int = 0,
+    preset_id: str = "single",
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     ensure_world(session)
     ensure_action_allowed(session)
@@ -731,10 +886,6 @@ def buy_department(
     if is_upgrade and department.get("level", 0) >= 2:
         raise RuleError(f"{department['name']} is already fully upgraded.")
 
-    price = department["upgradePrice"] if is_upgrade else department["price"]
-    if session["points"] < price:
-        raise RuleError(f"Not enough points for {department['name']}.")
-
     resource_delta = deepcopy(department["upgradeEffect"] if is_upgrade else department["resourceEffect"])
     placement = department.get("placement")
     if not is_upgrade:
@@ -744,8 +895,15 @@ def buy_department(
             "x": clamp_int(anchor_cell.get("x"), 0, WORLD_SIZE - 1),
             "y": clamp_int(anchor_cell.get("y"), 0, WORLD_SIZE - 1),
         }
-        placement = create_department_placement(department_id, anchor, rotation)
+        seed = f"{session.get('sessionId')}:{department_id}:{anchor['x']},{anchor['y']}:{preset_id}:{rotation}"
+        placement = create_department_placement(department_id, anchor, rotation, preset_id, seed=seed)
         validate_department_placement(session, department_id, placement)
+        price = expansion_cost(placement["chunkCount"])
+    else:
+        price = department["upgradePrice"]
+
+    if session["points"] < price:
+        raise RuleError(f"Not enough points for {department['name']}.")
 
     session["points"] -= price
     department["built"] = True
@@ -826,12 +984,15 @@ def build_world_cell(
         raise RuleError("That cell is outside the 32x32 office grid.")
 
     cell_key = coord_key(x, y)
+    offices = office_cell_keys(session)
     if cell_key in world.get("builtPath", []):
         raise RuleError("That path tile is already built.")
-    if department_at_cell(session, x, y):
-        raise RuleError("Path tiles cannot overlap placed departments.")
-    if not is_adjacent_to_path(world, x, y):
-        raise RuleError("Build from the existing office path outward.")
+    if cell_key in offices:
+        raise RuleError("Corridors cannot run through an office.")
+    buildable = set(world.get("builtPath", [])) | offices
+    neighbors = [coord_key(x + 1, y), coord_key(x - 1, y), coord_key(x, y + 1), coord_key(x, y - 1)]
+    if not any(n in buildable for n in neighbors):
+        raise RuleError("Build the corridor outward from your office or path.")
 
     blackhole = is_near_blackhole(world, x, y)
     if blackhole:

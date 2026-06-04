@@ -21,6 +21,58 @@ import tileVoidSprite from './assets/sprites/habbo_world/void_tile.png';
 import wallPanelSprite from './assets/sprites/habbo_world/wall_panel.png';
 import woodFloorSprite from './assets/sprites/habbo_world/wood_floor.png';
 
+// Real isometric Habbo furniture extracted from the retro-hotel nitro bundles.
+import furniDesk from './assets/sprites/furni/desk.png';
+import furniWoodDesk from './assets/sprites/furni/woodDesk.png';
+import furniMonitor from './assets/sprites/furni/monitor.png';
+import furniImac from './assets/sprites/furni/imac.png';
+import furniLaptop from './assets/sprites/furni/laptop.png';
+import furniOfficeChair from './assets/sprites/furni/officeChair.png';
+import furniChair from './assets/sprites/furni/chair.png';
+import furniTable from './assets/sprites/furni/table.png';
+import furniCoffeeTable from './assets/sprites/furni/coffeeTable.png';
+import furniPlant from './assets/sprites/furni/plant.png';
+import furniPlantTall from './assets/sprites/furni/plantTall.png';
+import furniLamp from './assets/sprites/furni/lamp.png';
+import furniShelf from './assets/sprites/furni/shelf.png';
+import furniBooks from './assets/sprites/furni/books.png';
+import furniSofa from './assets/sprites/furni/sofa.png';
+import furniRug from './assets/sprites/furni/rug.png';
+
+// Furniture sprite keys (match server OFFICE_FURNITURE palette). Loaded under a
+// "furni_" prefix in Phaser; drawn at native aspect ratio.
+const FURNI = {
+  desk: furniDesk,
+  woodDesk: furniWoodDesk,
+  monitor: furniMonitor,
+  imac: furniImac,
+  laptop: furniLaptop,
+  officeChair: furniOfficeChair,
+  chair: furniChair,
+  table: furniTable,
+  coffeeTable: furniCoffeeTable,
+  plant: furniPlant,
+  plantTall: furniPlantTall,
+  lamp: furniLamp,
+  shelf: furniShelf,
+  books: furniBooks,
+  sofa: furniSofa,
+  rug: furniRug
+};
+
+// UI currency icons lifted from the retro-hotel nitro wallet assets.
+import iconCoin from './assets/ui/coin.png';
+import iconDiamond from './assets/ui/diamond.png';
+import iconHc from './assets/ui/hc.png';
+import iconDucket from './assets/ui/ducket.png';
+
+const RESOURCE_ICONS = {
+  budget: iconCoin,
+  team: iconHc,
+  quality: iconDiamond
+};
+const POINTS_ICON = iconDucket;
+
 const appEl = document.querySelector('#app');
 
 const api = {
@@ -51,13 +103,14 @@ const FULLSCREEN_PATH = '/fullscreen';
 const CHUNK_COUNT = 32;
 const SUBCELLS_PER_CELL = 4;
 const WORLD_TILE_SIZE = CHUNK_COUNT;
-const TILE_STEP_X = 24;
-const TILE_STEP_Y = 12;
+const TILE_STEP_X = 36;
+const TILE_STEP_Y = 18;
+const CHUNK_OFFSET_Y = TILE_STEP_Y * 2;
 const BOARD_LEFT_PADDING = 64;
 const BOARD_TOP_PADDING = 80;
 const MIN_MAP_ZOOM = 0.12;
-const MAX_MAP_ZOOM = 1.6;
-const ZOOM_STEP = 0.15;
+const MAX_MAP_ZOOM = 3.4;
+const ZOOM_STEP = 0.2;
 const CORRECT_BACKLOG_ORDER = ['s1', 's6', 's2', 's4', 's3', 's5'];
 const START_BACKLOG_ORDER = ['s3', 's1', 's5', 's2', 's6', 's4'];
 
@@ -89,6 +142,73 @@ const sprites = {
   vaultDoor: vaultDoorSprite,
   wallPanel: wallPanelSprite
 };
+
+// Isometric building palette per department: distinct top/side colors and a
+// short label drawn programmatically so the map reads cleanly at any angle.
+const DEPARTMENT_THEME = {
+  scope_desk: { top: 0x7fb5e6, left: 0x3a6da3, right: 0x4f86bf, label: 'SC' },
+  bug_lab: { top: 0x6fe0a8, left: 0x2f8a5e, right: 0x3aa873, label: 'BUG' },
+  sprint_floor: { top: 0xf0b56a, left: 0xa36a25, right: 0xc2853a, label: 'SPR' },
+  risk_vault: { top: 0xe5bd57, left: 0x9b7e2c, right: 0xb8962f, label: 'RSK' },
+  stakeholder_booth: { top: 0xc79bf0, left: 0x6e3aa3, right: 0x8a4fbf, label: 'STK' },
+  default: { top: 0x9fc0ec, left: 0x3a4a63, right: 0x4f607f, label: '#' }
+};
+
+// A room (subcell) is ROOM_SIZE x ROOM_SIZE normal cells.
+const ROOM_SIZE = 4;
+
+// Office expansion shape presets in ROOM offsets, mirrored from the server.
+const EXPANSION_PRESETS = {
+  single: [{ x: 0, y: 0 }],
+  duo_h: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+  duo_v: [{ x: 0, y: 0 }, { x: 0, y: 1 }],
+  ell: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
+  row: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }]
+};
+const EXPANSION_PRESET_IDS = Object.keys(EXPANSION_PRESETS);
+const CHUNK_PRICE = { 1: 25, 2: 45, 3: 65 };
+
+// Furniture sprite keys usable inside office chunks (matches server palette).
+const OFFICE_FURNITURE_SPRITES = {
+  table: tableSprite,
+  laptopDesk: laptopDeskSprite,
+  officeChair: officeChairSprite,
+  labTable: labTableSprite,
+  coffeeMachine: coffeeMachineSprite,
+  coffeeTable: coffeeTableSprite,
+  sofa: sofaSprite,
+  plant: plantSprite,
+  floorLamp: floorLampSprite
+};
+
+function rotateOffsets(cells, rotation) {
+  const r = normalizeRotation(rotation);
+  const rotated = cells.map(cell => {
+    let x = Number(cell.x);
+    let y = Number(cell.y);
+    if (r === 90) [x, y] = [y, -x];
+    if (r === 180) [x, y] = [-x, -y];
+    if (r === 270) [x, y] = [-y, x];
+    return { x, y };
+  });
+  const minX = Math.min(...rotated.map(cell => cell.x));
+  const minY = Math.min(...rotated.map(cell => cell.y));
+  return rotated
+    .map(cell => ({ x: cell.x - minX, y: cell.y - minY }))
+    .sort((a, b) => a.y - b.y || a.x - b.x);
+}
+
+function activePresetCells() {
+  return EXPANSION_PRESETS[game.placement.presetId] || EXPANSION_PRESETS.single;
+}
+
+function placementChunkCount() {
+  return activePresetCells().length;
+}
+
+function placementCost() {
+  return CHUNK_PRICE[placementChunkCount()] || CHUNK_PRICE[1];
+}
 
 const spriteKeyByUrl = new Map(Object.entries(sprites).map(([key, value]) => [value, key]));
 
@@ -187,7 +307,7 @@ const game = {
   minigameState: {},
   backlogOrder: [...START_BACKLOG_ORDER],
   draggedBacklogId: '',
-  placement: { departmentId: '', rotation: 0, previewAnchor: null },
+  placement: { departmentId: '', presetId: '', rotation: 0, previewAnchor: null },
   fullscreen: {
     zoom: 1,
     hoverCell: null,
@@ -280,6 +400,19 @@ function formatDelta(delta = {}) {
       return `${resourceLabel(key)} ${sign}${value}`;
     });
   return parts.length ? parts.join(', ') : 'No resource change';
+}
+
+function renderDeltaChips(delta = {}) {
+  const chips = Object.entries(delta)
+    .filter(([, value]) => Number(value) !== 0)
+    .map(([key, value]) => {
+      const sign = value > 0 ? '+' : '';
+      const tone = value > 0 ? 'up' : 'down';
+      return `<span class="delta-chip ${tone}">${resourceLabel(key)} ${sign}${value}</span>`;
+    });
+  return chips.length
+    ? `<span class="delta-chips">${chips.join('')}</span>`
+    : '<span class="delta-chips"><span class="delta-chip flat">No change</span></span>';
 }
 
 function canAct() {
@@ -637,12 +770,18 @@ function rotatedOffsets(department, rotation) {
 
 function placementCells(department, anchor, rotation) {
   if (!department || !anchor) return [];
-  return rotatedOffsets(department, rotation).map(offset => ({
-    x: Number(anchor.x) + offset.x,
-    y: Number(anchor.y) + offset.y,
-    offsetX: offset.x,
-    offsetY: offset.y
-  }));
+  // Each preset offset is a ROOM; expand it to the 4x4 block of normal cells.
+  const cells = [];
+  for (const room of rotateOffsets(activePresetCells(), rotation)) {
+    const bx = Number(anchor.x) + room.x * ROOM_SIZE;
+    const by = Number(anchor.y) + room.y * ROOM_SIZE;
+    for (let dy = 0; dy < ROOM_SIZE; dy += 1) {
+      for (let dx = 0; dx < ROOM_SIZE; dx += 1) {
+        cells.push({ x: bx + dx, y: by + dy, offsetX: room.x * ROOM_SIZE + dx, offsetY: room.y * ROOM_SIZE + dy });
+      }
+    }
+  }
+  return cells;
 }
 
 function cellTouchesBlackholeDanger(x, y) {
@@ -660,14 +799,34 @@ function pathSet() {
   return new Set(worldState().builtPath || []);
 }
 
+function officeCellKeys() {
+  const world = worldState();
+  const keys = new Set();
+  for (const cell of world.spawnOffice?.cells || []) keys.add(coordKey(Number(cell.x), Number(cell.y)));
+  for (const department of sortedDepartments()) {
+    if (!department.built) continue;
+    for (const cell of department.placement?.occupiedCells || []) {
+      keys.add(coordKey(Number(cell.x), Number(cell.y)));
+    }
+  }
+  return keys;
+}
+
+// Cells you can extend a corridor from: built path plus any office floor.
+function buildableSet() {
+  const set = pathSet();
+  for (const key of officeCellKeys()) set.add(key);
+  return set;
+}
+
 function isAdjacentToPath(x, y) {
-  const path = pathSet();
+  const buildable = buildableSet();
   return [
     coordKey(x + 1, y),
     coordKey(x - 1, y),
     coordKey(x, y + 1),
     coordKey(x, y - 1)
-  ].some(key => path.has(key));
+  ].some(key => buildable.has(key));
 }
 
 function blackholeAt(x, y) {
@@ -763,7 +922,7 @@ function playerBoardPosition(world = worldState()) {
   const pos = isoCellPosition(world, player.x, player.y);
   return {
     left: pos.left,
-    top: pos.top + 24
+    top: pos.top + CHUNK_OFFSET_Y
   };
 }
 
@@ -867,7 +1026,7 @@ let activeOfficeMap = null;
 
 function tileCenter(world, x, y) {
   const pos = isoCellPosition(world, x, y);
-  return { x: pos.left, y: pos.top + 24 };
+  return { x: pos.left, y: pos.top + CHUNK_OFFSET_Y };
 }
 
 function spriteDisplaySize(size = 'medium') {
@@ -882,7 +1041,7 @@ function spriteDisplaySize(size = 'medium') {
 }
 
 function mapCellFromWorldPoint(world, worldX, worldY) {
-  return cellFromBoardPoint(world, worldX, worldY - 24);
+  return cellFromBoardPoint(world, worldX, worldY - CHUNK_OFFSET_Y);
 }
 
 class OfficeMapScene extends Phaser.Scene {
@@ -897,6 +1056,9 @@ class OfficeMapScene extends Phaser.Scene {
   preload() {
     Object.entries(sprites).forEach(([key, url]) => {
       this.load.image(key, url);
+    });
+    Object.entries(FURNI).forEach(([key, url]) => {
+      this.load.image(`furni_${key}`, url);
     });
   }
 
@@ -916,10 +1078,120 @@ class OfficeMapScene extends Phaser.Scene {
     this.drawBackground(dims);
     this.drawFineGrid(world);
     this.drawTiles(world);
-    this.drawRoomWalls(world);
-    this.drawSampleFurniture(world);
+    this.drawOffices(world);
     this.drawWorldObjects(world);
     this.drawPlacementPreview(world);
+  }
+
+  officeCellSet(world) {
+    const set = new Set();
+    for (const cell of world.spawnOffice?.cells || []) set.add(coordKey(Number(cell.x), Number(cell.y)));
+    for (const department of sortedDepartments()) {
+      if (!department.built) continue;
+      for (const cell of department.placement?.occupiedCells || []) {
+        set.add(coordKey(Number(cell.x), Number(cell.y)));
+      }
+    }
+    return set;
+  }
+
+  // Draw a furnished, walled office: room floor + 4x4 subtile grid, north/west
+  // back walls, and randomised furniture sprites.
+  drawFurnishedOffice(world, cells, furniture, options = {}) {
+    const SUB = subcellsPerCell(world);
+    const floor = this.add.graphics().setDepth(120);
+    const cellKeys = new Set(cells.map(c => coordKey(Number(c.x), Number(c.y))));
+
+    cells.forEach(cell => {
+      const x = Number(cell.x);
+      const y = Number(cell.y);
+      const center = tileCenter(world, x, y);
+      const diamond = this.tileDiamond(center, 1);
+      floor.fillStyle(options.floorColor ?? 0x6c5f3c, 0.96);
+      floor.fillPoints(diamond, true);
+      floor.lineStyle(1, options.edgeColor ?? 0xcdbb83, 0.35);
+      floor.strokePoints(diamond, true);
+    });
+
+    // North/west back walls on the office perimeter.
+    const walls = this.add.graphics().setDepth(500);
+    cells.forEach(cell => {
+      const x = Number(cell.x);
+      const y = Number(cell.y);
+      const c = tileCenter(world, x, y);
+      const H = Math.round(TILE_STEP_Y * 2.4);
+      const hasNorth = cellKeys.has(coordKey(x, y - 1));
+      const hasWest = cellKeys.has(coordKey(x - 1, y));
+      if (!hasNorth) {
+        walls.fillStyle(0x5a6b86, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y - H),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H)
+        ], true);
+      }
+      if (!hasWest) {
+        walls.fillStyle(0x44546b, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H),
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y - H)
+        ], true);
+      }
+    });
+
+    // Real Habbo furniture, one piece per cell, drawn at native aspect ratio
+    // and sized to roughly fill a tile (it is its own cell now).
+    (furniture || []).forEach(item => {
+      const texKey = `furni_${item.spriteId}`;
+      if (!this.textures.exists(texKey)) return;
+      const cx = Number(item.cell?.x);
+      const cy = Number(item.cell?.y);
+      const center = tileCenter(world, cx, cy);
+      const src = this.textures.get(texKey).getSourceImage();
+      const targetMax = TILE_STEP_X * 1.7; // ~tile-sized Habbo furni
+      const scale = Math.min(0.95, targetMax / Math.max(src.width, src.height));
+      // Items with a lift (e.g. a computer) sit on top of the desk on the same
+      // cell, so raise them and draw them above the desk.
+      const lift = Number(item.lift || 0) * TILE_STEP_Y;
+      this.add.image(center.x, center.y - lift, texKey)
+        .setOrigin(0.5, 0.9)
+        .setDisplaySize(src.width * scale, src.height * scale)
+        .setDepth(1000 + (cx + cy) * 4 + (lift > 0 ? 2 : 0));
+    });
+
+    if (options.label) {
+      const anchor = cells[0];
+      const c = tileCenter(world, Number(anchor.x), Number(anchor.y));
+      this.add.text(c.x, c.y - (Math.round(TILE_STEP_Y * 2.4) + 14), options.label, {
+        fontFamily: 'Inter, sans-serif', fontSize: '10px', color: '#f4efe2', fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(1600);
+    }
+  }
+
+  drawOffices(world) {
+    // Spawn office room.
+    if (world.spawnOffice?.cells?.length) {
+      this.drawFurnishedOffice(world, world.spawnOffice.cells, world.spawnOffice.furniture, {
+        floorColor: 0x7a6a44,
+        edgeColor: 0xe0cf94,
+        label: 'HQ'
+      });
+    }
+    // Department expansion rooms.
+    for (const department of sortedDepartments()) {
+      if (!department.built || department.id === 'portal_room') continue;
+      const placement = department.placement;
+      if (!placement?.occupiedCells?.length) continue;
+      const theme = DEPARTMENT_THEME[department.id] || DEPARTMENT_THEME.default;
+      this.drawFurnishedOffice(world, placement.occupiedCells, placement.furniture, {
+        floorColor: theme.floor ?? 0x4a4f63,
+        edgeColor: theme.top,
+        label: theme.label
+      });
+    }
   }
 
   drawBackground(dims) {
@@ -930,24 +1202,26 @@ class OfficeMapScene extends Phaser.Scene {
 
   drawFineGrid(world) {
     const size = worldTileSize(world);
-    const subcellCount = subcellsPerCell(world);
     const alpha = this.mode === 'fullscreen' ? 0.16 : 0.12;
     const grid = this.add.graphics().setDepth(20);
 
+    // Grid lines run along tile EDGES (half-integer coords) so each diamond
+    // tile sits exactly inside one grid cell. Tile centers are integer coords,
+    // so the edges are at index - 0.5.
     for (let index = 0; index <= size; index += 1) {
-      const isChunk = index % subcellCount === 0;
+      const v = index - 0.5;
       const isBoundary = index === 0 || index === size;
-      const color = isBoundary ? 0xe6ecf6 : isChunk ? 0xb8cdf0 : 0xc5d6ee;
-      const lineAlpha = isBoundary ? alpha * 2.2 : isChunk ? alpha * 1.85 : alpha;
-      const lineWidth = isBoundary ? 1.2 : isChunk ? 0.9 : 0.45;
+      const color = isBoundary ? 0xe6ecf6 : 0xc5d6ee;
+      const lineAlpha = isBoundary ? alpha * 2.0 : alpha;
+      const lineWidth = isBoundary ? 1.1 : 0.5;
       grid.lineStyle(lineWidth, color, lineAlpha);
 
-      const west = fineCellPosition(world, 0, index);
-      const east = fineCellPosition(world, size, index);
-      const north = fineCellPosition(world, index, 0);
-      const south = fineCellPosition(world, index, size);
-      grid.lineBetween(west.left, west.top + 24, east.left, east.top + 24);
-      grid.lineBetween(north.left, north.top + 24, south.left, south.top + 24);
+      const west = fineCellPosition(world, -0.5, v);
+      const east = fineCellPosition(world, size - 0.5, v);
+      const north = fineCellPosition(world, v, -0.5);
+      const south = fineCellPosition(world, v, size - 0.5);
+      grid.lineBetween(west.left, west.top + CHUNK_OFFSET_Y, east.left, east.top + CHUNK_OFFSET_Y);
+      grid.lineBetween(north.left, north.top + CHUNK_OFFSET_Y, south.left, south.top + CHUNK_OFFSET_Y);
     }
   }
 
@@ -956,6 +1230,11 @@ class OfficeMapScene extends Phaser.Scene {
     const player = playerCell();
     const preview = placementPreview();
     const keys = collectRenderableCellKeys(world, path, player);
+    // One graphics object batches every floor diamond for performance.
+    const floor = this.add.graphics().setDepth(40);
+    const placing = Boolean(game.placement.departmentId);
+    const lightStart = Math.floor(worldTileSize(world) * 0.7);
+    const officeKeys = this.officeCellSet(world);
 
     [...keys]
       .map(key => key.split(',').map(Number))
@@ -965,23 +1244,103 @@ class OfficeMapScene extends Phaser.Scene {
         const isPath = path.has(key);
         const isStart = world.start.x === x && world.start.y === y;
         const isEnd = world.end.x === x && world.end.y === y;
-        const lightSide = x >= Math.floor(worldTileSize(world) * 0.68);
+        const lightSide = x >= lightStart;
         const previewCell = preview.cells?.some(cell => Number(cell.x) === x && Number(cell.y) === y);
         const department = departmentAt(x, y);
-        const shouldDrawVoid = isPath || isStart || isEnd || blackholeAt(x, y) || blackholeDangerAt(x, y) || department || previewCell;
-        if (!isSampleOfficeFloor(x, y) && !shouldDrawVoid) return;
-
+        const danger = blackholeDangerAt(x, y);
+        const candidate = !isPath && !isEnd && !department && !danger && !officeKeys.has(key) && isAdjacentToPath(x, y);
         const center = tileCenter(world, x, y);
-        const spriteKey = spriteKeyForUrl(floorSpriteForCell(x, y, { isPath, isStart, isEnd, lightSide }));
-        const tile = this.add.image(center.x, center.y, spriteKey)
-          .setDisplaySize(48, 48)
-          .setDepth(100 + x + y);
-        tile.setAlpha(isSampleOfficeFloor(x, y) || isPath || isStart || isEnd ? 0.92 : 0.45);
+        const diamond = this.tileDiamond(center, 1);
 
-        if (department) tile.setTint(0x8fb7d9);
-        if (blackholeDangerAt(x, y)) tile.setTint(0x8b3940);
-        if (previewCell) tile.setTint(preview.valid ? 0x7ccf83 : 0xe77764).setAlpha(0.8);
+        // Pick a flat-color isometric floor by tile role.
+        let fill = null;
+        let line = 0x000000;
+        let lineAlpha = 0;
+        if (isEnd) { fill = 0x2f6f6b; line = 0x8ff0e6; lineAlpha = 0.9; }
+        else if (department) { fill = 0x33405c; line = 0x9fc0ec; lineAlpha = 0.8; }
+        else if (danger) { fill = 0x5e2330; line = 0xe2616f; lineAlpha = 0.85; }
+        else if (isPath || isStart) { fill = isStart ? 0x6a5a36 : 0x4a4330; line = 0xd8c98c; lineAlpha = 0.55; }
+        else if (lightSide) { fill = 0x223a45; line = 0x4f8fa0; lineAlpha = 0.35; }
+
+        if (previewCell) {
+          fill = preview.valid ? 0x2f6a3a : 0x6a2f2c;
+          line = preview.valid ? 0x7ccf83 : 0xe77764;
+          lineAlpha = 0.95;
+        }
+
+        if (fill !== null) {
+          floor.fillStyle(fill, 0.95);
+          floor.fillPoints(diamond, true);
+          floor.lineStyle(1, line, lineAlpha);
+          floor.strokePoints(diamond, true);
+        }
+
+        // Buildable hints: a glowing green diamond on safe cells next to the path.
+        if (candidate && !placing) {
+          const hint = this.tileDiamond(center, 0.82);
+          floor.fillStyle(0x7ccf83, 0.14);
+          floor.fillPoints(hint, true);
+          floor.lineStyle(1.4, 0x7ccf83, 0.7);
+          floor.strokePoints(hint, true);
+        }
       });
+  }
+
+  tileDiamond(center, scale = 1) {
+    const hw = TILE_STEP_X * scale;
+    const hh = TILE_STEP_Y * scale;
+    return [
+      new Phaser.Math.Vector2(center.x, center.y - hh),
+      new Phaser.Math.Vector2(center.x + hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x - hw, center.y)
+    ];
+  }
+
+  // Extruded isometric block (a "building") sitting on a tile.
+  drawIsoPrism(center, height, topColor, leftColor, rightColor, depth) {
+    const hw = TILE_STEP_X;
+    const hh = TILE_STEP_Y;
+    const g = this.add.graphics().setDepth(depth);
+    const top = center.y - height;
+    // Left face
+    g.fillStyle(leftColor, 1);
+    g.fillPoints([
+      new Phaser.Math.Vector2(center.x - hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x, center.y + hh - height),
+      new Phaser.Math.Vector2(center.x - hw, top)
+    ], true);
+    // Right face
+    g.fillStyle(rightColor, 1);
+    g.fillPoints([
+      new Phaser.Math.Vector2(center.x + hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x, center.y + hh - height),
+      new Phaser.Math.Vector2(center.x + hw, top)
+    ], true);
+    // Top diamond
+    g.fillStyle(topColor, 1);
+    g.lineStyle(1, 0xffffff, 0.18);
+    const topDiamond = [
+      new Phaser.Math.Vector2(center.x, top - hh),
+      new Phaser.Math.Vector2(center.x + hw, top),
+      new Phaser.Math.Vector2(center.x, top + hh),
+      new Phaser.Math.Vector2(center.x - hw, top)
+    ];
+    g.fillPoints(topDiamond, true);
+    g.strokePoints(topDiamond, true);
+    return { top };
+  }
+
+  // Glowing portal/vortex rendered from concentric ellipses.
+  drawGlowDisc(center, radii) {
+    const g = this.add.graphics().setDepth(1000 + center.x + center.y);
+    radii.forEach(({ rx, ry, color, alpha }) => {
+      g.fillStyle(color, alpha);
+      g.fillEllipse(center.x, center.y, rx * 2, ry * 2);
+    });
+    return g;
   }
 
   drawRoomWalls(world) {
@@ -1036,24 +1395,43 @@ class OfficeMapScene extends Phaser.Scene {
         const isEnd = world.end.x === x && world.end.y === y;
         const blackhole = blackholeAt(x, y);
         const anchorDepartment = departmentAnchorAt(x, y);
-        const objectSprite = getWorldObjectSprite({ isStart, isEnd, blackhole, department: anchorDepartment });
         const center = tileCenter(world, x, y);
+        const depth = 1000 + x + y;
 
-        if (objectSprite) {
-          const key = spriteKeyForUrl(objectSprite);
-          const isPortal = isEnd;
-          const isHole = Boolean(blackhole);
-          const object = this.add.image(center.x, center.y + (isHole ? 18 : 30), key)
-            .setOrigin(0.5, 1)
-            .setDepth(1000 + x + y);
-          object.setDisplaySize(isPortal ? 88 : isHole ? 70 : 64, isPortal ? 88 : isHole ? 70 : 82);
+        if (blackhole) {
+          this.drawGlowDisc(center, [
+            { rx: 50, ry: 26, color: 0x6c3ff2, alpha: 0.18 },
+            { rx: 36, ry: 19, color: 0x3a2a6e, alpha: 0.55 },
+            { rx: 21, ry: 12, color: 0x100820, alpha: 0.95 },
+            { rx: 9, ry: 5, color: 0x000000, alpha: 1 }
+          ]);
+        }
+
+        if (isEnd) {
+          const portalRoom = game.session?.departments?.portal_room?.built;
+          // Goal marker: always-visible glowing nebula gate so players can orient.
+          this.drawGlowDisc(center, [
+            { rx: 58, ry: 30, color: 0x55c7b2, alpha: 0.16 },
+            { rx: 44, ry: 23, color: 0x3aa0b8, alpha: 0.3 }
+          ]);
+          this.drawIsoPrism(
+            center,
+            portalRoom ? 44 : 32,
+            portalRoom ? 0xe5bd57 : 0x6fe0d4,
+            portalRoom ? 0x9b7e2c : 0x2f7f78,
+            portalRoom ? 0xb8962f : 0x3a9b91,
+            depth
+          );
+          this.add.text(center.x, center.y - 56, portalRoom ? 'PORTAL' : 'NEBULA', {
+            fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#dffaf4', fontStyle: 'bold'
+          }).setOrigin(0.5, 1).setDepth(depth + 5);
         }
 
         if (player.x === x && player.y === y && !game.session.finalResult) {
-          this.add.image(center.x, center.y + 18, 'player')
+          this.add.image(center.x, center.y, 'player')
             .setOrigin(0.5, 1)
-            .setDisplaySize(44, 44)
-            .setDepth(1200 + x + y);
+            .setDisplaySize(40, 40)
+            .setDepth(1300 + x + y);
         }
       });
   }
@@ -1066,8 +1444,8 @@ class OfficeMapScene extends Phaser.Scene {
     graphics.fillStyle(preview.valid ? 0x7ccf83 : 0xe77764, 0.16);
     preview.cells.forEach(cell => {
       const center = tileCenter(world, cell.x, cell.y);
-      graphics.fillEllipse(center.x, center.y, 38, 22);
-      graphics.strokeEllipse(center.x, center.y, 38, 22);
+      graphics.fillEllipse(center.x, center.y, TILE_STEP_X * 1.5, TILE_STEP_Y * 1.5);
+      graphics.strokeEllipse(center.x, center.y, TILE_STEP_X * 1.5, TILE_STEP_Y * 1.5);
     });
   }
 
@@ -1202,7 +1580,21 @@ class OfficeMapScene extends Phaser.Scene {
   }
 
   fitToContent() {
-    this.setupCamera();
+    const bounds = fullscreenContentBounds();
+    const cam = this.cameras.main;
+    const usableWidth = Math.max(320, cam.width - (this.mode === 'fullscreen' ? 40 : 24));
+    const usableHeight = Math.max(260, cam.height - (this.mode === 'fullscreen' ? 156 : 24));
+    const fitZoom = Phaser.Math.Clamp(
+      Math.min(usableWidth / bounds.width, usableHeight / bounds.height) * 0.92,
+      MIN_MAP_ZOOM,
+      MAX_MAP_ZOOM
+    );
+    cam.setZoom(fitZoom);
+    cam.centerOn((bounds.minLeft + bounds.maxLeft) / 2, (bounds.minTop + bounds.maxTop) / 2 + 16);
+    if (this.mode === 'fullscreen') {
+      game.fullscreen.zoom = fitZoom;
+      this.updateZoomLabel();
+    }
   }
 
   centerOnContent() {
@@ -1210,13 +1602,38 @@ class OfficeMapScene extends Phaser.Scene {
     this.cameras.main.centerOn((bounds.minLeft + bounds.maxLeft) / 2, (bounds.minTop + bounds.maxTop) / 2 + 16);
   }
 
+  centerOnPlayer() {
+    const cell = playerCell();
+    const c = tileCenter(worldState(), cell.x, cell.y);
+    this.cameras.main.centerOn(c.x, c.y);
+  }
+
   setZoomFromUi(nextZoom) {
-    this.cameras.main.setZoom(clampZoom(nextZoom));
+    const cam = this.cameras.main;
+    // Zoom about the current view center instead of the world origin so the
+    // content the player is looking at stays put.
+    const cx = cam.midPoint.x;
+    const cy = cam.midPoint.y;
+    cam.setZoom(clampZoom(nextZoom));
+    cam.centerOn(cx, cy);
     if (this.mode === 'fullscreen') {
-      game.fullscreen.zoom = this.cameras.main.zoom;
+      game.fullscreen.zoom = cam.zoom;
       this.updateZoomLabel();
     }
   }
+}
+
+// Persistent parent node for the Phaser canvas. Keeping a single host element
+// alive across full re-renders lets us move the live WebGL context to the new
+// placeholder instead of destroying and recreating it on every state change.
+let mapHost = null;
+
+function ensureMapHost() {
+  if (!mapHost) {
+    mapHost = document.createElement('div');
+    mapHost.className = 'phaser-host';
+  }
+  return mapHost;
 }
 
 function destroyPhaserMap() {
@@ -1226,22 +1643,35 @@ function destroyPhaserMap() {
 }
 
 function mountPhaserMap() {
-  const mapEl = document.querySelector('[data-phaser-map]');
-  if (!mapEl) {
-    destroyPhaserMap();
+  const placeholder = document.querySelector('[data-phaser-map]');
+  if (!placeholder) {
+    // No map on this screen (start/report). Park the host off-DOM; keep the
+    // game alive so returning to the board is instant.
+    if (mapHost?.parentNode) mapHost.parentNode.removeChild(mapHost);
     return;
   }
 
-  destroyPhaserMap();
+  const mode = placeholder.dataset.mapMode || 'dashboard';
+  const host = ensureMapHost();
+  if (host.parentNode !== placeholder) placeholder.appendChild(host);
 
-  const mode = mapEl.dataset.mapMode || 'dashboard';
-  const rect = mapEl.getBoundingClientRect();
-  activeOfficeMap = { game: null, element: mapEl, mode, scene: null };
+  // Reuse the existing game when the mode is unchanged: just resize to the new
+  // container and redraw the scene, preserving camera zoom/pan.
+  if (activeOfficeMap?.game && activeOfficeMap.mode === mode) {
+    activeOfficeMap.game.scale.refresh();
+    activeOfficeMap.scene?.renderMap();
+    return;
+  }
+
+  // First mount, or the map mode changed (dashboard <-> fullscreen): recreate.
+  destroyPhaserMap();
+  const rect = host.getBoundingClientRect();
+  activeOfficeMap = { game: null, element: host, mode, scene: null };
   const phaserGame = new Phaser.Game({
     type: Phaser.AUTO,
-    parent: mapEl,
-    width: Math.max(320, Math.floor(rect.width || mapEl.clientWidth || 800)),
-    height: Math.max(260, Math.floor(rect.height || mapEl.clientHeight || 520)),
+    parent: host,
+    width: Math.max(320, Math.floor(rect.width || host.clientWidth || 800)),
+    height: Math.max(260, Math.floor(rect.height || host.clientHeight || 520)),
     backgroundColor: '#02030a',
     pixelArt: true,
     antialias: false,
@@ -1257,6 +1687,9 @@ function mountPhaserMap() {
 }
 
 function commitRender(html) {
+  // Detach the live map host before wiping the DOM so its canvas/WebGL context
+  // survives the innerHTML replace, then re-attach it in mountPhaserMap().
+  if (mapHost?.parentNode) mapHost.parentNode.removeChild(mapHost);
   appEl.innerHTML = html;
   requestAnimationFrame(() => mountPhaserMap());
 }
@@ -1323,7 +1756,7 @@ function renderTutorial() {
             <div class="tutorial-step-icon">🛤️</div>
             <div class="tutorial-step-content">
               <h3>Step 2 — Build Paths</h3>
-              <p>Click on cells <strong>adjacent to existing paths</strong> to extend your office corridor. Each tile costs <strong>2 points</strong>. Start from position (1,16).</p>
+              <p>Click on the <strong>glowing green cells</strong> next to your path to extend your office corridor. Each tile costs <strong>1 point</strong>. Start from position (1,16).</p>
             </div>
           </div>
           <div class="tutorial-step">
@@ -1425,7 +1858,7 @@ function renderDashboard() {
       <section class="resource-strip">
         ${Object.entries(session.resources).map(([key, value]) => renderResource(key, value)).join('')}
         <div class="points-box">
-          <span>Main Points</span>
+          <span><img class="ui-icon" src="${POINTS_ICON}" alt="" />Main Points</span>
           <strong>${session.points}</strong>
         </div>
       </section>
@@ -1496,10 +1929,11 @@ function renderFullscreenMap() {
 
 function renderResource(key, value) {
   const status = value < 35 ? 'danger' : value < 50 ? 'warn' : 'good';
+  const icon = RESOURCE_ICONS[key];
   return `
     <div class="resource ${status}">
       <div class="resource-line">
-        <span>${resourceLabel(key)}</span>
+        <span>${icon ? `<img class="ui-icon" src="${icon}" alt="" />` : ''}${resourceLabel(key)}</span>
         <strong>${value}</strong>
       </div>
       <div class="meter"><span style="width: ${value}%"></span></div>
@@ -1537,9 +1971,9 @@ function renderWorldPanel() {
     </div>
     <div class="world-legend">
       <span><i class="legend-chip path"></i>built path</span>
-      <span><i class="legend-chip danger"></i>gravity danger</span>
-      <span><i class="legend-chip light"></i>nebula edge</span>
-      <span><i class="legend-chip wall"></i>office wall</span>
+      <span><i class="legend-chip buildable"></i>buildable here</span>
+      <span><i class="legend-chip danger"></i>blackhole danger</span>
+      <span><i class="legend-chip nebula"></i>nebula gate</span>
       <span><img src="${sprites.player}" alt="" /> player marker</span>
     </div>
   `;
@@ -1549,11 +1983,12 @@ function renderPlacementBanner() {
   const department = placementModeDepartment();
   if (!department) return '';
   const preview = placementPreview();
+  const chunks = placementChunkCount();
   return `
     <div class="placement-banner ${preview.valid ? 'valid' : 'invalid'}">
       <div>
-        <strong>Placing ${escapeHtml(department.name)}</strong>
-        <span>${preview.reason || 'Choose an anchor cell next to your path'} - Rotation ${game.placement.rotation}deg</span>
+        <strong>Placing ${escapeHtml(department.name)} — ${chunks}-chunk office (${placementCost()} pts)</strong>
+        <span>${preview.reason || 'Choose an anchor cell next to your path'} · Rotation ${game.placement.rotation}°</span>
       </div>
       <div class="button-row">
         <button class="secondary-button" data-action="rotate-placement">Rotate</button>
@@ -1584,16 +2019,19 @@ function addRenderableCell(keys, world, x, y) {
 
 function collectRenderableCellKeys(world, path, player) {
   const keys = new Set();
-  const bounds = SAMPLE_OFFICE.bounds;
   const preview = placementPreview();
 
-  for (let y = bounds.minY; y <= bounds.maxY; y += 1) {
-    for (let x = bounds.minX; x <= bounds.maxX; x += 1) {
-      addRenderableCell(keys, world, x, y);
-    }
+  for (const key of path) {
+    const [x, y] = key.split(',').map(Number);
+    addRenderableCell(keys, world, x, y);
+    addRenderableCell(keys, world, x + 1, y);
+    addRenderableCell(keys, world, x - 1, y);
+    addRenderableCell(keys, world, x, y + 1);
+    addRenderableCell(keys, world, x, y - 1);
   }
 
-  for (const key of path) {
+  // Office floors (spawn + departments) and the buildable ring around them.
+  for (const key of officeCellKeys()) {
     const [x, y] = key.split(',').map(Number);
     addRenderableCell(keys, world, x, y);
     addRenderableCell(keys, world, x + 1, y);
@@ -1819,13 +2257,14 @@ function renderBugRain() {
     <div class="bug-grid">
       ${bugCards.map(card => `
         <button
-          class="bug-card ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
+          class="bug-card sev-${card.severity} ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
           data-action="toggle-bug"
           data-bug-id="${card.id}"
           ${!canAct() ? 'disabled' : ''}
         >
+          <span class="severity-tag sev-${card.severity}">${card.severity === 'serious' ? '🔴 Serious' : '🟡 Minor'}</span>
           <strong>${escapeHtml(card.title)}</strong>
-          <span>${selected.has(card.id) ? 'Selected' : 'Not selected'}</span>
+          <span class="bug-state">${selected.has(card.id) ? '✓ Marked to block' : 'Tap to triage'}</span>
           ${game.debugOpen && game.showCorrectAnswers ? `<em>${card.severity === 'serious' ? 'Correct: block release' : 'Correct: minor'}</em>` : ''}
         </button>
       `).join('')}
@@ -1850,7 +2289,7 @@ function renderBudgetRift() {
           >
             <strong>${escapeHtml(choice.title)}</strong>
             <span>${escapeHtml(choice.text)}</span>
-            <em>${formatDelta(choice.delta)}</em>
+            ${renderDeltaChips(choice.delta)}
             ${game.debugOpen && game.showCorrectAnswers ? `<em>${passes ? 'Passes' : 'Fails'} after choice: ${formatProjected(projected)}</em>` : ''}
           </button>
         `;
@@ -1888,15 +2327,16 @@ function renderShopPanel() {
         ${departments.map(department => {
           const built = department.built;
           const complete = built && department.level >= 2;
-          const price = built ? department.upgradePrice : department.price;
+          const minPlacePrice = CHUNK_PRICE[1];
+          const price = built ? department.upgradePrice : minPlacePrice;
           const placing = game.placement.departmentId === department.id;
-          const label = complete ? 'Complete' : built ? `Upgrade ${price}` : placing ? 'Placing...' : `Place ${price}`;
+          const label = complete ? 'Complete' : built ? `Upgrade ${department.upgradePrice}` : placing ? 'Placing...' : `Place (${CHUNK_PRICE[1]}-${CHUNK_PRICE[3]})`;
           return `
             <article class="shop-item ${placing ? 'selected' : ''}">
               <div>
                 <h3>${escapeHtml(department.name)}</h3>
                 <p>${escapeHtml(department.meaning)}</p>
-                <span>${formatDelta(built ? department.upgradeEffect : department.resourceEffect)}</span>
+                ${renderDeltaChips(built ? department.upgradeEffect : department.resourceEffect)}
                 <em>${escapeHtml(department.footprint?.label || '#')} footprint</em>
               </div>
               <button
@@ -2180,7 +2620,10 @@ async function handleClick(event) {
     if (zoomAction === 'in') setFullscreenZoom(game.fullscreen.zoom + ZOOM_STEP, true);
     if (zoomAction === 'reset') setFullscreenZoom(1, true);
     if (zoomAction === 'fit') fitFullscreenMap('smooth');
-    if (zoomAction === 'player') queueSnapMapToPlayer(true);
+    if (zoomAction === 'player') {
+      if (activeOfficeMap?.scene?.mode === 'fullscreen') activeOfficeMap.scene.centerOnPlayer();
+      else queueSnapMapToPlayer(true);
+    }
     return;
   }
   if (action === 'start-placement') {
@@ -2351,12 +2794,16 @@ function buildMinigamePayload(minigameId) {
 }
 
 function startPlacement(departmentId) {
+  // Roll a random shape preset (1-3 chunks); content is randomised server-side.
+  const presetId = EXPANSION_PRESET_IDS[Math.floor(Math.random() * EXPANSION_PRESET_IDS.length)];
   game.placement = {
     departmentId,
+    presetId,
     rotation: 0,
     previewAnchor: null
   };
-  game.notice = 'Choose a map cell next to your built path.';
+  const chunks = placementChunkCount();
+  game.notice = `Rolled a ${chunks}-chunk office (${placementCost()} pts). Rotate it, then click a spot next to your path.`;
 }
 
 function rotatePlacement() {
@@ -2365,7 +2812,7 @@ function rotatePlacement() {
 }
 
 function clearPlacement() {
-  game.placement = { departmentId: '', rotation: 0, previewAnchor: null };
+  game.placement = { departmentId: '', presetId: '', rotation: 0, previewAnchor: null };
 }
 
 async function placeDepartment(x, y) {
@@ -2403,7 +2850,7 @@ async function buildWorldCell(x, y) {
 async function buyDepartment(departmentId, anchorCell = null, rotation = 0) {
   await withAction(async () => {
     const body = anchorCell
-      ? { departmentId, anchorCell, rotation }
+      ? { departmentId, anchorCell, rotation, presetId: game.placement.presetId || 'single' }
       : { departmentId };
     const response = await api.post(
       `/api/sessions/${game.session.sessionId}/buy-department`,
@@ -2672,7 +3119,8 @@ document.addEventListener('keydown', event => {
     }
     if (key === 'p') {
       event.preventDefault();
-      queueSnapMapToPlayer(true);
+      if (activeOfficeMap?.scene?.mode === 'fullscreen') activeOfficeMap.scene.centerOnPlayer();
+      else queueSnapMapToPlayer(true);
       return;
     }
     if (event.key === 'Escape') {

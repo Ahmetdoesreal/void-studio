@@ -543,13 +543,16 @@ h3 {
 }
 
 .phaser-map,
-.phaser-map canvas {
+.phaser-host,
+.phaser-map canvas,
+.phaser-host canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.phaser-map canvas {
+.phaser-map canvas,
+.phaser-host canvas {
   image-rendering: pixelated;
   cursor: inherit;
 }
@@ -1128,6 +1131,11 @@ h3 {
 }
 
 .legend-chip.path {
+  border-color: #d8c98c;
+  background: rgba(216, 201, 140, 0.4);
+}
+
+.legend-chip.buildable {
   border-color: var(--green);
   background: rgba(124, 207, 131, 0.28);
 }
@@ -1137,14 +1145,9 @@ h3 {
   background: rgba(231, 119, 100, 0.28);
 }
 
-.legend-chip.light {
-  border-color: #d5b8ff;
-  background: rgba(213, 184, 255, 0.28);
-}
-
-.legend-chip.wall {
+.legend-chip.nebula {
   border-color: var(--teal);
-  background: linear-gradient(90deg, rgba(85, 199, 178, 0.58), rgba(218, 242, 160, 0.38));
+  background: rgba(85, 199, 178, 0.4);
 }
 
 .placement-banner {
@@ -1344,6 +1347,84 @@ h3 {
 .shop-item.selected {
   border-color: var(--gold);
   background: #1c1b13;
+}
+
+.ui-icon {
+  width: 15px;
+  height: 15px;
+  image-rendering: pixelated;
+  vertical-align: -3px;
+  margin-right: 6px;
+}
+
+.delta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.delta-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.delta-chip.up {
+  color: #d7f7c8;
+  background: rgba(124, 207, 131, 0.16);
+  border-color: rgba(124, 207, 131, 0.5);
+}
+
+.delta-chip.down {
+  color: #f7cabf;
+  background: rgba(231, 119, 100, 0.16);
+  border-color: rgba(231, 119, 100, 0.5);
+}
+
+.delta-chip.flat {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--line);
+}
+
+.severity-tag {
+  justify-self: start;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.severity-tag.sev-serious {
+  color: #f7cabf;
+  background: rgba(231, 119, 100, 0.16);
+}
+
+.severity-tag.sev-minor {
+  color: #f0dca0;
+  background: rgba(229, 189, 87, 0.16);
+}
+
+.bug-card {
+  border-left-width: 3px;
+}
+
+.bug-card.sev-serious {
+  border-left-color: var(--coral);
+}
+
+.bug-card.sev-minor {
+  border-left-color: var(--gold);
+}
+
+.bug-card .bug-state {
+  font-weight: 600;
 }
 
 .result-box {

@@ -126,6 +126,7 @@ async def post_buy_department(request: web.Request) -> web.Response:
         str(department_id),
         payload.get("anchorCell"),
         payload.get("rotation", 0),
+        str(payload.get("presetId", "single")),
     )
     save_session(session)
     append_log(session["sessionId"], log_entry)
