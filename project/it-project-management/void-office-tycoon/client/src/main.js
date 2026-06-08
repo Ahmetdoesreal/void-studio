@@ -28,6 +28,7 @@ import furniMonitor from './assets/sprites/furni/monitor.png';
 import furniImac from './assets/sprites/furni/imac.png';
 import furniLaptop from './assets/sprites/furni/laptop.png';
 import furniOfficeChair from './assets/sprites/furni/officeChair.png';
+import furniOfficeChairBack from './assets/sprites/furni/officeChairBack.png';
 import furniChair from './assets/sprites/furni/chair.png';
 import furniTable from './assets/sprites/furni/table.png';
 import furniCoffeeTable from './assets/sprites/furni/coffeeTable.png';
@@ -48,6 +49,7 @@ const FURNI = {
   imac: furniImac,
   laptop: furniLaptop,
   officeChair: furniOfficeChair,
+  officeChairBack: furniOfficeChairBack,
   chair: furniChair,
   table: furniTable,
   coffeeTable: furniCoffeeTable,
@@ -143,30 +145,46 @@ const sprites = {
   wallPanel: wallPanelSprite
 };
 
-// Isometric building palette per department: distinct top/side colors and a
-// short label drawn programmatically so the map reads cleanly at any angle.
-const DEPARTMENT_THEME = {
-  scope_desk: { top: 0x7fb5e6, left: 0x3a6da3, right: 0x4f86bf, label: 'SC' },
-  bug_lab: { top: 0x6fe0a8, left: 0x2f8a5e, right: 0x3aa873, label: 'BUG' },
-  sprint_floor: { top: 0xf0b56a, left: 0xa36a25, right: 0xc2853a, label: 'SPR' },
-  risk_vault: { top: 0xe5bd57, left: 0x9b7e2c, right: 0xb8962f, label: 'RSK' },
-  stakeholder_booth: { top: 0xc79bf0, left: 0x6e3aa3, right: 0x8a4fbf, label: 'STK' },
-  default: { top: 0x9fc0ec, left: 0x3a4a63, right: 0x4f607f, label: '#' }
-};
-
 // A room (subcell) is ROOM_SIZE x ROOM_SIZE normal cells.
 const ROOM_SIZE = 4;
 
-// Office expansion shape presets in ROOM offsets, mirrored from the server.
-const EXPANSION_PRESETS = {
-  single: [{ x: 0, y: 0 }],
-  duo_h: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
-  duo_v: [{ x: 0, y: 0 }, { x: 0, y: 1 }],
-  ell: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
-  row: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }]
+// The three office building types (mirror of the server). Each ties to a
+// resource, has a FIXED rotatable shape (in ROOM offsets) and a theme. Buyable
+// repeatedly to expand the office. Image colours: budget=black, team=blue,
+// quality=green.
+const BUILDING_TYPES = [
+  {
+    id: 'budget', name: 'Budget Office', resource: 'budget', cost: 55, shapeLabel: 'L-corner',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
+    resourceEffect: { budget: 20, team: -2, quality: 0 },
+    meaning: 'Finance wing that protects and grows the project budget.',
+    theme: { floor: 0x2c2f3b, top: 0xe5bd57, left: 0x24262f, right: 0x3a3d49, label: 'BUDGET' }
+  },
+  {
+    id: 'team', name: 'Team Office', resource: 'team', cost: 80, shapeLabel: 'L',
+    shape: [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }, { x: 1, y: 2 }],
+    resourceEffect: { budget: -4, team: 22, quality: 2 },
+    meaning: 'Collaboration space that keeps the team healthy and fast.',
+    theme: { floor: 0x2f3c57, top: 0x7fb5e6, left: 0x2a3450, right: 0x41557d, label: 'TEAM' }
+  },
+  {
+    id: 'quality', name: 'Quality Office', resource: 'quality', cost: 45, shapeLabel: 'bar',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+    resourceEffect: { budget: 0, team: 2, quality: 18 },
+    meaning: 'Dev/QA lab that turns effort into protected quality.',
+    theme: { floor: 0x2c4636, top: 0x6fe0a8, left: 0x224031, right: 0x356048, label: 'QUALITY' }
+  }
+];
+const BUILDING_TYPES_BY_ID = Object.fromEntries(BUILDING_TYPES.map(b => [b.id, b]));
+const BUILDING_SHAPES = Object.fromEntries(BUILDING_TYPES.map(b => [b.id, b.shape]));
+
+// Isometric building theme per building TYPE (keyed by typeId).
+const DEPARTMENT_THEME = {
+  budget: BUILDING_TYPES_BY_ID.budget.theme,
+  team: BUILDING_TYPES_BY_ID.team.theme,
+  quality: BUILDING_TYPES_BY_ID.quality.theme,
+  default: { floor: 0x3a3f4d, top: 0x9fc0ec, left: 0x3a4a63, right: 0x4f607f, label: 'OFFICE' }
 };
-const EXPANSION_PRESET_IDS = Object.keys(EXPANSION_PRESETS);
-const CHUNK_PRICE = { 1: 25, 2: 45, 3: 65 };
 
 // Furniture sprite keys usable inside office chunks (matches server palette).
 const OFFICE_FURNITURE_SPRITES = {
@@ -198,16 +216,20 @@ function rotateOffsets(cells, rotation) {
     .sort((a, b) => a.y - b.y || a.x - b.x);
 }
 
-function activePresetCells() {
-  return EXPANSION_PRESETS[game.placement.presetId] || EXPANSION_PRESETS.single;
+function activeBuildingShape() {
+  return BUILDING_SHAPES[game.placement.departmentId] || [{ x: 0, y: 0 }];
+}
+
+function placementType() {
+  return BUILDING_TYPES_BY_ID[game.placement.departmentId] || null;
 }
 
 function placementChunkCount() {
-  return activePresetCells().length;
+  return activeBuildingShape().length;
 }
 
 function placementCost() {
-  return CHUNK_PRICE[placementChunkCount()] || CHUNK_PRICE[1];
+  return placementType()?.cost || 0;
 }
 
 const spriteKeyByUrl = new Map(Object.entries(sprites).map(([key, value]) => [value, key]));
@@ -441,16 +463,9 @@ function clampZoom(value) {
 }
 
 function sortedDepartments() {
-  const departments = Object.values(game.session?.departments || {});
-  const order = [
-    'scope_desk',
-    'bug_lab',
-    'sprint_floor',
-    'risk_vault',
-    'stakeholder_booth',
-    'portal_room'
-  ];
-  return departments.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  // Placed building instances (and the portal), oldest first.
+  return Object.values(game.session?.departments || {})
+    .sort((a, b) => String(a.builtAt || '').localeCompare(String(b.builtAt || '')));
 }
 
 function worldState() {
@@ -772,7 +787,7 @@ function placementCells(department, anchor, rotation) {
   if (!department || !anchor) return [];
   // Each preset offset is a ROOM; expand it to the 4x4 block of normal cells.
   const cells = [];
-  for (const room of rotateOffsets(activePresetCells(), rotation)) {
+  for (const room of rotateOffsets(activeBuildingShape(), rotation)) {
     const bx = Number(anchor.x) + room.x * ROOM_SIZE;
     const by = Number(anchor.y) + room.y * ROOM_SIZE;
     for (let dy = 0; dy < ROOM_SIZE; dy += 1) {
@@ -852,8 +867,8 @@ function departmentAnchorAt(x, y) {
 }
 
 function placementModeDepartment() {
-  if (!game.placement.departmentId) return null;
-  return sortedDepartments().find(department => department.id === game.placement.departmentId) || null;
+  // When placing, the "department" is the building TYPE being placed.
+  return placementType();
 }
 
 function occupiedByOtherDepartment(x, y, departmentId) {
@@ -864,14 +879,21 @@ function occupiedByOtherDepartment(x, y, departmentId) {
   ));
 }
 
-function cellsTouchPath(cells) {
-  const path = pathSet();
+// A building can expand from the corridor, the spawn office, another building,
+// or a map border — mirrors the server's validate_department_placement.
+function cellsTouchBuildable(cells) {
+  const buildable = buildableSet();
+  const own = new Set(cells.map(c => coordKey(c.x, c.y)));
   return cells.some(cell => [
     coordKey(cell.x + 1, cell.y),
     coordKey(cell.x - 1, cell.y),
     coordKey(cell.x, cell.y + 1),
     coordKey(cell.x, cell.y - 1)
-  ].some(key => path.has(key)));
+  ].some(key => buildable.has(key) && !own.has(key)));
+}
+
+function cellsOnBorder(cells, size) {
+  return cells.some(c => c.x === 0 || c.y === 0 || c.x === size - 1 || c.y === size - 1);
 }
 
 function placementPreview(anchor = game.placement.previewAnchor) {
@@ -880,9 +902,9 @@ function placementPreview(anchor = game.placement.previewAnchor) {
   if (!department || !anchor) return { cells: [], valid: false, reason: '' };
   const size = worldTileSize(world);
   const cells = placementCells(department, anchor, game.placement.rotation);
-  const startKey = coordKey(world.start.x, world.start.y);
   const endKey = coordKey(world.end.x, world.end.y);
   const path = pathSet();
+  const offices = officeCellKeys();
   const invalid = cells.find(cell => {
     const key = coordKey(cell.x, cell.y);
     return (
@@ -890,15 +912,16 @@ function placementPreview(anchor = game.placement.previewAnchor) {
       cell.y < 0 ||
       cell.x >= size ||
       cell.y >= size ||
-      key === startKey ||
       key === endKey ||
       path.has(key) ||
-      cellTouchesBlackholeDanger(cell.x, cell.y) ||
-      occupiedByOtherDepartment(cell.x, cell.y, department.id)
+      offices.has(key) ||
+      cellTouchesBlackholeDanger(cell.x, cell.y)
     );
   });
-  if (invalid) return { cells, valid: false, reason: 'Blocked footprint' };
-  if (!cellsTouchPath(cells)) return { cells, valid: false, reason: 'Must touch path' };
+  if (invalid) return { cells, valid: false, reason: 'Blocked — overlaps a corridor, office, gate or blackhole' };
+  if (!cellsOnBorder(cells, size) && !cellsTouchBuildable(cells)) {
+    return { cells, valid: false, reason: 'Touch your office, corridor or a map border' };
+  }
   return { cells, valid: true, reason: 'Valid placement' };
 }
 
@@ -1154,9 +1177,11 @@ class OfficeMapScene extends Phaser.Scene {
       const targetMax = TILE_STEP_X * 1.7; // ~tile-sized Habbo furni
       const scale = Math.min(0.95, targetMax / Math.max(src.width, src.height));
       // Items with a lift (e.g. a computer) sit on top of the desk on the same
-      // cell, so raise them and draw them above the desk.
+      // cell, so raise them and draw them above the desk. offsetX nudges them
+      // horizontally so they sit centred on the desk surface.
       const lift = Number(item.lift || 0) * TILE_STEP_Y;
-      this.add.image(center.x, center.y - lift, texKey)
+      const offsetX = Number(item.offsetX || 0) * TILE_STEP_X;
+      this.add.image(center.x + offsetX, center.y - lift, texKey)
         .setOrigin(0.5, 0.9)
         .setDisplaySize(src.width * scale, src.height * scale)
         .setDepth(1000 + (cx + cy) * 4 + (lift > 0 ? 2 : 0));
@@ -1182,10 +1207,10 @@ class OfficeMapScene extends Phaser.Scene {
     }
     // Department expansion rooms.
     for (const department of sortedDepartments()) {
-      if (!department.built || department.id === 'portal_room') continue;
+      if (!department.built || department.typeId === 'portal_room') continue;
       const placement = department.placement;
       if (!placement?.occupiedCells?.length) continue;
-      const theme = DEPARTMENT_THEME[department.id] || DEPARTMENT_THEME.default;
+      const theme = DEPARTMENT_THEME[department.typeId] || DEPARTMENT_THEME.default;
       this.drawFurnishedOffice(world, placement.occupiedCells, placement.furniture, {
         floorColor: theme.floor ?? 0x4a4f63,
         edgeColor: theme.top,
@@ -1762,8 +1787,8 @@ function renderTutorial() {
           <div class="tutorial-step">
             <div class="tutorial-step-icon">🏢</div>
             <div class="tutorial-step-content">
-              <h3>Step 3 — Buy Departments</h3>
-              <p>Use points to buy <strong>Scope Desk</strong>, <strong>Bug Lab</strong>, <strong>Sprint Floor</strong>, <strong>Risk Vault</strong>, and <strong>Stakeholder Booth</strong>. Place them next to your path.</p>
+              <h3>Step 3 — Build Office Wings</h3>
+              <p>Buy <strong>Budget</strong>, <strong>Team</strong> and <strong>Quality</strong> offices. Each has its own shape — <strong>rotate</strong> it, then place it next to your office, corridor, or a map border. Buy as many as you like to expand.</p>
             </div>
           </div>
           <div class="tutorial-step">
@@ -1777,7 +1802,7 @@ function renderTutorial() {
             <div class="tutorial-step-icon">🌀</div>
             <div class="tutorial-step-content">
               <h3>Step 5 — Escape the Void</h3>
-              <p>Build all departments, connect the path to the <strong>nebula light</strong> at (30,16), and open the <strong>Portal Room</strong> to win!</p>
+              <p>Build at least one of each office type, connect the corridor to the <strong>nebula light</strong>, and open the <strong>Portal Room</strong> to win!</p>
             </div>
           </div>
         </div>
@@ -1941,10 +1966,14 @@ function renderResource(key, value) {
   `;
 }
 
-function builtCount() {
-  return sortedDepartments()
-    .filter(department => department.id !== 'portal_room' && department.built)
-    .length;
+function builtBuildings() {
+  return sortedDepartments().filter(d => d.built && d.typeId !== 'portal_room');
+}
+
+// How many of the 3 resource building types have at least one instance built.
+function builtTypeCount() {
+  const types = new Set(builtBuildings().map(d => d.typeId));
+  return BUILDING_TYPES.filter(t => types.has(t.id)).length;
 }
 
 function renderWorldPanel() {
@@ -1955,7 +1984,7 @@ function renderWorldPanel() {
     <div class="panel-heading">
       <div>
         <h2>Isometric Void Office</h2>
-        <span>${builtCount()} / 5 departments</span>
+        <span>${builtTypeCount()} / 3 office types · ${builtBuildings().length} buildings</span>
       </div>
       <span>${lightProgress()}% to nebula</span>
     </div>
@@ -1983,12 +2012,12 @@ function renderPlacementBanner() {
   const department = placementModeDepartment();
   if (!department) return '';
   const preview = placementPreview();
-  const chunks = placementChunkCount();
+  const rooms = placementChunkCount();
   return `
     <div class="placement-banner ${preview.valid ? 'valid' : 'invalid'}">
       <div>
-        <strong>Placing ${escapeHtml(department.name)} — ${chunks}-chunk office (${placementCost()} pts)</strong>
-        <span>${preview.reason || 'Choose an anchor cell next to your path'} · Rotation ${game.placement.rotation}°</span>
+        <strong>Placing ${escapeHtml(department.name)} — ${rooms}-room ${escapeHtml(department.shapeLabel || '')} (${placementCost()} pts)</strong>
+        <span>${preview.reason || 'Choose a spot next to your office, corridor or a map border'} · Rotation ${game.placement.rotation}°</span>
       </div>
       <div class="button-row">
         <button class="secondary-button" data-action="rotate-placement">Rotate</button>
@@ -2148,7 +2177,7 @@ function renderSubcellLayers(department, x, y) {
 
 function getWorldObjectSprite({ isStart, isEnd, blackhole, department }) {
   if (blackhole) return sprites.blackhole;
-  if (department) return sprites[department.id];
+  if (department) return sprites[department.typeId] || sprites.officeCore;
   if (isStart) return sprites.officeCore;
   if (isEnd) return game.session?.departments?.portal_room?.built ? sprites.portal_room : sprites.nebulaGate;
   return '';
@@ -2315,8 +2344,11 @@ function formatProjected(projected) {
     .join(', ');
 }
 
+function builtCountForType(typeId) {
+  return sortedDepartments().filter(d => d.built && d.typeId === typeId).length;
+}
+
 function renderShopPanel() {
-  const departments = sortedDepartments().filter(department => department.id !== 'portal_room');
   return `
     <section class="sandbox-panel">
       <div class="panel-heading">
@@ -2324,25 +2356,23 @@ function renderShopPanel() {
         <span>${game.session.points} points</span>
       </div>
       <div class="shop-list">
-        ${departments.map(department => {
-          const built = department.built;
-          const complete = built && department.level >= 2;
-          const minPlacePrice = CHUNK_PRICE[1];
-          const price = built ? department.upgradePrice : minPlacePrice;
-          const placing = game.placement.departmentId === department.id;
-          const label = complete ? 'Complete' : built ? `Upgrade ${department.upgradePrice}` : placing ? 'Placing...' : `Place (${CHUNK_PRICE[1]}-${CHUNK_PRICE[3]})`;
+        ${BUILDING_TYPES.map(type => {
+          const placing = game.placement.departmentId === type.id;
+          const owned = builtCountForType(type.id);
+          const rooms = type.shape.length;
+          const label = placing ? 'Placing...' : `Place (${type.cost})`;
           return `
-            <article class="shop-item ${placing ? 'selected' : ''}">
+            <article class="shop-item ${placing ? 'selected' : ''} shop-${type.id}">
               <div>
-                <h3>${escapeHtml(department.name)}</h3>
-                <p>${escapeHtml(department.meaning)}</p>
-                ${renderDeltaChips(built ? department.upgradeEffect : department.resourceEffect)}
-                <em>${escapeHtml(department.footprint?.label || '#')} footprint</em>
+                <h3>${escapeHtml(type.name)}${owned ? ` ×${owned}` : ''}</h3>
+                <p>${escapeHtml(type.meaning)}</p>
+                ${renderDeltaChips(type.resourceEffect)}
+                <em>${escapeHtml(type.shapeLabel)} · ${rooms} rooms · rotatable</em>
               </div>
               <button
-                data-action="${built ? 'buy-department' : 'start-placement'}"
-                data-department-id="${department.id}"
-                ${!canAct() || complete || game.session.points < price ? 'disabled' : ''}
+                data-action="start-placement"
+                data-department-id="${type.id}"
+                ${!canAct() || game.session.points < type.cost ? 'disabled' : ''}
               >${label}</button>
             </article>
           `;
@@ -2658,7 +2688,6 @@ async function handleClick(event) {
     else await buildWorldCell(Number(actionEl.dataset.x), Number(actionEl.dataset.y));
   }
   if (action === 'submit-minigame') await submitMinigame(actionEl.dataset.minigameId || game.activeMinigame);
-  if (action === 'buy-department') await buyDepartment(actionEl.dataset.departmentId);
   if (action === 'escape-check') await runEscapeCheck();
   if (action === 'toggle-pause') await togglePause();
   if (action === 'open-report') await openReport();
@@ -2794,16 +2823,15 @@ function buildMinigamePayload(minigameId) {
 }
 
 function startPlacement(departmentId) {
-  // Roll a random shape preset (1-3 chunks); content is randomised server-side.
-  const presetId = EXPANSION_PRESET_IDS[Math.floor(Math.random() * EXPANSION_PRESET_IDS.length)];
+  // Each building type has a fixed, rotatable shape.
+  const type = BUILDING_TYPES_BY_ID[departmentId];
+  if (!type) return;
   game.placement = {
     departmentId,
-    presetId,
     rotation: 0,
     previewAnchor: null
   };
-  const chunks = placementChunkCount();
-  game.notice = `Rolled a ${chunks}-chunk office (${placementCost()} pts). Rotate it, then click a spot next to your path.`;
+  game.notice = `Placing ${type.name} (${type.cost} pts). Rotate it, then click a spot next to your office, corridor or a map border.`;
 }
 
 function rotatePlacement() {
@@ -2850,7 +2878,7 @@ async function buildWorldCell(x, y) {
 async function buyDepartment(departmentId, anchorCell = null, rotation = 0) {
   await withAction(async () => {
     const body = anchorCell
-      ? { departmentId, anchorCell, rotation, presetId: game.placement.presetId || 'single' }
+      ? { departmentId, anchorCell, rotation }
       : { departmentId };
     const response = await api.post(
       `/api/sessions/${game.session.sessionId}/buy-department`,
