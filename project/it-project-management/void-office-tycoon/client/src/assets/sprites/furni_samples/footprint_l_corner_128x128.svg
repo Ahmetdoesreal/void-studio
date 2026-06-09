@@ -1,0 +1,13 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="43,55 64,68 43,81 22,68" fill="#5A3420" fill-opacity="0.74"/>
+  <polygon points="85,55 106,68 85,81 64,68" fill="#5A3420" fill-opacity="0.74"/>
+  <polygon points="43,81 64,94 43,107 22,94" fill="#5A3420" fill-opacity="0.74"/>
+  <polygon points="43,58 60,68 43,78 26,68" fill="#8A5738" fill-opacity="0.9"/>
+  <polygon points="85,58 102,68 85,78 68,68" fill="#8A5738" fill-opacity="0.9"/>
+  <polygon points="43,84 60,94 43,104 26,94" fill="#8A5738" fill-opacity="0.9"/>
+  <path d="M43 55L64 68L43 81L22 68L43 55Z" stroke="#F4C897" stroke-width="2"/>
+  <path d="M85 55L106 68L85 81L64 68L85 55Z" stroke="#F4C897" stroke-width="2"/>
+  <path d="M43 81L64 94L43 107L22 94L43 81Z" stroke="#F4C897" stroke-width="2"/>
+  <path d="M64 68L43 81" stroke="#FFE4C3" stroke-opacity="0.45" stroke-width="1.5"/>
+  <path d="M43 81L64 94" stroke="#FFE4C3" stroke-opacity="0.45" stroke-width="1.5"/>
+</svg>

@@ -52,6 +52,22 @@ SCENARIOS = [
         "successDelta": {"budget": 0, "team": 0, "quality": 0},
         "failDelta": {"budget": 0, "team": 0, "quality": 0},
     },
+    {
+        "id": "SC-04",
+        "minigameId": "risk_vault",
+        "title": "Risk Vault",
+        "points": 70,
+        "successDelta": {"budget": 4, "team": 2, "quality": 10},
+        "failDelta": {"budget": -7, "team": -4, "quality": -10},
+    },
+    {
+        "id": "SC-05",
+        "minigameId": "stakeholder_booth",
+        "title": "Stakeholder Booth",
+        "points": 55,
+        "successDelta": {"budget": 2, "team": 12, "quality": 3},
+        "failDelta": {"budget": -4, "team": -10, "quality": -3},
+    },
 ]
 
 SCENARIOS_BY_MINIGAME = {item["minigameId"]: item for item in SCENARIOS}
@@ -69,6 +85,24 @@ BUDGET_RIFT_CHOICES = {
     "quality_gate": {
         "label": "Fund quality gates",
         "resourceDelta": {"budget": -8, "team": 0, "quality": 16},
+    },
+}
+
+CORRECT_BACKLOG_ORDER = ["s1", "s6", "s2", "s4", "s3", "s5"]
+SERIOUS_BUG_IDS = {"b1", "b3", "b5"}
+CRITICAL_RISK_IDS = {"r1", "r3", "r5"}
+STAKEHOLDER_BOOTH_CHOICES = {
+    "reply_with_decision": {
+        "label": "Request a decision with context",
+        "best": True,
+    },
+    "promise_later": {
+        "label": "Delay the update until after the sprint",
+        "best": False,
+    },
+    "send_metrics_only": {
+        "label": "Reply with metrics only",
+        "best": False,
     },
 }
 
@@ -97,17 +131,26 @@ DEPARTMENT_WORLD_CELLS = {
 # A "room" (a.k.a. subcell) is a ROOM_SIZE x ROOM_SIZE block of normal cells.
 # An office occupies whole rooms, not a subdivided single cell.
 ROOM_SIZE = 4
+FURNITURE_LAYOUT_VERSION = 4
 
 # Furniture sprite keys (match client FURNI palette). A computer sits ON a desk
-# (rendered lifted); an office chair faces the desk (a back-view sprite).
+# (rendered lifted); workstation chairs now sit to the side of desks because
+# the extracted Habbo sprites only give us clean side-facing chairs.
 DESK_SURFACE = "desk"
-COMPUTER_LIFT = 2.0
-COMPUTER_OFFSET_X = -0.3  # nudge the computer left so it sits on the desk surface
-DESK_CHAIR = "officeChairBack"  # office chair facing the desk (direction 6)
+COMPUTER_LIFT = 1.65
+COMPUTER_OFFSET_X = -0.18
+COMPUTER_OFFSET_Y = -0.24
+WORKSTATION_CHAIR = "officeChair"
+WORKSTATION_CHAIR_OFFSET_X = 0.2
+WORKSTATION_CHAIR_OFFSET_Y = -0.16
+MEETING_CHAIR = "chair"
+MEETING_CHAIR_OFFSET_X = 0.14
+MEETING_CHAIR_OFFSET_Y = -0.12
 
 # Which computer models each office type uses on its desks.
 COMPUTER_CHOICES = {
     "budget": ["monitor", "imac", "monitor"],
+    "team": ["laptop", "monitor", "laptop"],
     "quality": ["laptop", "monitor", "imac"],
     "spawn": ["monitor", "laptop", "imac"],
 }
@@ -235,47 +278,221 @@ def rotate_offsets(cells: list[dict[str, int]], rotation: int) -> list[dict[str,
     return sorted(normalized, key=lambda cell: (cell["y"], cell["x"]))
 
 
-def workstation_room_layout(rng: random.Random, type_id: str) -> dict[tuple, list]:
-    """Simple one-workstation layout for a 4x4 room: a single desk with a
-    computer on it and a chair facing the desk. Keyed by local (lx, ly); each
-    entry is a list of (spriteId, lift, offsetX) drawn bottom-to-top."""
-    comp = rng.choice(COMPUTER_CHOICES.get(type_id, COMPUTER_CHOICES["spawn"]))
-    return {
-        (1, 1): [(DESK_SURFACE, 0.0, 0.0), (comp, COMPUTER_LIFT, COMPUTER_OFFSET_X)],
-        (1, 2): [(DESK_CHAIR, 0.0, 0.0)],
-    }
+def room_program(type_id: str, room_index: int) -> str:
+    programs = {
+        "budget": ["workstation", "archive", "meeting"],
+        "team": ["lounge", "workstation", "meeting", "lounge"],
+        "quality": ["lab", "lab"],
+        "spawn": ["workstation"],
+        PORTAL_ROOM_ID: ["meeting"],
+    }.get(type_id, ["workstation"])
+    return programs[room_index % len(programs)]
 
 
-def lounge_room_layout(rng: random.Random) -> dict[tuple, list]:
-    """Simple lounge layout for a 4x4 room (Team office): a sofa, a coffee table
-    and a plant."""
-    return {
-        (1, 1): [("sofa", 0.0, 0.0)],
-        (1, 2): [("coffeeTable", 0.0, 0.0)],
-        (2, 2): [("plant", 0.0, 0.0)],
+def room_should_mirror(rotation: int, room_index: int) -> bool:
+    normalized = normalize_rotation(rotation)
+    start_mirrored = normalized in {90, 270}
+    return bool((room_index + (1 if start_mirrored else 0)) % 2)
+
+
+def room_piece(
+    x: int,
+    y: int,
+    sprite_id: str,
+    *,
+    lift: float = 0.0,
+    offset_x: float = 0.0,
+    offset_y: float = 0.0,
+    anchor: str | None = None,
+    mirror_sprite: bool = False,
+) -> dict[str, Any]:
+    piece: dict[str, Any] = {
+        "x": x,
+        "y": y,
+        "spriteId": sprite_id,
+        "mirrorSprite": mirror_sprite,
     }
+    if lift:
+        piece["lift"] = lift
+    if offset_x:
+        piece["offsetX"] = offset_x
+    if offset_y:
+        piece["offsetY"] = offset_y
+    if anchor:
+        piece["anchor"] = anchor
+    return piece
+
+
+def mirror_anchor(anchor: str) -> str:
+    return {
+        "nw": "ne",
+        "ne": "nw",
+        "sw": "se",
+        "se": "sw",
+        "west": "east",
+        "east": "west",
+    }.get(anchor, anchor)
+
+
+def mirror_room_pieces(pieces: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    mirrored: list[dict[str, Any]] = []
+    for piece in pieces:
+        item = deepcopy(piece)
+        item["x"] = (ROOM_SIZE - 1) - int(item["x"])
+        if "offsetX" in item:
+            item["offsetX"] = -float(item["offsetX"])
+        if "anchor" in item:
+            item["anchor"] = mirror_anchor(str(item["anchor"]))
+        if item.pop("mirrorSprite", False):
+            item["flipX"] = not bool(item.get("flipX"))
+        mirrored.append(item)
+    return mirrored
+
+
+def workstation_room_layout(rng: random.Random, type_id: str, mirrored: bool = False) -> list[dict[str, Any]]:
+    computer = rng.choice(COMPUTER_CHOICES.get(type_id, COMPUTER_CHOICES["spawn"]))
+    pieces = [
+        room_piece(2, 1, DESK_SURFACE, mirror_sprite=True),
+        room_piece(
+            2,
+            1,
+            computer,
+            lift=COMPUTER_LIFT,
+            offset_x=COMPUTER_OFFSET_X,
+            offset_y=COMPUTER_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(
+            1,
+            2,
+            WORKSTATION_CHAIR,
+            offset_x=WORKSTATION_CHAIR_OFFSET_X,
+            offset_y=WORKSTATION_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(0, 0, "plantTall", offset_y=-0.08, anchor="nw"),
+        room_piece(3, 1, "books", offset_y=-0.06, anchor="east"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def lab_room_layout(rng: random.Random, type_id: str, mirrored: bool = False) -> list[dict[str, Any]]:
+    computer = rng.choice(COMPUTER_CHOICES.get(type_id, COMPUTER_CHOICES["spawn"]))
+    pieces = [
+        room_piece(2, 1, DESK_SURFACE, mirror_sprite=True),
+        room_piece(
+            2,
+            1,
+            computer,
+            lift=COMPUTER_LIFT,
+            offset_x=COMPUTER_OFFSET_X,
+            offset_y=COMPUTER_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(
+            1,
+            2,
+            WORKSTATION_CHAIR,
+            offset_x=WORKSTATION_CHAIR_OFFSET_X,
+            offset_y=WORKSTATION_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(0, 0, "shelf", anchor="nw", mirror_sprite=True),
+        room_piece(0, 1, "books", offset_x=0.06, offset_y=-0.06, anchor="west"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def archive_room_layout(mirrored: bool = False) -> list[dict[str, Any]]:
+    pieces = [
+        room_piece(1, 0, "shelf", anchor="north", mirror_sprite=True),
+        room_piece(2, 1, "books", offset_y=-0.06, anchor="east"),
+        room_piece(0, 2, "lamp", offset_y=-0.08, anchor="sw"),
+        room_piece(3, 2, "plant", offset_y=-0.06, anchor="se"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def meeting_room_layout(mirrored: bool = False) -> list[dict[str, Any]]:
+    pieces = [
+        room_piece(2, 1, "table", mirror_sprite=True),
+        room_piece(
+            1,
+            2,
+            MEETING_CHAIR,
+            offset_x=MEETING_CHAIR_OFFSET_X,
+            offset_y=MEETING_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(
+            3,
+            2,
+            MEETING_CHAIR,
+            offset_x=-MEETING_CHAIR_OFFSET_X,
+            offset_y=MEETING_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(0, 0, "plant", offset_y=-0.06, anchor="nw"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def lounge_room_layout(mirrored: bool = False) -> list[dict[str, Any]]:
+    pieces = [
+        room_piece(2, 1, "sofa", mirror_sprite=True),
+        room_piece(1, 2, "coffeeTable", mirror_sprite=True),
+        room_piece(0, 0, "plantTall", offset_y=-0.08, anchor="nw"),
+        room_piece(3, 1, "lamp", offset_y=-0.08, anchor="east"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def room_layout_for_program(
+    program: str,
+    rng: random.Random,
+    type_id: str,
+    mirrored: bool,
+) -> list[dict[str, Any]]:
+    if program == "archive":
+        return archive_room_layout(mirrored)
+    if program == "meeting":
+        return meeting_room_layout(mirrored)
+    if program == "lounge":
+        return lounge_room_layout(mirrored)
+    if program == "lab":
+        return lab_room_layout(rng, type_id, mirrored)
+    return workstation_room_layout(rng, type_id, mirrored)
 
 
 def generate_office_furniture(
-    room_bases: list[tuple], rng: random.Random, type_id: str = "spawn"
+    room_bases: list[tuple], rng: random.Random, type_id: str = "spawn", rotation: int = 0
 ) -> list[dict[str, Any]]:
-    """Furnish each 4x4 room with a structured, real-office layout (not random
-    scatter), so desks, computers, chairs and decor line up like an office.
-    `room_bases` is the list of each room's top-left (north/west) corner cell."""
+    """Furnish each 4x4 room with structured office vignettes.
+
+    The extracted furniture set gives us strong left/right desk facings but no
+    clean front-facing chair, so we mirror supported workstation layouts instead
+    of forcing every 90-degree room rotation to use broken art."""
     items: list[dict[str, Any]] = []
-    for (bx, by) in room_bases:
-        layout = lounge_room_layout(rng) if type_id == "team" else workstation_room_layout(rng, type_id)
-        for (lx, ly), pieces in layout.items():
-            cx, cy = int(bx) + lx, int(by) + ly
+    for room_index, (bx, by) in enumerate(room_bases):
+        program = room_program(type_id, room_index)
+        mirrored = room_should_mirror(rotation, room_index)
+        layout = room_layout_for_program(program, rng, type_id, mirrored)
+        for piece in layout:
+            cx, cy = int(bx) + int(piece["x"]), int(by) + int(piece["y"])
             if not (0 <= cx < WORLD_SIZE and 0 <= cy < WORLD_SIZE):
                 continue
-            for sprite_id, lift, offset_x in pieces:
-                item: dict[str, Any] = {"cell": {"x": cx, "y": cy}, "spriteId": sprite_id}
-                if lift:
-                    item["lift"] = lift
-                if offset_x:
-                    item["offsetX"] = offset_x
-                items.append(item)
+            item: dict[str, Any] = {"cell": {"x": cx, "y": cy}, "spriteId": piece["spriteId"]}
+            if piece.get("lift"):
+                item["lift"] = float(piece["lift"])
+            if piece.get("offsetX"):
+                item["offsetX"] = float(piece["offsetX"])
+            if piece.get("offsetY"):
+                item["offsetY"] = float(piece["offsetY"])
+            if piece.get("anchor"):
+                item["anchor"] = str(piece["anchor"])
+            if piece.get("flipX"):
+                item["flipX"] = True
+            items.append(item)
     return items
 
 
@@ -345,7 +562,8 @@ def create_department_placement(
         "presetId": department_id,
         "chunkCount": len(building_room_offsets(department_id, normalized_rotation)),
         "occupiedCells": occupied_cells,
-        "furniture": generate_office_furniture(room_bases, rng, department_id),
+        "furniture": generate_office_furniture(room_bases, rng, department_id, normalized_rotation),
+        "furnitureVersion": FURNITURE_LAYOUT_VERSION,
         "spriteStacks": [],
         "walls": perimeter_walls(occupied_cells),
         "subcellsPerCell": SUBCELLS_PER_CELL,
@@ -554,6 +772,8 @@ def ensure_world(session: dict[str, Any]) -> dict[str, Any]:
     # Spawn office: a single furnished chunk the player expands from.
     if not isinstance(world.get("spawnOffice"), dict):
         world["spawnOffice"] = build_spawn_office(world, session.get("sessionId", "spawn"))
+    elif world["spawnOffice"].get("furnitureVersion") != FURNITURE_LAYOUT_VERSION:
+        world["spawnOffice"] = build_spawn_office(world, session.get("sessionId", "spawn"))
 
     # Building instances are stored fully-formed on purchase; just backfill any
     # missing optional fields so older sessions stay renderable.
@@ -561,9 +781,28 @@ def ensure_world(session: dict[str, Any]) -> dict[str, Any]:
         department.setdefault("worldCell", None)
         department.setdefault("placement", None)
         if isinstance(department.get("placement"), dict):
-            department["placement"].setdefault("furniture", [])
-            department["placement"].setdefault("walls", [])
-            department["worldCell"] = deepcopy(department["placement"]["anchorCell"])
+            placement = department["placement"]
+            anchor = placement.get("anchorCell")
+            rotation = placement.get("rotation", 0)
+            if (
+                department.get("built")
+                and isinstance(anchor, dict)
+                and placement.get("furnitureVersion") != FURNITURE_LAYOUT_VERSION
+            ):
+                seed = placement_seed(session, department.get("id"), anchor, rotation)
+                department["placement"] = create_department_placement(
+                    str(department.get("typeId") or "quality"),
+                    anchor,
+                    rotation,
+                    str(placement.get("presetId") or department.get("typeId") or "single"),
+                    seed=seed,
+                )
+                placement = department["placement"]
+            placement.setdefault("furniture", [])
+            placement.setdefault("walls", [])
+            placement["subcellsPerCell"] = SUBCELLS_PER_CELL
+            placement["furnitureVersion"] = FURNITURE_LAYOUT_VERSION
+            department["worldCell"] = deepcopy(placement["anchorCell"])
     return session
 
 
@@ -582,7 +821,8 @@ def build_spawn_office(world: dict[str, Any], seed: str) -> dict[str, Any]:
     return {
         "cells": cells,
         "walls": perimeter_walls(cells),
-        "furniture": generate_office_furniture([(ax, ay)], rng, "spawn"),
+        "furniture": generate_office_furniture([(ax, ay)], rng, "spawn", 0),
+        "furnitureVersion": FURNITURE_LAYOUT_VERSION,
     }
 
 
@@ -621,6 +861,67 @@ def normalize_scenario_id(value: str | None, session: dict[str, Any]) -> dict[st
     if value in SCENARIOS_BY_ID:
         return deepcopy(SCENARIOS_BY_ID[value])
     raise RuleError(f"Unknown minigame id: {value}")
+
+
+def placement_seed(
+    session: dict[str, Any],
+    placement_id: str | None,
+    anchor: dict[str, Any],
+    rotation: int,
+) -> str:
+    return (
+        f"{session.get('sessionId')}:{placement_id or 'department'}:"
+        f"{int(anchor.get('x', 0))},{int(anchor.get('y', 0))}:{normalize_rotation(rotation)}"
+    )
+
+
+def evaluate_scope_fog(details: dict[str, Any]) -> tuple[bool, int, dict[str, Any]]:
+    order = [str(item) for item in details.get("order", []) if item is not None]
+    score = sum(1 for index, item in enumerate(order) if index < len(CORRECT_BACKLOG_ORDER) and CORRECT_BACKLOG_ORDER[index] == item)
+    return score == len(CORRECT_BACKLOG_ORDER), score, {"order": order}
+
+
+def evaluate_exact_selection(
+    details: dict[str, Any],
+    correct_ids: set[str],
+    detail_key: str = "selected",
+) -> tuple[bool, int, dict[str, Any]]:
+    selected = sorted({str(item) for item in details.get(detail_key, []) if item is not None})
+    score = sum(1 for item in selected if item in correct_ids)
+    return selected == sorted(correct_ids), score, {detail_key: selected}
+
+
+def evaluate_budget_rift(
+    session: dict[str, Any], details: dict[str, Any]
+) -> tuple[bool, int, dict[str, Any], dict[str, int]]:
+    choice_id = str(details.get("choiceId") or "")
+    if choice_id not in BUDGET_RIFT_CHOICES:
+        raise RuleError("Budget Rift requires a valid choiceId.")
+    resource_delta = deepcopy(BUDGET_RIFT_CHOICES[choice_id]["resourceDelta"])
+    projected = {
+        key: clamp(session["resources"][key] + resource_delta.get(key, 0))
+        for key in DEFAULT_RESOURCES
+    }
+    return (
+        all(value >= 50 for value in projected.values()),
+        1,
+        {
+            "choiceId": choice_id,
+            "choiceLabel": BUDGET_RIFT_CHOICES[choice_id]["label"],
+        },
+        resource_delta,
+    )
+
+
+def evaluate_stakeholder_booth(details: dict[str, Any]) -> tuple[bool, int, dict[str, Any]]:
+    choice_id = str(details.get("choiceId") or "")
+    if choice_id not in STAKEHOLDER_BOOTH_CHOICES:
+        raise RuleError("Stakeholder Booth requires a valid choiceId.")
+    choice = STAKEHOLDER_BOOTH_CHOICES[choice_id]
+    return bool(choice["best"]), int(bool(choice["best"])), {
+        "choiceId": choice_id,
+        "choiceLabel": choice["label"],
+    }
 
 
 def apply_resource_delta(session: dict[str, Any], delta: dict[str, int]) -> None:
@@ -698,24 +999,29 @@ def record_minigame_result(
         )
 
     details = payload.get("details") if isinstance(payload.get("details"), dict) else {}
-    success = bool(payload.get("success"))
-    resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
-
-    if scenario["minigameId"] == "budget_rift":
-        choice_id = details.get("choiceId")
-        if choice_id not in BUDGET_RIFT_CHOICES:
-            raise RuleError("Budget Rift requires a valid choiceId.")
-        resource_delta = deepcopy(BUDGET_RIFT_CHOICES[choice_id]["resourceDelta"])
-        projected = {
-            key: clamp(session["resources"][key] + resource_delta.get(key, 0))
-            for key in DEFAULT_RESOURCES
-        }
-        success = all(value >= 50 for value in projected.values())
-        details["choiceLabel"] = BUDGET_RIFT_CHOICES[choice_id]["label"]
+    minigame_id = scenario["minigameId"]
+    if minigame_id == "scope_fog":
+        success, score, details = evaluate_scope_fog(details)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "bug_rain":
+        success, score, details = evaluate_exact_selection(details, SERIOUS_BUG_IDS)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "risk_vault":
+        success, score, details = evaluate_exact_selection(details, CRITICAL_RISK_IDS)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "stakeholder_booth":
+        success, score, details = evaluate_stakeholder_booth(details)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "budget_rift":
+        success, score, details, resource_delta = evaluate_budget_rift(session, details)
+    else:
+        success = bool(payload.get("success"))
+        score = int(payload.get("score", 0))
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
 
     # Budget Rift is a judgement call rather than a skill check: making a choice
     # always earns its points, while the resource trade-off is the real lesson.
-    awards_points = success or scenario["minigameId"] == "budget_rift"
+    awards_points = success or minigame_id == "budget_rift"
     points_earned = scenario["points"] if awards_points else 0
     session["points"] += points_earned
     apply_resource_delta(session, resource_delta)
@@ -726,7 +1032,7 @@ def record_minigame_result(
         "scenarioId": scenario["id"],
         "title": scenario["title"],
         "success": success,
-        "score": int(payload.get("score", 0)),
+        "score": score,
         "pointsEarned": points_earned,
         "resourceChange": resource_delta,
         "details": details,
@@ -771,7 +1077,7 @@ def buy_department(
     }
     existing = sum(1 for d in departments.values() if d.get("typeId") == department_id)
     instance_id = f"{department_id}#{existing + 1}"
-    seed = f"{session.get('sessionId')}:{instance_id}:{anchor['x']},{anchor['y']}:{rotation}"
+    seed = placement_seed(session, instance_id, anchor, rotation)
     placement = create_department_placement(department_id, anchor, rotation, department_id, seed=seed)
     validate_department_placement(session, instance_id, placement)
 

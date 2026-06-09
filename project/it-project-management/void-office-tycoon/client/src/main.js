@@ -39,6 +39,9 @@ import furniShelf from './assets/sprites/furni/shelf.png';
 import furniBooks from './assets/sprites/furni/books.png';
 import furniSofa from './assets/sprites/furni/sofa.png';
 import furniRug from './assets/sprites/furni/rug.png';
+import footprint1x1Sprite from './assets/sprites/furni_samples/footprint_1x1_64x64.svg';
+import footprint2x1Sprite from './assets/sprites/furni_samples/footprint_2x1_128x64.svg';
+import footprintLCornerSprite from './assets/sprites/furni_samples/footprint_l_corner_128x128.svg';
 
 // Furniture sprite keys (match server OFFICE_FURNITURE palette). Loaded under a
 // "furni_" prefix in Phaser; drawn at native aspect ratio.
@@ -59,7 +62,10 @@ const FURNI = {
   shelf: furniShelf,
   books: furniBooks,
   sofa: furniSofa,
-  rug: furniRug
+  rug: furniRug,
+  sampleFootprint1x1: footprint1x1Sprite,
+  sampleFootprint2x1: footprint2x1Sprite,
+  sampleFootprintLCorner: footprintLCornerSprite
 };
 
 // UI currency icons lifted from the retro-hotel nitro wallet assets.
@@ -74,6 +80,42 @@ const RESOURCE_ICONS = {
   quality: iconDiamond
 };
 const POINTS_ICON = iconDucket;
+const FOOTPRINT_SAMPLES = [
+  {
+    id: 'sample-1x1',
+    label: '1x1',
+    detail: 'single-tile prop',
+    image: footprint1x1Sprite,
+    spriteId: 'sampleFootprint1x1',
+    shapeLabel: 'single tile',
+    shape: [{ x: 0, y: 0 }],
+    fillColor: 0x2f6a55,
+    lineColor: 0x8be7b1
+  },
+  {
+    id: 'sample-2x1',
+    label: '2x1',
+    detail: 'desk or table span',
+    image: footprint2x1Sprite,
+    spriteId: 'sampleFootprint2x1',
+    shapeLabel: 'bar',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+    fillColor: 0x315877,
+    lineColor: 0x92d3ff
+  },
+  {
+    id: 'sample-l-corner',
+    label: 'L-corner',
+    detail: 'three-tile corner room',
+    image: footprintLCornerSprite,
+    spriteId: 'sampleFootprintLCorner',
+    shapeLabel: 'corner',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
+    fillColor: 0x6a442d,
+    lineColor: 0xf4c897
+  }
+];
+const FOOTPRINT_SAMPLES_BY_ID = Object.fromEntries(FOOTPRINT_SAMPLES.map(sample => [sample.id, sample]));
 
 const appEl = document.querySelector('#app');
 
@@ -101,6 +143,13 @@ const api = {
 };
 
 const STORAGE_KEY = 'voidOfficeTycoon.sessionId';
+const FURNITURE_SCALE_STORAGE_KEY = 'voidOfficeTycoon.furnitureScaleMultiplier';
+const FURNITURE_OFFSET_STORAGE_KEYS = {
+  x: 'voidOfficeTycoon.furnitureOffsetX',
+  y: 'voidOfficeTycoon.furnitureOffsetY',
+  z: 'voidOfficeTycoon.furnitureOffsetZ'
+};
+const LEGACY_FURNITURE_OFFSET_STORAGE_KEY = 'voidOfficeTycoon.furnitureOffsetAdjustment';
 const FULLSCREEN_PATH = '/fullscreen';
 const CHUNK_COUNT = 32;
 const SUBCELLS_PER_CELL = 4;
@@ -115,6 +164,87 @@ const MAX_MAP_ZOOM = 3.4;
 const ZOOM_STEP = 0.2;
 const CORRECT_BACKLOG_ORDER = ['s1', 's6', 's2', 's4', 's3', 's5'];
 const START_BACKLOG_ORDER = ['s3', 's1', 's5', 's2', 's6', 's4'];
+const DEFAULT_FURNITURE_SCALE_MULTIPLIER = 1;
+const MIN_FURNITURE_SCALE_MULTIPLIER = 0.5;
+const MAX_FURNITURE_SCALE_MULTIPLIER = 2;
+const FURNITURE_SCALE_STEP = 0.05;
+const DEFAULT_FURNITURE_OFFSET_AXIS = 0;
+const MIN_FURNITURE_OFFSET_AXIS = -0.5;
+const MAX_FURNITURE_OFFSET_AXIS = 0.5;
+const FURNITURE_OFFSET_STEP = 0.05;
+const FURNITURE_ANCHOR_BIAS = {
+  north: { x: 0, y: -0.18 },
+  south: { x: 0, y: 0.08 },
+  west: { x: -0.3, y: -0.04 },
+  east: { x: 0.3, y: -0.04 },
+  nw: { x: -0.3, y: -0.18 },
+  ne: { x: 0.3, y: -0.18 },
+  sw: { x: -0.3, y: 0.08 },
+  se: { x: 0.3, y: 0.08 }
+};
+
+const FURNI_RENDER_CONFIG = {
+  desk: {
+    fit: 'width',
+    target: TILE_STEP_X * 2.85,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 1,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  woodDesk: {
+    fit: 'width',
+    target: TILE_STEP_X * 2.85,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 1,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  table: { fit: 'width', target: TILE_STEP_X * 2.22, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  coffeeTable: { fit: 'width', target: TILE_STEP_X * 1.86, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  officeChair: { fit: 'height', target: TILE_STEP_Y * 3.7, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  officeChairBack: { fit: 'height', target: TILE_STEP_Y * 3.7, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  chair: { fit: 'height', target: TILE_STEP_Y * 2.9, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  monitor: {
+    fit: 'width',
+    target: TILE_STEP_X * 0.84,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 0.98,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  imac: {
+    fit: 'width',
+    target: TILE_STEP_X * 0.9,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 0.98,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  laptop: {
+    fit: 'width',
+    target: TILE_STEP_X * 0.78,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 0.98,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  plant: { fit: 'height', target: TILE_STEP_Y * 1.95, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  plantTall: { fit: 'height', target: TILE_STEP_Y * 2.45, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  lamp: { fit: 'height', target: TILE_STEP_Y * 3.05, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  shelf: { fit: 'height', target: TILE_STEP_Y * 4.15, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  books: { fit: 'width', target: TILE_STEP_X * 0.58, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  sofa: { fit: 'width', target: TILE_STEP_X * 2.1, groundOffset: TILE_STEP_Y * 0.76, originY: 1 },
+  rug: { fit: 'width', target: TILE_STEP_X * 2.8, groundOffset: TILE_STEP_Y * 0.76, originY: 1 },
+  sampleFootprint1x1: { fit: 'width', target: TILE_STEP_X * 2, groundOffset: TILE_STEP_Y * 0.78, originY: 1 },
+  sampleFootprint2x1: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y * 0.78, originY: 1 },
+  sampleFootprintLCorner: { fit: 'width', target: TILE_STEP_X * 4, groundOffset: TILE_STEP_Y * 0.78, originY: 1 }
+};
 
 const sprites = {
   tileVoid: tileVoidSprite,
@@ -216,16 +346,29 @@ function rotateOffsets(cells, rotation) {
     .sort((a, b) => a.y - b.y || a.x - b.x);
 }
 
-function activeBuildingShape() {
+function isPlacementMode() {
+  if (game.placement.kind === 'sample') return Boolean(game.placement.sampleId);
+  return Boolean(game.placement.departmentId);
+}
+
+function placementSample() {
+  return FOOTPRINT_SAMPLES_BY_ID[game.placement.sampleId] || null;
+}
+
+function activePlacementShape() {
+  if (game.placement.kind === 'sample') {
+    return placementSample()?.shape || [{ x: 0, y: 0 }];
+  }
   return BUILDING_SHAPES[game.placement.departmentId] || [{ x: 0, y: 0 }];
 }
 
 function placementType() {
+  if (game.placement.kind === 'sample') return null;
   return BUILDING_TYPES_BY_ID[game.placement.departmentId] || null;
 }
 
 function placementChunkCount() {
-  return activeBuildingShape().length;
+  return activePlacementShape().length;
 }
 
 function placementCost() {
@@ -236,6 +379,102 @@ const spriteKeyByUrl = new Map(Object.entries(sprites).map(([key, value]) => [va
 
 function spriteKeyForUrl(url) {
   return spriteKeyByUrl.get(url) || 'tileVoid';
+}
+
+function clampFurnitureScaleMultiplier(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return DEFAULT_FURNITURE_SCALE_MULTIPLIER;
+  return Math.max(MIN_FURNITURE_SCALE_MULTIPLIER, Math.min(MAX_FURNITURE_SCALE_MULTIPLIER, parsed));
+}
+
+function loadFurnitureScaleMultiplier() {
+  try {
+    return clampFurnitureScaleMultiplier(localStorage.getItem(FURNITURE_SCALE_STORAGE_KEY));
+  } catch {
+    return DEFAULT_FURNITURE_SCALE_MULTIPLIER;
+  }
+}
+
+function saveFurnitureScaleMultiplier(value) {
+  try {
+    localStorage.setItem(FURNITURE_SCALE_STORAGE_KEY, String(value));
+  } catch {
+    // Ignore storage failures; live tuning still works for this session.
+  }
+}
+
+function clampFurnitureOffsetAxis(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return DEFAULT_FURNITURE_OFFSET_AXIS;
+  return Math.max(MIN_FURNITURE_OFFSET_AXIS, Math.min(MAX_FURNITURE_OFFSET_AXIS, parsed));
+}
+
+function loadFurnitureOffsetAxis(axis) {
+  try {
+    const next = localStorage.getItem(FURNITURE_OFFSET_STORAGE_KEYS[axis]);
+    if (next !== null) return clampFurnitureOffsetAxis(next);
+    if (axis === 'x' || axis === 'y') {
+      return clampFurnitureOffsetAxis(localStorage.getItem(LEGACY_FURNITURE_OFFSET_STORAGE_KEY));
+    }
+    return DEFAULT_FURNITURE_OFFSET_AXIS;
+  } catch {
+    return DEFAULT_FURNITURE_OFFSET_AXIS;
+  }
+}
+
+function saveFurnitureOffsetAxis(axis, value) {
+  try {
+    localStorage.setItem(FURNITURE_OFFSET_STORAGE_KEYS[axis], String(value));
+  } catch {
+    // Ignore storage failures; live tuning still works for this session.
+  }
+}
+
+function furnitureScaleLabel(value = game.furnitureScaleMultiplier) {
+  return `${clampFurnitureScaleMultiplier(value).toFixed(2)}x`;
+}
+
+function furnitureOffsetAxisLabel(axis, value = game.furnitureOffsetAxes[axis]) {
+  const next = clampFurnitureOffsetAxis(value);
+  return `${next >= 0 ? '+' : ''}${next.toFixed(2)}`;
+}
+
+function furnitureAnchorBias(anchor) {
+  return FURNITURE_ANCHOR_BIAS[String(anchor || '').toLowerCase()] || { x: 0, y: 0 };
+}
+
+function furnitureRenderMetrics(spriteId, sourceImage) {
+  const cfg = FURNI_RENDER_CONFIG[spriteId] || {};
+  let scale;
+  if (cfg.fit === 'width') {
+    scale = (cfg.target || TILE_STEP_X * 1.6) / Math.max(1, sourceImage.width);
+  } else if (cfg.fit === 'height') {
+    scale = (cfg.target || TILE_STEP_Y * 3.4) / Math.max(1, sourceImage.height);
+  } else {
+    scale = Math.min(0.95, (TILE_STEP_X * 1.7) / Math.max(sourceImage.width, sourceImage.height));
+  }
+  return {
+    scale: scale * clampFurnitureScaleMultiplier(game.furnitureScaleMultiplier),
+    groundOffset: cfg.groundOffset ?? TILE_STEP_Y * 0.68,
+    originY: cfg.originY ?? 0.98,
+    baseOffsetX: cfg.baseOffsetX ?? 0,
+    baseOffsetY: cfg.baseOffsetY ?? 0,
+    mirrorOffsetX: Boolean(cfg.mirrorOffsetX)
+  };
+}
+
+function placementSpriteAnchor(world, cells) {
+  if (!cells?.length) return null;
+  const centers = cells.map(cell => tileCenter(world, Number(cell.x), Number(cell.y)));
+  const minX = Math.min(...centers.map(center => center.x));
+  const maxX = Math.max(...centers.map(center => center.x));
+  const maxY = Math.max(...centers.map(center => center.y));
+  const maxDepth = Math.max(...cells.map(cell => Number(cell.x) + Number(cell.y)));
+  return {
+    x: (minX + maxX) / 2,
+    y: maxY,
+    depth: 1000 + maxDepth * 4 + 1
+  };
 }
 
 const SAMPLE_OFFICE = {
@@ -288,6 +527,15 @@ const bugCards = [
   { id: 'b6', title: 'Reflection prompt has a typo', severity: 'minor' }
 ];
 
+const riskCards = [
+  { id: 'r1', title: 'Vendor contract expires before sprint 4', severity: 'serious', note: 'External dependency' },
+  { id: 'r2', title: 'Office posters are off-brand', severity: 'minor', note: 'Cosmetic issue' },
+  { id: 'r3', title: 'Single tester is covering every release gate', severity: 'serious', note: 'Capacity bottleneck' },
+  { id: 'r4', title: 'Coffee machine uses the old logo', severity: 'minor', note: 'Low-impact nuisance' },
+  { id: 'r5', title: 'Key stakeholder decisions arrive after planning closes', severity: 'serious', note: 'Schedule risk' },
+  { id: 'r6', title: 'Break room lamp flickers in one corner', severity: 'minor', note: 'Annoying but contained' }
+];
+
 const budgetChoices = [
   {
     id: 'budget_patch',
@@ -309,10 +557,33 @@ const budgetChoices = [
   }
 ];
 
+const stakeholderChoices = [
+  {
+    id: 'reply_with_decision',
+    title: 'Request a decision with context',
+    text: 'Share the blocker, the mitigation path, and the one decision you need today.',
+    note: 'Best practice'
+  },
+  {
+    id: 'promise_later',
+    title: 'Promise an update later',
+    text: 'Avoid the hard conversation now and hope the next sprint goes better.',
+    note: 'Delays alignment'
+  },
+  {
+    id: 'send_metrics_only',
+    title: 'Send metrics only',
+    text: 'Reply with charts but no recommendation or ask.',
+    note: 'Leaves the stakeholder guessing'
+  }
+];
+
 const minigames = [
   { id: 'scope_fog', title: 'Scope Fog', sourceId: 'SC-01' },
   { id: 'bug_rain', title: 'Bug Rain', sourceId: 'SC-02' },
-  { id: 'budget_rift', title: 'Budget Rift', sourceId: 'SC-03' }
+  { id: 'budget_rift', title: 'Budget Rift', sourceId: 'SC-03' },
+  { id: 'risk_vault', title: 'Risk Vault', sourceId: 'SC-04' },
+  { id: 'stakeholder_booth', title: 'Stakeholder Booth', sourceId: 'SC-05' }
 ];
 
 const game = {
@@ -329,11 +600,25 @@ const game = {
   minigameState: {},
   backlogOrder: [...START_BACKLOG_ORDER],
   draggedBacklogId: '',
-  placement: { departmentId: '', presetId: '', rotation: 0, previewAnchor: null },
+  placement: {
+    kind: '',
+    departmentId: '',
+    sampleId: '',
+    presetId: '',
+    rotation: 0,
+    previewAnchor: null
+  },
+  samplePlacements: [],
   fullscreen: {
     zoom: 1,
     hoverCell: null,
     hasAutoSnapped: false
+  },
+  furnitureScaleMultiplier: loadFurnitureScaleMultiplier(),
+  furnitureOffsetAxes: {
+    x: loadFurnitureOffsetAxis('x'),
+    y: loadFurnitureOffsetAxis('y'),
+    z: loadFurnitureOffsetAxis('z')
   },
   debugOpen: false,
   showCorrectAnswers: false,
@@ -388,9 +673,9 @@ function activeScenario() {
 }
 
 function resetMinigameState() {
-  if (game.activeMinigame === 'bug_rain') {
+  if (['bug_rain', 'risk_vault'].includes(game.activeMinigame)) {
     game.minigameState = { selected: [] };
-  } else if (game.activeMinigame === 'budget_rift') {
+  } else if (['budget_rift', 'stakeholder_booth'].includes(game.activeMinigame)) {
     game.minigameState = { choiceId: '' };
   } else {
     game.minigameState = {};
@@ -784,10 +1069,18 @@ function rotatedOffsets(department, rotation) {
 }
 
 function placementCells(department, anchor, rotation) {
-  if (!department || !anchor) return [];
+  if ((!department && !placementSample()) || !anchor) return [];
+  if (game.placement.kind === 'sample') {
+    return rotateOffsets(activePlacementShape(), rotation).map(cell => ({
+      x: Number(anchor.x) + Number(cell.x),
+      y: Number(anchor.y) + Number(cell.y),
+      offsetX: Number(cell.x),
+      offsetY: Number(cell.y)
+    }));
+  }
   // Each preset offset is a ROOM; expand it to the 4x4 block of normal cells.
   const cells = [];
-  for (const room of rotateOffsets(activeBuildingShape(), rotation)) {
+  for (const room of rotateOffsets(activePlacementShape(), rotation)) {
     const bx = Number(anchor.x) + room.x * ROOM_SIZE;
     const by = Number(anchor.y) + room.y * ROOM_SIZE;
     for (let dy = 0; dy < ROOM_SIZE; dy += 1) {
@@ -871,6 +1164,13 @@ function placementModeDepartment() {
   return placementType();
 }
 
+function samplePlacementOverlaps(cells) {
+  const keys = new Set(cells.map(cell => coordKey(Number(cell.x), Number(cell.y))));
+  return game.samplePlacements.some(placement => (
+    (placement.cells || []).some(cell => keys.has(coordKey(Number(cell.x), Number(cell.y))))
+  ));
+}
+
 function occupiedByOtherDepartment(x, y, departmentId) {
   return sortedDepartments().some(department => (
     department.id !== departmentId &&
@@ -898,10 +1198,11 @@ function cellsOnBorder(cells, size) {
 
 function placementPreview(anchor = game.placement.previewAnchor) {
   const department = placementModeDepartment();
+  const sample = placementSample();
   const world = worldState();
-  if (!department || !anchor) return { cells: [], valid: false, reason: '' };
+  if ((!department && !sample) || !anchor) return { cells: [], valid: false, reason: '' };
   const size = worldTileSize(world);
-  const cells = placementCells(department, anchor, game.placement.rotation);
+  const cells = placementCells(department || sample, anchor, game.placement.rotation);
   const endKey = coordKey(world.end.x, world.end.y);
   const path = pathSet();
   const offices = officeCellKeys();
@@ -913,12 +1214,26 @@ function placementPreview(anchor = game.placement.previewAnchor) {
       cell.x >= size ||
       cell.y >= size ||
       key === endKey ||
-      path.has(key) ||
-      offices.has(key) ||
+      (game.placement.kind !== 'sample' && path.has(key)) ||
+      (game.placement.kind !== 'sample' && offices.has(key)) ||
       cellTouchesBlackholeDanger(cell.x, cell.y)
     );
   });
-  if (invalid) return { cells, valid: false, reason: 'Blocked — overlaps a corridor, office, gate or blackhole' };
+  if (invalid) {
+    return {
+      cells,
+      valid: false,
+      reason: game.placement.kind === 'sample'
+        ? 'Blocked — outside the map, on the gate, or inside blackhole danger'
+        : 'Blocked — overlaps a corridor, office, gate or blackhole'
+    };
+  }
+  if (game.placement.kind === 'sample' && samplePlacementOverlaps(cells)) {
+    return { cells, valid: false, reason: 'Blocked — overlaps another footprint sample' };
+  }
+  if (game.placement.kind === 'sample') {
+    return { cells, valid: true, reason: 'Stamp anywhere safe on the grid to compare footprint size' };
+  }
   if (!cellsOnBorder(cells, size) && !cellsTouchBuildable(cells)) {
     return { cells, valid: false, reason: 'Touch your office, corridor or a map border' };
   }
@@ -926,7 +1241,7 @@ function placementPreview(anchor = game.placement.previewAnchor) {
 }
 
 function placementPreviewForCell(x, y) {
-  if (!game.placement.departmentId || !game.placement.previewAnchor) return null;
+  if (!isPlacementMode() || !game.placement.previewAnchor) return null;
   const preview = placementPreview();
   const inFootprint = preview.cells.some(cell => cell.x === x && cell.y === y);
   return inFootprint ? preview : null;
@@ -1102,6 +1417,7 @@ class OfficeMapScene extends Phaser.Scene {
     this.drawFineGrid(world);
     this.drawTiles(world);
     this.drawOffices(world);
+    this.drawSamplePlacements(world);
     this.drawWorldObjects(world);
     this.drawPlacementPreview(world);
   }
@@ -1174,16 +1490,29 @@ class OfficeMapScene extends Phaser.Scene {
       const cy = Number(item.cell?.y);
       const center = tileCenter(world, cx, cy);
       const src = this.textures.get(texKey).getSourceImage();
-      const targetMax = TILE_STEP_X * 1.7; // ~tile-sized Habbo furni
-      const scale = Math.min(0.95, targetMax / Math.max(src.width, src.height));
+      const metrics = furnitureRenderMetrics(item.spriteId, src);
       // Items with a lift (e.g. a computer) sit on top of the desk on the same
       // cell, so raise them and draw them above the desk. offsetX nudges them
       // horizontally so they sit centred on the desk surface.
-      const lift = Number(item.lift || 0) * TILE_STEP_Y;
-      const offsetX = Number(item.offsetX || 0) * TILE_STEP_X;
-      this.add.image(center.x + offsetX, center.y - lift, texKey)
-        .setOrigin(0.5, 0.9)
-        .setDisplaySize(src.width * scale, src.height * scale)
+      const offsetAxes = game.furnitureOffsetAxes;
+      const anchorBias = furnitureAnchorBias(item.anchor);
+      const lift = (Number(item.lift || 0) + clampFurnitureOffsetAxis(offsetAxes.z)) * TILE_STEP_Y;
+      const baseOffsetX = metrics.mirrorOffsetX && Boolean(item.flipX)
+        ? -metrics.baseOffsetX
+        : metrics.baseOffsetX;
+      const offsetX = baseOffsetX
+        + anchorBias.x * TILE_STEP_X
+        + clampFurnitureOffsetAxis(offsetAxes.x) * TILE_STEP_X
+        + Number(item.offsetX || 0) * TILE_STEP_X;
+      const offsetY = metrics.baseOffsetY
+        + anchorBias.y * TILE_STEP_Y
+        + clampFurnitureOffsetAxis(offsetAxes.y) * TILE_STEP_Y
+        + Number(item.offsetY || 0) * TILE_STEP_Y;
+      const groundY = center.y + metrics.groundOffset;
+      this.add.image(center.x + offsetX, groundY + offsetY - lift, texKey)
+        .setOrigin(0.5, metrics.originY)
+        .setDisplaySize(src.width * metrics.scale, src.height * metrics.scale)
+        .setFlipX(Boolean(item.flipX))
         .setDepth(1000 + (cx + cy) * 4 + (lift > 0 ? 2 : 0));
     });
 
@@ -1254,10 +1583,11 @@ class OfficeMapScene extends Phaser.Scene {
     const path = pathSet();
     const player = playerCell();
     const preview = placementPreview();
+    const sample = placementSample();
     const keys = collectRenderableCellKeys(world, path, player);
     // One graphics object batches every floor diamond for performance.
     const floor = this.add.graphics().setDepth(40);
-    const placing = Boolean(game.placement.departmentId);
+    const placing = isPlacementMode();
     const lightStart = Math.floor(worldTileSize(world) * 0.7);
     const officeKeys = this.officeCellSet(world);
 
@@ -1288,8 +1618,8 @@ class OfficeMapScene extends Phaser.Scene {
         else if (lightSide) { fill = 0x223a45; line = 0x4f8fa0; lineAlpha = 0.35; }
 
         if (previewCell) {
-          fill = preview.valid ? 0x2f6a3a : 0x6a2f2c;
-          line = preview.valid ? 0x7ccf83 : 0xe77764;
+          fill = preview.valid ? sample?.fillColor ?? 0x2f6a3a : 0x6a2f2c;
+          line = preview.valid ? sample?.lineColor ?? 0x7ccf83 : 0xe77764;
           lineAlpha = 0.95;
         }
 
@@ -1309,6 +1639,46 @@ class OfficeMapScene extends Phaser.Scene {
           floor.strokePoints(hint, true);
         }
       });
+  }
+
+  drawSamplePlacements(world) {
+    for (const placement of game.samplePlacements) {
+      const sample = FOOTPRINT_SAMPLES_BY_ID[placement.sampleId];
+      if (!sample) continue;
+      const graphics = this.add.graphics().setDepth(130);
+      graphics.fillStyle(sample.fillColor, 0.08);
+      graphics.lineStyle(1.2, sample.lineColor, 0.28);
+      for (const cell of placement.cells || []) {
+        const center = tileCenter(world, Number(cell.x), Number(cell.y));
+        const diamond = this.tileDiamond(center, 0.88);
+        graphics.fillPoints(diamond, true);
+        graphics.strokePoints(diamond, true);
+      }
+      this.drawSamplePlacementTexture(world, sample, placement.cells, 0.96, 132);
+      const anchor = placement.anchorCell || placement.cells?.[0];
+      if (!anchor) continue;
+      const center = tileCenter(world, Number(anchor.x), Number(anchor.y));
+      this.add.text(center.x, center.y - TILE_STEP_Y * 1.65, sample.label, {
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '10px',
+        color: `#${sample.lineColor.toString(16).padStart(6, '0')}`,
+        fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(136);
+    }
+  }
+
+  drawSamplePlacementTexture(world, sample, cells, alpha = 1, depth = 132) {
+    const texKey = `furni_${sample.spriteId}`;
+    if (!this.textures.exists(texKey)) return;
+    const anchor = placementSpriteAnchor(world, cells);
+    if (!anchor) return;
+    const src = this.textures.get(texKey).getSourceImage();
+    const metrics = furnitureRenderMetrics(sample.spriteId, src);
+    this.add.image(anchor.x, anchor.y + metrics.groundOffset, texKey)
+      .setOrigin(0.5, metrics.originY)
+      .setDisplaySize(src.width * metrics.scale, src.height * metrics.scale)
+      .setAlpha(alpha)
+      .setDepth(Math.max(depth, anchor.depth));
   }
 
   tileDiamond(center, scale = 1) {
@@ -1462,16 +1832,30 @@ class OfficeMapScene extends Phaser.Scene {
   }
 
   drawPlacementPreview(world) {
-    if (!game.placement.departmentId || !game.placement.previewAnchor) return;
+    if (!isPlacementMode() || !game.placement.previewAnchor) return;
     const preview = placementPreview();
+    const sample = placementSample();
+    const lineColor = preview.valid ? sample?.lineColor ?? 0x7ccf83 : 0xe77764;
+    const fillColor = preview.valid ? sample?.fillColor ?? 0x7ccf83 : 0xe77764;
     const graphics = this.add.graphics().setDepth(1350);
-    graphics.lineStyle(2, preview.valid ? 0x7ccf83 : 0xe77764, 0.95);
-    graphics.fillStyle(preview.valid ? 0x7ccf83 : 0xe77764, 0.16);
+    graphics.lineStyle(2, lineColor, 0.95);
+    graphics.fillStyle(fillColor, preview.valid ? 0.2 : 0.16);
     preview.cells.forEach(cell => {
       const center = tileCenter(world, cell.x, cell.y);
-      graphics.fillEllipse(center.x, center.y, TILE_STEP_X * 1.5, TILE_STEP_Y * 1.5);
-      graphics.strokeEllipse(center.x, center.y, TILE_STEP_X * 1.5, TILE_STEP_Y * 1.5);
+      const diamond = this.tileDiamond(center, 0.9);
+      graphics.fillPoints(diamond, true);
+      graphics.strokePoints(diamond, true);
     });
+    if (sample && game.placement.previewAnchor) {
+      if (preview.valid) this.drawSamplePlacementTexture(world, sample, preview.cells, 0.72, 1351);
+      const anchor = tileCenter(world, game.placement.previewAnchor.x, game.placement.previewAnchor.y);
+      this.add.text(anchor.x, anchor.y - TILE_STEP_Y * 1.7, sample.label, {
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '10px',
+        color: `#${lineColor.toString(16).padStart(6, '0')}`,
+        fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(1352);
+    }
   }
 
   setupCamera() {
@@ -1565,7 +1949,7 @@ class OfficeMapScene extends Phaser.Scene {
     // Dynamic cursor based on cell type
     if (canAct()) {
       const info = cellInfo(cell.x, cell.y);
-      if (game.placement.departmentId) {
+      if (isPlacementMode()) {
         const preview = placementPreview({ x: cell.x, y: cell.y });
         this.game.canvas.style.cursor = preview.valid ? 'copy' : 'not-allowed';
       } else if (info.blackhole || info.danger) {
@@ -1581,7 +1965,7 @@ class OfficeMapScene extends Phaser.Scene {
       this.game.canvas.style.cursor = 'default';
     }
 
-    if (game.placement.departmentId) {
+    if (isPlacementMode()) {
       game.placement.previewAnchor = cell;
       this.renderMap();
     }
@@ -1590,8 +1974,8 @@ class OfficeMapScene extends Phaser.Scene {
   async handleClick(pointer) {
     const cell = mapCellFromWorldPoint(worldState(), pointer.worldX, pointer.worldY);
     if (!cell || !canAct()) return;
-    if (game.placement.departmentId) {
-      await placeDepartment(cell.x, cell.y);
+    if (isPlacementMode()) {
+      await placeActivePlacement(cell.x, cell.y);
       return;
     }
     if (!pathSet().has(coordKey(cell.x, cell.y))) {
@@ -1774,7 +2158,7 @@ function renderTutorial() {
             <div class="tutorial-step-icon">🎮</div>
             <div class="tutorial-step-content">
               <h3>Step 1 — Play Minigames</h3>
-              <p>Complete <strong>Scope Fog</strong>, <strong>Bug Rain</strong>, and <strong>Budget Rift</strong> minigames to earn points. Each minigame can be played up to <strong>2 times</strong>.</p>
+              <p>Play <strong>Scope Fog</strong>, <strong>Bug Rain</strong>, <strong>Budget Rift</strong>, <strong>Risk Vault</strong>, and <strong>Stakeholder Booth</strong> to earn points. Each minigame can be played up to <strong>2 times</strong>.</p>
             </div>
           </div>
           <div class="tutorial-step">
@@ -1994,6 +2378,119 @@ function renderWorldPanel() {
       <div><strong>${(world.builtPath || []).length}</strong><span>path cells</span></div>
       <div><strong>${world.blackholes.length}</strong><span>blackholes</span></div>
     </div>
+    <div class="world-tuning">
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Scale</strong>
+          <span data-furniture-scale-readout>${furnitureScaleLabel()}</span>
+        </div>
+        <input
+          id="furniture-scale-slider"
+          type="range"
+          min="${MIN_FURNITURE_SCALE_MULTIPLIER}"
+          max="${MAX_FURNITURE_SCALE_MULTIPLIER}"
+          step="${FURNITURE_SCALE_STEP}"
+          value="${clampFurnitureScaleMultiplier(game.furnitureScaleMultiplier)}"
+          data-input-action="set-furniture-scale"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_SCALE_MULTIPLIER.toFixed(2)}x</span>
+          <strong data-furniture-scale-percent>${Math.round(clampFurnitureScaleMultiplier(game.furnitureScaleMultiplier) * 100)}%</strong>
+          <span>${MAX_FURNITURE_SCALE_MULTIPLIER.toFixed(2)}x</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Offset X</strong>
+          <span data-furniture-offset-x-readout>${furnitureOffsetAxisLabel('x')}</span>
+        </div>
+        <input
+          id="furniture-offset-x-slider"
+          type="range"
+          min="${MIN_FURNITURE_OFFSET_AXIS}"
+          max="${MAX_FURNITURE_OFFSET_AXIS}"
+          step="${FURNITURE_OFFSET_STEP}"
+          value="${clampFurnitureOffsetAxis(game.furnitureOffsetAxes.x)}"
+          data-input-action="set-furniture-offset-x"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+          <strong data-furniture-offset-x-center>${furnitureOffsetAxisLabel('x')}</strong>
+          <span>${MAX_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Offset Y</strong>
+          <span data-furniture-offset-y-readout>${furnitureOffsetAxisLabel('y')}</span>
+        </div>
+        <input
+          id="furniture-offset-y-slider"
+          type="range"
+          min="${MIN_FURNITURE_OFFSET_AXIS}"
+          max="${MAX_FURNITURE_OFFSET_AXIS}"
+          step="${FURNITURE_OFFSET_STEP}"
+          value="${clampFurnitureOffsetAxis(game.furnitureOffsetAxes.y)}"
+          data-input-action="set-furniture-offset-y"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+          <strong data-furniture-offset-y-center>${furnitureOffsetAxisLabel('y')}</strong>
+          <span>${MAX_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Offset Z</strong>
+          <span data-furniture-offset-z-readout>${furnitureOffsetAxisLabel('z')}</span>
+        </div>
+        <input
+          id="furniture-offset-z-slider"
+          type="range"
+          min="${MIN_FURNITURE_OFFSET_AXIS}"
+          max="${MAX_FURNITURE_OFFSET_AXIS}"
+          step="${FURNITURE_OFFSET_STEP}"
+          value="${clampFurnitureOffsetAxis(game.furnitureOffsetAxes.z)}"
+          data-input-action="set-furniture-offset-z"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+          <strong data-furniture-offset-z-center>${furnitureOffsetAxisLabel('z')}</strong>
+          <span>${MAX_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Footprint Samples</strong>
+          <span>${game.samplePlacements.length} placed</span>
+        </div>
+        <div class="texture-sample-strip">
+          ${FOOTPRINT_SAMPLES.map(sample => `
+            <figure class="texture-sample-card ${game.placement.kind === 'sample' && game.placement.sampleId === sample.id ? 'selected' : ''}">
+              <img src="${sample.image}" alt="${sample.label} footprint sample texture" />
+              <figcaption>
+                <strong>${sample.label}</strong>
+                <span>${sample.detail}</span>
+              </figcaption>
+              <button
+                class="secondary-button"
+                data-action="start-sample-placement"
+                data-sample-id="${sample.id}"
+                ${!game.session || !canAct() ? 'disabled' : ''}
+              >${game.placement.kind === 'sample' && game.placement.sampleId === sample.id ? 'Placing...' : 'Place sample'}</button>
+            </figure>
+          `).join('')}
+        </div>
+        <div class="button-row">
+          <button
+            class="secondary-button"
+            data-action="clear-sample-placements"
+            ${!game.samplePlacements.length ? 'disabled' : ''}
+          >Clear Samples</button>
+        </div>
+        <p class="world-tuning-note">Sample cards now place furni-style reference textures on the map, and corner-tagged props still bias toward room edges instead of sitting dead-center in their cells.</p>
+      </div>
+    </div>
     ${renderPlacementBanner()}
     <div class="phaser-map-shell dashboard-phaser-map" aria-label="Interactive ${tileSize} by ${tileSize} office map">
       <div class="phaser-map" data-phaser-map data-map-mode="dashboard"></div>
@@ -2010,14 +2507,21 @@ function renderWorldPanel() {
 
 function renderPlacementBanner() {
   const department = placementModeDepartment();
-  if (!department) return '';
+  const sample = placementSample();
+  if (!department && !sample) return '';
   const preview = placementPreview();
   const rooms = placementChunkCount();
+  const title = sample
+    ? `Placing ${sample.label} Footprint Sample - ${rooms} cells ${escapeHtml(sample.shapeLabel || '')} (0 pts)`
+    : `Placing ${escapeHtml(department.name)} - ${rooms}-room ${escapeHtml(department.shapeLabel || '')} (${placementCost()} pts)`;
+  const help = sample
+    ? `${preview.reason || 'Stamp anywhere safe on the grid to compare footprint size'} · Rotation ${game.placement.rotation}°`
+    : `${preview.reason || 'Choose a spot next to your office, corridor or a map border'} · Rotation ${game.placement.rotation}°`;
   return `
     <div class="placement-banner ${preview.valid ? 'valid' : 'invalid'}">
       <div>
-        <strong>Placing ${escapeHtml(department.name)} — ${rooms}-room ${escapeHtml(department.shapeLabel || '')} (${placementCost()} pts)</strong>
-        <span>${preview.reason || 'Choose a spot next to your office, corridor or a map border'} · Rotation ${game.placement.rotation}°</span>
+        <strong>${title}</strong>
+        <span>${help}</span>
       </div>
       <div class="button-row">
         <button class="secondary-button" data-action="rotate-placement">Rotate</button>
@@ -2089,6 +2593,12 @@ function collectRenderableCellKeys(world, path, player) {
     }
   }
 
+  for (const placement of game.samplePlacements) {
+    for (const cell of placement.cells || []) {
+      addRenderableCell(keys, world, Number(cell.x), Number(cell.y));
+    }
+  }
+
   for (const cell of preview.cells || []) {
     addRenderableCell(keys, world, Number(cell.x), Number(cell.y));
   }
@@ -2134,7 +2644,7 @@ function renderWorldCell(world, x, y, path, player, options = {}) {
   const tag = readOnly ? 'span' : 'button';
   const actionAttrs = readOnly
     ? 'aria-hidden="true"'
-    : `data-action="build-world-cell" data-x="${x}" data-y="${y}" ${!canAct() || (!game.placement.departmentId && isPath) ? 'disabled' : ''}`;
+    : `data-action="build-world-cell" data-x="${x}" data-y="${y}" ${!canAct() || (!isPlacementMode() && isPath) ? 'disabled' : ''}`;
 
   return `
     <${tag}
@@ -2277,7 +2787,9 @@ function renderMinigame(scenario) {
     return '<p class="game-copy">Use the backlog panel, then submit the current order.</p>';
   }
   if (scenario.id === 'bug_rain') return renderBugRain();
-  return renderBudgetRift();
+  if (scenario.id === 'budget_rift') return renderBudgetRift();
+  if (scenario.id === 'risk_vault') return renderRiskVault();
+  return renderStakeholderBooth();
 }
 
 function renderBugRain() {
@@ -2325,6 +2837,49 @@ function renderBudgetRift() {
       }).join('')}
     </div>
     <button data-action="submit-minigame" data-minigame-id="budget_rift" ${!canAct() || minigamePlaysRemaining('budget_rift') <= 0 ? 'disabled' : ''}>Commit Trade-off</button>
+  `;
+}
+
+function renderRiskVault() {
+  const selected = new Set(game.minigameState.selected || []);
+  return `
+    <div class="bug-grid">
+      ${riskCards.map(card => `
+        <button
+          class="bug-card sev-${card.severity} ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
+          data-action="toggle-risk"
+          data-risk-id="${card.id}"
+          ${!canAct() ? 'disabled' : ''}
+        >
+          <span class="severity-tag sev-${card.severity}">${card.severity === 'serious' ? 'Mitigate now' : 'Monitor'}</span>
+          <strong>${escapeHtml(card.title)}</strong>
+          <span class="bug-state">${selected.has(card.id) ? '✓ Added to register' : 'Tap to evaluate'}</span>
+          <em>${escapeHtml(card.note)}</em>
+        </button>
+      `).join('')}
+    </div>
+    <button data-action="submit-minigame" data-minigame-id="risk_vault" ${!canAct() || minigamePlaysRemaining('risk_vault') <= 0 ? 'disabled' : ''}>Lock Risk Register</button>
+  `;
+}
+
+function renderStakeholderBooth() {
+  const choiceId = game.minigameState.choiceId;
+  return `
+    <div class="choice-list">
+      ${stakeholderChoices.map(choice => `
+        <button
+          class="choice-card ${choiceId === choice.id ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && choice.id === 'reply_with_decision' ? 'correct' : ''}"
+          data-action="stakeholder-choice"
+          data-choice-id="${choice.id}"
+          ${!canAct() ? 'disabled' : ''}
+        >
+          <strong>${escapeHtml(choice.title)}</strong>
+          <span>${escapeHtml(choice.text)}</span>
+          <em>${escapeHtml(choice.note)}</em>
+        </button>
+      `).join('')}
+    </div>
+    <button data-action="submit-minigame" data-minigame-id="stakeholder_booth" ${!canAct() || minigamePlaysRemaining('stakeholder_booth') <= 0 ? 'disabled' : ''}>Send Update</button>
   `;
 }
 
@@ -2429,7 +2984,7 @@ function renderDebugDrawer() {
           <label>Budget <input id="debug-budget" type="number" min="0" max="100" value="${game.session.resources.budget}" /></label>
           <label>Team <input id="debug-team" type="number" min="0" max="100" value="${game.session.resources.team}" /></label>
           <label>Quality <input id="debug-quality" type="number" min="0" max="100" value="${game.session.resources.quality}" /></label>
-          <label>Scenario <input id="debug-scenario" type="number" min="0" max="2" value="${game.session.currentScenarioIndex}" /></label>
+          <label>Scenario <input id="debug-scenario" type="number" min="0" max="${Math.max(0, minigames.length - 1)}" value="${game.session.currentScenarioIndex}" /></label>
         </div>
         <div class="button-row">
           <button data-action="debug-apply-vars">Apply Variables</button>
@@ -2588,6 +3143,7 @@ async function handleStart(event) {
     game.notice = '';
     game.backlogOrder = [...START_BACKLOG_ORDER];
     game.activeMinigame = 'scope_fog';
+    game.samplePlacements = [];
     game.fullscreen.hasAutoSnapped = false;
     clearPlacement();
     resetMinigameState();
@@ -2606,11 +3162,21 @@ async function handleClick(event) {
     return;
   }
   if (action === 'toggle-bug') {
-    toggleBug(actionEl.dataset.bugId);
+    toggleMinigameSelection(actionEl.dataset.bugId);
+    render();
+    return;
+  }
+  if (action === 'toggle-risk') {
+    toggleMinigameSelection(actionEl.dataset.riskId);
     render();
     return;
   }
   if (action === 'budget-choice') {
+    game.minigameState.choiceId = actionEl.dataset.choiceId;
+    render();
+    return;
+  }
+  if (action === 'stakeholder-choice') {
     game.minigameState.choiceId = actionEl.dataset.choiceId;
     render();
     return;
@@ -2662,6 +3228,12 @@ async function handleClick(event) {
     render();
     return;
   }
+  if (action === 'start-sample-placement') {
+    if (isFullscreenRoute()) return;
+    startSamplePlacement(actionEl.dataset.sampleId);
+    render();
+    return;
+  }
   if (action === 'rotate-placement') {
     rotatePlacement();
     render();
@@ -2672,19 +3244,24 @@ async function handleClick(event) {
     render();
     return;
   }
+  if (action === 'clear-sample-placements') {
+    clearSamplePlacements();
+    render();
+    return;
+  }
 
   if (action === 'world-board-hit') {
     if (isFullscreenRoute()) return;
     const cell = cellFromBoardEvent(event, actionEl);
     if (!cell) return;
-    if (game.placement.departmentId) await placeDepartment(cell.x, cell.y);
+    if (isPlacementMode()) await placeActivePlacement(cell.x, cell.y);
     else if (!pathSet().has(coordKey(cell.x, cell.y))) await buildWorldCell(cell.x, cell.y);
     return;
   }
 
   if (action === 'build-world-cell') {
     if (isFullscreenRoute()) return;
-    if (game.placement.departmentId) await placeDepartment(Number(actionEl.dataset.x), Number(actionEl.dataset.y));
+    if (isPlacementMode()) await placeActivePlacement(Number(actionEl.dataset.x), Number(actionEl.dataset.y));
     else await buildWorldCell(Number(actionEl.dataset.x), Number(actionEl.dataset.y));
   }
   if (action === 'submit-minigame') await submitMinigame(actionEl.dataset.minigameId || game.activeMinigame);
@@ -2748,10 +3325,10 @@ function parseDebugValue(value) {
   return value;
 }
 
-function toggleBug(bugId) {
+function toggleMinigameSelection(itemId) {
   const selected = new Set(game.minigameState.selected || []);
-  if (selected.has(bugId)) selected.delete(bugId);
-  else selected.add(bugId);
+  if (selected.has(itemId)) selected.delete(itemId);
+  else selected.add(itemId);
   game.minigameState.selected = [...selected];
 }
 
@@ -2813,6 +3390,31 @@ function buildMinigamePayload(minigameId) {
     };
   }
 
+  if (minigameId === 'risk_vault') {
+    const selected = [...(game.minigameState.selected || [])].sort();
+    const serious = riskCards
+      .filter(card => card.severity === 'serious')
+      .map(card => card.id)
+      .sort();
+    if (selected.length === 0) return null;
+    return {
+      minigameId: 'risk_vault',
+      success: JSON.stringify(selected) === JSON.stringify(serious),
+      score: selected.filter(id => serious.includes(id)).length,
+      details: { selected }
+    };
+  }
+
+  if (minigameId === 'stakeholder_booth') {
+    if (!game.minigameState.choiceId) return null;
+    return {
+      minigameId: 'stakeholder_booth',
+      success: game.minigameState.choiceId === 'reply_with_decision',
+      score: game.minigameState.choiceId === 'reply_with_decision' ? 1 : 0,
+      details: { choiceId: game.minigameState.choiceId }
+    };
+  }
+
   if (!game.minigameState.choiceId) return null;
   return {
     minigameId: 'budget_rift',
@@ -2827,20 +3429,72 @@ function startPlacement(departmentId) {
   const type = BUILDING_TYPES_BY_ID[departmentId];
   if (!type) return;
   game.placement = {
+    kind: 'department',
     departmentId,
+    sampleId: '',
+    presetId: departmentId,
     rotation: 0,
     previewAnchor: null
   };
   game.notice = `Placing ${type.name} (${type.cost} pts). Rotate it, then click a spot next to your office, corridor or a map border.`;
 }
 
+function startSamplePlacement(sampleId) {
+  const sample = FOOTPRINT_SAMPLES_BY_ID[sampleId];
+  if (!sample) return;
+  game.placement = {
+    kind: 'sample',
+    departmentId: '',
+    sampleId,
+    presetId: sampleId,
+    rotation: 0,
+    previewAnchor: null
+  };
+  game.notice = `Placing ${sample.label} footprint sample. Click any safe grid cells to stamp the size reference.`;
+}
+
 function rotatePlacement() {
-  if (!game.placement.departmentId) return;
+  if (!isPlacementMode()) return;
   game.placement.rotation = (normalizeRotation(game.placement.rotation) + 90) % 360;
 }
 
 function clearPlacement() {
-  game.placement = { departmentId: '', presetId: '', rotation: 0, previewAnchor: null };
+  game.placement = { kind: '', departmentId: '', sampleId: '', presetId: '', rotation: 0, previewAnchor: null };
+}
+
+function clearSamplePlacements() {
+  game.samplePlacements = [];
+  game.notice = 'Footprint samples cleared.';
+}
+
+async function placeActivePlacement(x, y) {
+  if (game.placement.kind === 'sample') {
+    placeSamplePlacement(x, y);
+    return;
+  }
+  await placeDepartment(x, y);
+}
+
+function placeSamplePlacement(x, y) {
+  const sample = placementSample();
+  if (!sample || !Number.isInteger(x) || !Number.isInteger(y)) return;
+  const preview = placementPreview({ x, y });
+  if (!preview.valid) {
+    game.error = preview.reason || 'That footprint sample cannot be placed there.';
+    game.placement.previewAnchor = { x, y };
+    render();
+    return;
+  }
+  game.samplePlacements.push({
+    id: `${sample.id}:${x},${y}:${game.placement.rotation}:${Date.now()}`,
+    sampleId: sample.id,
+    anchorCell: { x, y },
+    rotation: normalizeRotation(game.placement.rotation),
+    cells: preview.cells.map(cell => ({ x: Number(cell.x), y: Number(cell.y) }))
+  });
+  clearPlacement();
+  game.notice = `${sample.label} footprint sample placed.`;
+  render();
 }
 
 async function placeDepartment(x, y) {
@@ -3012,6 +3666,7 @@ function resetSession() {
   game.notice = '';
   game.error = '';
   game.backlogOrder = [...START_BACKLOG_ORDER];
+  game.samplePlacements = [];
   clearPlacement();
   render();
 }
@@ -3044,6 +3699,30 @@ async function withAction(callback) {
   render();
 }
 
+function applyFurnitureScaleMultiplier(value) {
+  const next = clampFurnitureScaleMultiplier(value);
+  if (next === game.furnitureScaleMultiplier) return;
+  game.furnitureScaleMultiplier = next;
+  saveFurnitureScaleMultiplier(next);
+  const readout = document.querySelector('[data-furniture-scale-readout]');
+  if (readout) readout.textContent = furnitureScaleLabel(next);
+  const percent = document.querySelector('[data-furniture-scale-percent]');
+  if (percent) percent.textContent = `${Math.round(next * 100)}%`;
+  activeOfficeMap?.scene?.renderMap?.();
+}
+
+function applyFurnitureOffsetAxis(axis, value) {
+  const next = clampFurnitureOffsetAxis(value);
+  if (next === game.furnitureOffsetAxes[axis]) return;
+  game.furnitureOffsetAxes[axis] = next;
+  saveFurnitureOffsetAxis(axis, next);
+  const readout = document.querySelector(`[data-furniture-offset-${axis}-readout]`);
+  if (readout) readout.textContent = furnitureOffsetAxisLabel(axis, next);
+  const center = document.querySelector(`[data-furniture-offset-${axis}-center]`);
+  if (center) center.textContent = furnitureOffsetAxisLabel(axis, next);
+  activeOfficeMap?.scene?.renderMap?.();
+}
+
 document.addEventListener('submit', event => {
   if (event.target.matches('[data-form="start"]')) {
     handleStart(event);
@@ -3054,8 +3733,29 @@ document.addEventListener('click', event => {
   handleClick(event);
 });
 
+document.addEventListener('input', event => {
+  const slider = event.target.closest('[data-input-action="set-furniture-scale"]');
+  if (slider) {
+    applyFurnitureScaleMultiplier(slider.value);
+    return;
+  }
+  const offsetXAxisSlider = event.target.closest('[data-input-action="set-furniture-offset-x"]');
+  if (offsetXAxisSlider) {
+    applyFurnitureOffsetAxis('x', offsetXAxisSlider.value);
+    return;
+  }
+  const offsetYAxisSlider = event.target.closest('[data-input-action="set-furniture-offset-y"]');
+  if (offsetYAxisSlider) {
+    applyFurnitureOffsetAxis('y', offsetYAxisSlider.value);
+    return;
+  }
+  const offsetZAxisSlider = event.target.closest('[data-input-action="set-furniture-offset-z"]');
+  if (!offsetZAxisSlider) return;
+  applyFurnitureOffsetAxis('z', offsetZAxisSlider.value);
+});
+
 function updatePlacementPreview(nextAnchor) {
-  if (!game.placement.departmentId || !nextAnchor) return;
+  if (!isPlacementMode() || !nextAnchor) return;
   const current = game.placement.previewAnchor;
   if (current && current.x === nextAnchor.x && current.y === nextAnchor.y) return;
   game.placement.previewAnchor = nextAnchor;
@@ -3083,7 +3783,7 @@ document.addEventListener('mousemove', event => {
 });
 
 document.addEventListener('mouseover', event => {
-  if (!game.placement.departmentId) return;
+  if (!isPlacementMode()) return;
   const cell = event.target.closest('[data-action="build-world-cell"]');
   if (!cell) return;
   updatePlacementPreview({ x: Number(cell.dataset.x), y: Number(cell.dataset.y) });
@@ -3159,7 +3859,7 @@ document.addEventListener('keydown', event => {
     return;
   }
 
-  if (!editingText && game.placement.departmentId && event.key.toLowerCase() === 'r') {
+  if (!editingText && isPlacementMode() && event.key.toLowerCase() === 'r') {
     event.preventDefault();
     rotatePlacement();
     render();

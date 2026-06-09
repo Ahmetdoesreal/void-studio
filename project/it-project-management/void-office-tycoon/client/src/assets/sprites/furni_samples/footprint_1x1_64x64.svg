@@ -1,0 +1,8 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="32,27 53,40 32,53 11,40" fill="#22483A" fill-opacity="0.72"/>
+  <polygon points="32,30 49,40 32,50 15,40" fill="#2F6C55" fill-opacity="0.86"/>
+  <path d="M32 27L53 40L32 53L11 40L32 27Z" stroke="#8BE7B1" stroke-width="2"/>
+  <path d="M32 30L49 40L32 50L15 40L32 30Z" stroke="#D6FFF0" stroke-opacity="0.55" stroke-width="1"/>
+  <path d="M32 34V46" stroke="#D6FFF0" stroke-opacity="0.42" stroke-width="1"/>
+  <path d="M22 40H42" stroke="#D6FFF0" stroke-opacity="0.42" stroke-width="1"/>
+</svg>
