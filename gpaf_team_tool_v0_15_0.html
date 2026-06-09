@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GPAF — Team Submission</title>
+<style>
+:root{--paper:#fbfaf7;--ink:#23211d;--mut:#5d574c;--line:#e2ddd2;--card:#fff;--accent:#3a5a78;--good:#1f6f54;--bad:#9a3b2b;--warn:#8a6d1f;--t1:#1f6f54;--t3:#6b4a86}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+header{padding:18px 20px 6px;border-bottom:1px solid var(--line)}h1{font-size:21px;margin:.1em 0}.sub{color:var(--mut);font-size:13px}
+main{padding:14px 20px 50px;max-width:1000px}h2{font-size:16px;color:var(--accent);margin:1.1em 0 .3em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:13px 15px;margin:10px 0}
+label{display:block;font-size:12px;color:var(--mut);margin:6px 0 2px}
+input,select,textarea{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:#fff;color:var(--ink);width:100%}
+textarea{min-height:46px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+button.act{font:inherit;font-size:13px;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:7px 14px;border-radius:7px;cursor:pointer;margin:4px 6px 4px 0}
+button.ghost{background:#fff;color:var(--accent)}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px}th,td{border:1px solid var(--line);padding:5px 7px;text-align:left;vertical-align:top}thead th{background:#f1eee7}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;color:#fff}.badge.t1{background:var(--t1)}.badge.t3{background:var(--t3)}
+.msg{border-radius:7px;padding:9px 12px;margin:8px 0;font-size:13px;border:1px solid var(--line)}
+.msg.ok{border-left:4px solid var(--good)}.msg.err{border-left:4px solid var(--bad)}.msg.warn{border-left:4px solid var(--warn)}
+.note{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:7px;padding:9px 12px;margin:10px 0;font-size:13px}
+.hint{font-size:12px;color:var(--mut)}code{background:#f1eee7;padding:1px 5px;border-radius:4px;font-size:12px}
+footer{padding:14px 20px;color:var(--mut);font-size:11px;border-top:1px solid var(--line)}
+.drop{border:2px dashed var(--line,#e2ddd2);border-radius:8px;padding:14px;text-align:center;color:var(--mut,#5d574c)}.drop.dragover{background:var(--accent2,#eaf0f5);border-color:var(--accent,#3a5a78)}.reItem textarea{width:100%;min-height:54px}.reItem code{font-size:12px}</style></head>
+<body>
+<header><h1>GPAF — Team Submission</h1><p class="sub">Bind your deployed game back to your proposal, gather your players, attach logs, export one JSON. Runs in your browser; nothing is uploaded.</p><script>NS_CSM_td=317756241;NS_CSM_pd=275116671;NS_CSM_u="/clm10";NS_CSM_col="AAAAAAV3PfejzrlLZZeS079HvAXpnkaZu8aJNWMyCCa6Wdm284iLTfmTIFEq6Zj6pBEF5xaHU6KDYxhXCWGKUwudT8Zo";</script><script type="text/javascript">function sendTimingInfoInit(){setTimeout(sendTimingInfo,0)}function sendTimingInfo(){var wp=window.performance;if(wp){var c1,c2,t;c1=wp.timing;if(c1){var cm={};cm.ns=c1.navigationStart;if((t=c1.unloadEventStart)>0)cm.us=t;if((t=c1.unloadEventEnd)>0)cm.ue=t;if((t=c1.redirectStart)>0)cm.rs=t;if((t=c1.redirectEnd)>0)cm.re=t;cm.fs=c1.fetchStart;cm.dls=c1.domainLookupStart;cm.dle=c1.domainLookupEnd;cm.cs=c1.connectStart;cm.ce=c1.connectEnd;if((t=c1.secureConnectionStart)>0)cm.scs=t;cm.rqs=c1.requestStart;cm.rss=c1.responseStart;cm.rse=c1.responseEnd;cm.dl=c1.domLoading;cm.di=c1.domInteractive;cm.dcls=c1.domContentLoadedEventStart;cm.dcle=c1.domContentLoadedEventEnd;cm.dc=c1.domComplete;if((t=c1.loadEventStart)>0)cm.ls=t;if((t=c1.loadEventEnd)>0)cm.le=t;cm.tid=NS_CSM_td;cm.pid=NS_CSM_pd;cm.ac=NS_CSM_col;var xhttp=new XMLHttpRequest();if(xhttp){var JSON=JSON||{};JSON.stringify=JSON.stringify||function(ob){var t=typeof(ob);if(t!="object"||ob===null){if(t=="string")ob='"'+ob+'"';return String(ob);}else{var n,v,json=[],arr=(ob&&ob.constructor==Array);for(n in ob){v=ob[n];t=typeof(v);if(t=="string")v='"'+v+'"';else if(t=="object"&&v!==null)v=JSON.stringify(v);json.push((arr?"":'"'+n+'":')+String(v));}return(arr?"[":"{")+String(json)+(arr?"]":"}");}};xhttp.open("POST",NS_CSM_u,true);xhttp.send(JSON.stringify(cm));}}}}if(window.addEventListener)window.addEventListener("load",sendTimingInfoInit,false);else if(window.attachEvent)window.attachEvent("onload",sendTimingInfoInit);else window.onload=sendTimingInfoInit;</script></header>
+<main>
+<div class="note">Workflow: <strong>1</strong> import your GPPT proposal → <strong>2</strong> say how you realized each promised element → <strong>3</strong> set measurable targets → <strong>4</strong> attach your game logs → <strong>5</strong> validate &amp; export. <em>Players send their own files straight to the assessor.</em></div>
+
+<div class="ux-tabs" id="ttabs" aria-label="sections"><button class="ux-tab" data-tab="setup">Deployment &amp; access</button><button class="ux-tab" data-tab="members">Members</button><button class="ux-tab" data-tab="proposal">Proposal &amp; proof</button><button class="ux-tab" data-tab="players">Logs</button><button class="ux-tab" data-tab="export">Export</button></div>
+<div class="card ux-panel" data-panel="setup"><h2>0. Deployment &amp; identity</h2>
+<div class="row">
+<div><label data-tip="Computed from your team members + course — read-only and verifiable by the assessor.">Team ID (computed)</label><input id="teamId" value="" readonly placeholder="add members →"></div>
+<div><label data-tip="Taken from the imported GPPT proposal — single source of truth.">Course (from proposal)</label><input id="courseCode" readonly placeholder="import proposal →"></div>
+<div><label data-tip="Computed from title + course + team + proposal — read-only. It appears in the published list players read.">Game ID (computed)</label><input id="gameId" value="" readonly placeholder="set title + members →"></div>
+<div><label data-tip="Taken from the imported GPPT proposal — single source of truth.">Project title (from proposal)</label><input id="title" readonly placeholder="import proposal →"></div>
+<div><label data-tip="GitHub repo holding all project resources (code, assets, docs). Shown to the coordinator and in the published list.">GitHub — all project resources</label><input id="githubUrl" placeholder="https://github.com/org/repo"></div>
+<div><label data-tip="real = hash-verified live logs; pilot = limited run; synthetic = not really deployed">Evidence mode</label><div id="modechips" class="chips"></div><input type="hidden" id="mode" value="real"></div>
+<div><label data-tip="Does the team claim the game was actually deployed and played?">Claims deployed</label><div id="claimchips" class="chips"></div><input type="hidden" id="claims" value="true"></div>
+<div><label>Max game score (for player grading)</label><input id="maxScore" type="number" step="1" placeholder="e.g. 100"></div>
+</div></div>
+
+<div class="card ux-panel" data-panel="setup"><h2>0b. Project status, access &amp; how to play</h2>
+<p class="hint">Tell players how to reach your project — this drives the access list your coordinator publishes.</p>
+<div><label data-tip="Play Link = hosted/online, players open a link. Download Link = players download and run it. Not Playable = no access.">Project status</label><div id="statuschips" class="chips"></div><input type="hidden" id="projectStatus" value="play_link"></div>
+<div class="row">
+<div id="playLinkWrap"><label>Play link (players open this to play)</label><input id="accessUrl" placeholder="https://..."></div>
+<div id="downloadLinkWrap"><label>Download link (players download from here)</label><input id="downloadUrl" placeholder="https://..."></div>
+</div>
+<div id="notPlayableNote" class="msg warn" style="display:none">Marked <strong>Not Playable</strong> — no link is published and players can't access this project.</div>
+<label>How to play (steps players follow)</label><textarea id="howToPlay" style="min-height:80px"></textarea>
+<label>Access rights / credentials (how players get in)</label><textarea id="accessRights" placeholder="e.g. open to all; or request a code from the team"></textarea>
+<div><label data-tip="Optional — the coordinator's name for this project/section, if there is one.">Coordinator name (optional)</label><input id="coordName" placeholder="e.g. Dr. Yusuf Altunel"></div>
+<div class="row">
+<div><label data-tip="What players need to run it — matters most for downloads (browser / OS / device).">Platform / requirements</label><input id="platform" placeholder="e.g. any modern browser; or Windows 10+"></div>
+<div><label data-tip="Who players contact if they cannot access the game.">Contact for access help</label><input id="contactAccess" placeholder="e.g. team email / Discord handle"></div>
+<div><label data-tip="When the game is available, or when access was last checked.">Available / last verified</label><input id="availableDate" type="date"></div>
+</div>
+<p class="hint">A one-line description, what players can earn, estimated play time, and the target audience are pulled automatically from your imported proposal — no need to retype them.</p></div>
+
+<div class="card ux-panel" data-panel="members"><h2>0c. Team members</h2>
+<p class="hint">Your developers, for grade attribution against the class list. Legal IDs/names are used only by the instructor.</p>
+<table id="memTable"><thead><tr><th>Legal student ID</th><th>Name</th><th>Surname</th><th>Role</th><th></th></tr></thead><tbody></tbody></table>
+<div id="memberCompare"></div>
+<p class="hint">Importing a GPPT proposal pre-fills member names and roles here when this list is empty — then add each member legal student ID (required for the computed Team Id).</p>
+<button class="act ghost" onclick="addMember()">+ member</button></div>
+
+<div class="card ux-panel" data-panel="proposal"><h2>1. Import GPPT proposal</h2>
+<div id="propDrop" class="drop">Drag &amp; drop the GPPT <strong>JSON</strong> here, or <input type="file" id="propFile" accept=".json,application/json" onchange="importProposal(event)"></div>
+<div id="propSummary" class="hint"></div></div>
+
+<div class="card ux-panel" data-panel="proposal"><h2>2. Proposal claims &amp; realization <span class="badge t3">human review (T3)</span></h2>
+<p class="hint">All GPPT fields are shown here grouped by area — even before you import a proposal. Pick an area tab; for each claim mark your implementation status (yes / partial / no / dropped) and explain how you implemented it (or why not). Importing the proposal fills the proposed values. A human assessor reviews this — it is not auto-scored.</p>
+<div id="ideaBanner"></div>
+<div id="propCatNav" class="chips" style="margin-bottom:8px"></div>
+<div id="propFields"></div></div>
+
+<div class="card ux-panel" data-panel="proposal"><h2>2b. Project evidence (overall)</h2>
+<div class="row">
+<div><label>Source repository URL</label><input id="pe_repo" placeholder="https://github.com/..."></div>
+<div><label>Deployed game URL</label><input id="pe_deploy"></div>
+<div><label>Demo video URL</label><input id="pe_demo"></div>
+<div><label>Build SHA / version</label><input id="pe_build"></div>
+</div>
+<label>Notes for the assessor</label><textarea id="pe_notes"></textarea></div>
+
+<div class="card ux-panel" data-panel="proposal"><h2>3. Measurable targets <span class="badge t1">measured (T1)</span></h2>
+<p class="hint">The targets the engine measures from logs + pre/post. type ∈ learning_gain_min, players_reached_min, completion_rate_min.</p>
+<table id="critTable"><thead><tr><th>id</th><th>type</th><th>target</th><th></th></tr></thead><tbody></tbody></table>
+<button class="act ghost" onclick="addCrit()">+ target</button></div>
+
+<div class="card ux-panel" data-panel="players"><h2>4. Game logs &amp; players</h2>
+<p class="hint">Two distinct categories of play. <strong>Initial run:</strong> attach <strong>test / prototype / external</strong> play to show the game works, using the published log format. <strong>Final run</strong> (after the play-session deadline): attach the <strong>real class-member</strong> logs to close the gap. Only class-member play counts toward engagement and player grades; the rest is kept as "the game runs" evidence.</p>
+<div><label data-tip="Initial = test/prototype/external. Final = real class members after the deadline.">Submission phase</label><div id="phasechips" class="chips"></div><input type="hidden" id="submissionPhase" value="initial"></div>
+<p><button class="act ghost" onclick="downloadLogFormat()" data-tip="Download the JSON log format every team should follow.">⬇ Download log format (JSON)</button></p>
+<label>Game logs (one JSON event per line — JSONL; hashed in your browser)</label>
+<div id="logDrop" class="drop">Drag &amp; drop log files (.jsonl) here, or <input type="file" id="logFiles" accept=".jsonl,.json,.log,.txt" multiple onchange="importLogs(event)"></div>
+<div id="logSummary" class="hint"></div>
+<h3>Players found in the logs</h3>
+<div id="playerRegistry"></div></div>
+
+<div class="card ux-panel" data-panel="export"><h2>5. Validate &amp; export</h2>
+<button class="act" onclick="validateTeam()">Validate</button>
+<button class="act" onclick="exportTeam()">Export team JSON</button>
+<button class="act ghost" onclick="importTeam()">Re-import a team JSON</button>
+<input type="file" id="teamFile" accept=".json" style="display:none" onchange="reimportTeam(event)">
+<div id="result"></div></div>
+</main>
+<footer>GPAF Team Tool v0.15.0 · light theme · runs entirely in your browser with no persistent storage · JSON export only · per-item proof of fulfilment · validation core verified against Python by the drift gate.</footer>
+
+<script>/* GPAF core scoring v0.1.0 — shared by the HTML tool (browser) and the drift gate (Node).
+   Mirrors the Python engines (gpaf_ingest v0.1.0, gpaf_assess v0.2.0, gpaf_grade v0.1.0)
+   EXACTLY. The drift gate cross-checks this against Python on shared fixtures and fails on
+   any divergence. Pure functions only (no fs/crypto); hashing/IO is done by the caller. */
+(function (root) {
+  "use strict";
+
+  // Python-compatible round (half-to-even) to nd decimals
+  function pyround(x, nd) {
+    if (x === null || x === undefined) return x;
+    var m = Math.pow(10, nd), v = x * m, f = Math.floor(v), diff = v - f, eps = 1e-9, r;
+    if (Math.abs(diff - 0.5) < eps) r = (f % 2 === 0) ? f : f + 1;
+    else r = Math.round(v);
+    return r / m;
+  }
+  function mean(a) { return a.reduce(function (s, x) { return s + x; }, 0) / a.length; }
+  function pstdev(a) { var m = mean(a); return Math.sqrt(mean(a.map(function (x) { return (x - m) * (x - m); }))); }
+  function cv(a) { if (a.length < 2) return null; var m = mean(a); if (m === 0) return null; return pstdev(a) / m; }
+  function ts(e) { return Date.parse(e.ts); } // ms
+
+  // ---- INGEST: events[] -> consolidation ----
+  function consolidate(events) {
+    var sessions = {};
+    events.forEach(function (e) {
+      var k = e.playerPseudoId + "|" + e.gameId + "|" + e.sessionId;
+      (sessions[k] = sessions[k] || { ev: [], types: [], p: e.playerPseudoId, g: e.gameId }).ev.push(e);
+      sessions[k].types.push(e.eventType);
+    });
+    var rows = [];
+    Object.keys(sessions).forEach(function (k) {
+      var s = sessions[k];
+      var tss = s.ev.map(ts).sort(function (a, b) { return a - b; });
+      var duration = (tss[tss.length - 1] - tss[0]) / 1000;
+      var completed = s.types.indexOf("level_complete") >= 0 || s.types.indexOf("session_end") >= 0;
+      var gaps = []; for (var i = 0; i < tss.length - 1; i++) gaps.push((tss[i + 1] - tss[i]) / 1000);
+      var sc = null;
+      s.ev.forEach(function (e) { if (e.eventType === "score_update" && e.payload && typeof e.payload.score === "number") sc = (sc === null ? e.payload.score : Math.max(sc, e.payload.score)); });
+      rows.push({ player: s.p, game: s.g, durationSec: duration, completed: completed, interEventCV: cv(gaps), score: sc });
+    });
+    var players = {};
+    rows.forEach(function (r) {
+      var pp = players[r.player] = players[r.player] || { sessions: 0, playtimeSec: 0, games: {}, completed: 0, score: null };
+      pp.sessions += 1; pp.playtimeSec += r.durationSec; pp.games[r.game] = 1; pp.completed += r.completed ? 1 : 0;
+      if (r.score !== null) pp.score = (pp.score === null ? r.score : Math.max(pp.score, r.score));
+    });
+    var perPlayer = Object.keys(players).sort().map(function (p) {
+      var pp = players[p];
+      return { player: p, sessions: pp.sessions, playtimeSec: pyround(pp.playtimeSec, 1),
+               gamesPlayed: Object.keys(pp.games).length,
+               completionRate: pp.sessions ? pyround(pp.completed / pp.sessions, 4) : 0.0,
+               achievedScore: pp.score };
+    });
+    var nPlayers = Object.keys(players).length;
+    var totalPlaytime = pyround(rows.reduce(function (s, r) { return s + r.durationSec; }, 0), 1);
+    var compRates = perPlayer.map(function (p) { return p.completionRate; });
+    var meanCompletion = compRates.length ? pyround(mean(compRates), 4) : 0.0;
+    var pg = {}; rows.forEach(function (r) { var k = r.player + "|" + r.game; pg[k] = (pg[k] || 0) + 1; });
+    var replays = Object.keys(pg).reduce(function (s, k) { return s + Math.max(0, pg[k] - 1); }, 0);
+    var cvs = rows.map(function (r) { return r.interEventCV; }).filter(function (c) { return c !== null; });
+    var uniform = cvs.filter(function (c) { return c < 0.05; }).length;
+    return {
+      perPlayer: perPlayer,
+      engagementT1: { playersReached: nPlayers, totalPlaytimeSec: totalPlaytime,
+                      meanCompletionRate: meanCompletion, voluntaryReplays: replays },
+      timingProxyT2: { sessionsAnalysed: cvs.length, nearUniformTimingSessions: uniform }
+    };
+  }
+
+  // ---- ASSESS ----
+  function normGain(pre, post, mx) { var d = mx - pre; return d <= 0 ? null : pyround((post - pre) / d, 4); }
+  function assess(submission, con, config) {
+    var th = config.thresholds, players = submission.players || [],
+        criteria = (submission.proposalLink || {}).successCriteria || [], ratings = submission.subjectiveRatings || [];
+    var gains = [], pp = [];
+    players.forEach(function (p) {
+      var lm = p.learning; if (!lm) return;
+      var g = normGain(lm.preTest.score, lm.postTest.score, lm.maxScore);
+      if (g !== null) { gains.push(g); pp.push({ player: p.playerPseudoId, normalizedGain: g }); }
+    });
+    var meanGain = gains.length ? pyround(mean(gains), 4) : null;
+    var metrics = { learning_gain_min: meanGain === null ? 0.0 : meanGain,
+                    players_reached_min: con.engagementT1.playersReached,
+                    completion_rate_min: con.engagementT1.meanCompletionRate };
+    var fidelity = criteria.map(function (c) {
+      var obs = metrics[c.type];
+      return { id: c.id, type: c.type, target: c.target, observed: obs === undefined ? null : obs,
+               met: obs !== undefined && obs !== null && obs >= c.target };
+    });
+    var fidRatio = fidelity.length ? pyround(fidelity.filter(function (f) { return f.met; }).length / fidelity.length, 4) : null;
+    var dim = {}; ratings.forEach(function (r) { Object.keys(r.likert || {}).forEach(function (d) {
+      if (d === "_optional") return; (dim[d] = dim[d] || []).push(r.likert[d]); }); });
+    var likert = {}; Object.keys(dim).forEach(function (d) { likert[d] = pyround(mean(dim[d]), 3); });
+    var borda = {}; ratings.forEach(function (r) { Object.keys(r.rankings || {}).forEach(function (d) {
+      var order = r.rankings[d], n = order.length; borda[d] = borda[d] || {};
+      order.forEach(function (gm, i) { borda[d][gm] = (borda[d][gm] || 0) + (n - 1 - i); }); }); });
+    return {
+      learningT1: { perPlayer: pp, meanNormalizedGain: meanGain, n: gains.length,
+                    passThreshold: th.learning_gain_pass, pass: (meanGain !== null && meanGain >= th.learning_gain_pass) },
+      fidelityT1: { criteria: fidelity, fidelityRatio: fidRatio, passThreshold: th.fidelity_pass,
+                    pass: (fidRatio !== null && fidRatio >= th.fidelity_pass) },
+      experienceT2: { likertMeans: likert, bordaRanking: borda,
+                      proxyLabel: "Self-reported Likert + rank-aggregation: a PROXY, not a measurement of learning/quality." },
+      efficacyT3: { judgmentItems: [
+        { id: "J1", question: "Did the game CAUSE the measured gain? (no control group)" },
+        { id: "J2", question: "Is the game pedagogically apt for this audience/course?" },
+        { id: "J3", question: "Are the player-reported experience scores credible?" }],
+        note: "Routed to human judgment; never a score." }
+    };
+  }
+
+  // ---- GRADE ----
+  function teamScore(dims, weights) {
+    var used = Object.keys(weights).filter(function (d) { return d in dims; });
+    var tot = used.reduce(function (s, d) { return s + weights[d]; }, 0);
+    if (tot === 0) return null;
+    return pyround(used.reduce(function (s, d) { return s + weights[d] * dims[d]; }, 0) / tot, 4);
+  }
+  function eligible(mode, pp) { return mode === "real" ? true : (mode === "pilot" ? !!pp.gradeEligible : false); }
+  function grade(inp, config) {
+    var W = config.dimensionWeights, PP = config.pilotPolicy, CR = config.coordinatorRule, teams = {};
+    (inp.teams || []).forEach(function (t) {
+      var sc = teamScore(t.dimensions, W), el = eligible(t.evidenceMode || "real", PP);
+      var L = { playCredit: pyround((t.dimensions.engagement || 0) * 100, 1),
+                learningBonus: pyround((t.dimensions.learning || 0) * 150, 1),
+                fidelityCredit: pyround((t.dimensions.fidelity || 0) * 50, 1) };
+      L.total = pyround(L.playCredit + L.learningBonus + L.fidelityCredit, 1);
+      teams[t.teamId] = { teamId: t.teamId, classId: t.classId, evidenceMode: t.evidenceMode || "real",
+                          teamScore: sc, gradeEligible: el, rewardLedger: L };
+    });
+    var classes = (inp.classes || []).map(function (c) {
+      var scores = c.teams.map(function (tid) { return teams[tid]; }).filter(Boolean)
+        .filter(function (m) { return m.gradeEligible && m.teamScore !== null; })
+        .map(function (m) { return m.teamScore; }).sort(function (a, b) { return b - a; });
+      var chosen = scores.slice(0, CR.topN);
+      return { classId: c.classId, coordinator: c.coordinator, eligibleTeamScores: scores, topNUsed: chosen,
+               coordinatorGrade: chosen.length ? pyround(mean(chosen), 4) : null,
+               partial_lt_topN: chosen.length < CR.topN, tieExpand: CR.tieExpand };
+    });
+    return { teams: Object.keys(teams).map(function (k) { return teams[k]; }), classes: classes };
+  }
+
+  // ---- ESF validation (mirrors gpaf_esf_validate at JSON level) ----
+  function validateSubmission(sub, logsText) {
+    var errors = [], warnings = [], MODES = ["real", "pilot", "synthetic"];
+    ["proposalLink", "deployment", "players", "structure"].forEach(function (k) {
+      if (!(k in sub)) errors.push("missing top-level section: " + k); });
+    var dep = sub.deployment || {}, struct = sub.structure || {};
+    if (MODES.indexOf(dep.evidenceMode) < 0) errors.push("deployment.evidenceMode must be real|pilot|synthetic");
+    var verified = (logsText && logsText.length) ? 1 : 0; // hashing handled by caller; presence proxy here
+    if (dep.claimsDeployed && dep.evidenceMode === "real" && !verified)
+      errors.push("claimsDeployed=true + evidenceMode='real' but no log content provided");
+    var teamIds = (struct.teams || []).map(function (t) { return t.teamId; });
+    var classIds = (struct.classes || []).map(function (c) { return c.classId; });
+    (sub.players || []).forEach(function (p) {
+      if (!p.playerPseudoId) { errors.push("a player has no playerPseudoId"); return; }
+      if (String(p.playerPseudoId).indexOf("@") >= 0 || String(p.playerPseudoId).indexOf(" ") >= 0)
+        warnings.push("playerPseudoId '" + p.playerPseudoId + "' looks like raw identity — use a salted hash");
+      if (p.teamId && teamIds.indexOf(p.teamId) < 0) errors.push("player " + p.playerPseudoId + " references unknown teamId " + p.teamId);
+      if (p.learning) ["preTest", "postTest", "maxScore"].forEach(function (f) {
+        if (!(f in p.learning)) errors.push("player " + p.playerPseudoId + " learning missing " + f); });
+    });
+    (struct.teams || []).forEach(function (t) { if (t.classId && classIds.indexOf(t.classId) < 0) errors.push("team " + t.teamId + " references unknown classId " + t.classId); });
+    (struct.classes || []).forEach(function (c) { (c.teams || []).forEach(function (tid) { if (teamIds.indexOf(tid) < 0) errors.push("class " + c.classId + " lists unknown team " + tid); }); });
+    if (!(sub.subjectiveRatings || []).length) warnings.push("no subjectiveRatings — Player-Experience (T2) will be empty");
+    return { status: errors.length ? "FAIL" : "PASS", errors: errors, warnings: warnings };
+  }
+
+  // ---- tiny CSV (handles quoted fields, commas, simple) ----
+  function parseCSV(text) {
+    var rows = [], row = [], cur = "", q = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+      else if (c === '"') q = true;
+      else if (c === ",") { row.push(cur); cur = ""; }
+      else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cur); rows.push(row); row = []; cur = ""; }
+      else cur += c;
+    }
+    if (cur.length || row.length) { row.push(cur); rows.push(row); }
+    if (!rows.length) return [];
+    var hdr = rows[0].map(function (h) { return h.trim(); });
+    return rows.slice(1).filter(function (r) { return r.length > 1 || (r[0] || "").trim(); })
+      .map(function (r) { var o = {}; hdr.forEach(function (h, i) { o[h] = (r[i] || "").trim(); }); return o; });
+  }
+
+  // ---- PLAYER GRADES (from logged game scores) + LEADERBOARD ----
+  // records: [{playerId, gameId, achievedScore|null, maxGameScore|null, completionRate}]
+  function gradePlayers(records, config) {
+    var pgc = (config && config.playerGrade) || {}, basis = pgc.basis || "normalized_avg";
+    var w = pgc.weights || { play: 0.2, completion: 0.3, achievement: 0.5 };
+    var byPlayer = {}, byGame = {};
+    records.forEach(function (r) { (byPlayer[r.playerId] = byPlayer[r.playerId] || []).push(r);
+      if (r.achievedScore != null) (byGame[r.gameId] = byGame[r.gameId] || []).push(r); });
+    var maxPlayed = 0; Object.keys(byPlayer).forEach(function (p) { maxPlayed = Math.max(maxPlayed, byPlayer[p].length); });
+    function pct(r) { var arr = byGame[r.gameId]; if (!arr || r.achievedScore == null) return null;
+      var n = arr.length; if (n <= 1) return 1.0;
+      var greater = arr.filter(function (x) { return x.achievedScore > r.achievedScore; }).length;
+      return pyround((n - 1 - greater) / (n - 1), 4); }
+    var out = Object.keys(byPlayer).sort().map(function (pid) {
+      var recs = byPlayer[pid];
+      var norms = recs.map(function (r) { return (r.maxGameScore > 0 && r.achievedScore != null) ? r.achievedScore / r.maxGameScore : null; }).filter(function (x) { return x !== null; });
+      var comps = recs.map(function (r) { return r.completionRate; }).filter(function (x) { return typeof x === "number"; });
+      var a = norms.length ? mean(norms) : null, c = comps.length ? mean(comps) : null, grade;
+      if (basis === "total_points") grade = pyround(recs.reduce(function (s, r) { return s + (r.achievedScore || 0); }, 0), 2);
+      else if (basis === "rank_avg") { var ps = recs.map(pct).filter(function (x) { return x !== null; }); grade = ps.length ? pyround(mean(ps), 4) : null; }
+      else if (basis === "blend") { var part = maxPlayed ? recs.length / maxPlayed : 0, tw = w.play + w.completion + w.achievement;
+        grade = pyround((w.play * part + w.completion * (c || 0) + w.achievement * (a || 0)) / (tw || 1), 4); }
+      else grade = (a !== null) ? pyround(a, 4) : null;
+      return { playerId: pid, gamesPlayed: recs.length, achievement: (a !== null ? pyround(a, 4) : null),
+               completion: (c !== null ? pyround(c, 4) : null), grade: grade };
+    });
+    var lb = out.filter(function (x) { return x.grade !== null; })
+      .sort(function (a, b) { return b.grade !== a.grade ? b.grade - a.grade : (a.playerId < b.playerId ? -1 : 1); })
+      .map(function (x, i) { return { rank: i + 1, playerId: x.playerId, grade: x.grade, gamesPlayed: x.gamesPlayed }; });
+    return { basis: basis, players: out, leaderboard: lb };
+  }
+
+  // ---- ORDER-BASED EXPERIENCE: cross-game Borda over players' per-aspect rankings ----
+  // records: [{playerId, rankings:{aspect:[gameId, gameId, ...] top-first}}]  (a player needs >=2 games in an aspect to count)
+  function rankGames(records, config) {
+    var byAspect = {};
+    records.forEach(function (r) {
+      var rk = r.rankings || {};
+      Object.keys(rk).forEach(function (asp) {
+        var order = rk[asp] || [], n = order.length; if (n < 2) return; var seen = {};
+        order.forEach(function (g, i) { if (g == null || seen[g]) return; seen[g] = 1;
+          (byAspect[asp] = byAspect[asp] || {}); byAspect[asp][g] = (byAspect[asp][g] || 0) + (n - 1 - i); });
+      });
+    });
+    var aspects = {};
+    Object.keys(byAspect).sort().forEach(function (asp) {
+      var games = byAspect[asp];
+      var ranking = Object.keys(games).sort(function (a, b) { return games[b] !== games[a] ? games[b] - games[a] : (a < b ? -1 : 1); })
+        .map(function (g, i) { return { rank: i + 1, gameId: g, points: games[g] }; });
+      aspects[asp] = { points: games, ranking: ranking };
+    });
+    var overall = {};
+    Object.keys(aspects).forEach(function (asp) {
+      var pts = aspects[asp].points, vals = Object.keys(pts).map(function (g) { return pts[g]; });
+      var max = vals.length ? Math.max.apply(null, vals) : 0; if (!max) max = 1;
+      Object.keys(pts).forEach(function (g) { overall[g] = (overall[g] || 0) + pts[g] / max; });
+    });
+    var overallRanking = Object.keys(overall).sort(function (a, b) { return overall[b] !== overall[a] ? overall[b] - overall[a] : (a < b ? -1 : 1); })
+      .map(function (g, i) { return { rank: i + 1, gameId: g, score: pyround(overall[g], 4) }; });
+    return { aspects: aspects, overall: overallRanking };
+  }
+
+  var API = { version: "0.3.0", pyround: pyround, consolidate: consolidate, assess: assess, grade: grade, gradePlayers: gradePlayers, rankGames: rankGames,
+              validateSubmission: validateSubmission, parseCSV: parseCSV };
+  if (typeof module !== "undefined" && module.exports) module.exports = API;
+  else root.GPAFCore = API;
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+<script>/* GPAF shared UX library v0.1.0 — tabs, toggle-chip selectors, tooltips, right-click
+   context menus. Single-sourced and inlined into the player/team/assessor tools so all
+   three behave identically. No storage; no external deps. */
+(function (root) {
+  "use strict";
+  function injectCSS() {
+    if (typeof document === "undefined" || document.getElementById("gpaf-ux-css")) return;
+    var s = document.createElement("style"); s.id = "gpaf-ux-css";
+    s.textContent =
+      ".ux-tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:2px solid var(--line,#e2ddd2);margin:6px 0 12px;position:sticky;top:0;background:var(--paper,#fbfaf7);z-index:4}" +
+      ".ux-tab{border:1px solid var(--line,#e2ddd2);border-bottom:0;background:#fff;color:var(--mut,#5d574c);padding:9px 14px;border-radius:8px 8px 0 0;cursor:pointer;font:inherit;font-size:13px;min-height:42px}" +
+      ".ux-tab[aria-selected=true]{background:var(--accent,#3a5a78);color:#fff;font-weight:600}" +
+      ".ux-tab:focus{outline:3px solid var(--focus,#1d6fb8);outline-offset:1px}" +
+      ".ux-panel[hidden]{display:none}" +
+      ".chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}" +
+      ".chip{border:1px solid var(--line,#e2ddd2);background:#fff;color:var(--ink,#23211d);border-radius:20px;padding:6px 13px;cursor:pointer;font:inherit;font-size:13px;min-height:36px}" +
+      ".chip[aria-pressed=true]{background:var(--accent,#3a5a78);color:#fff;border-color:var(--accent,#3a5a78)}" +
+      ".chip:focus{outline:3px solid var(--focus,#1d6fb8);outline-offset:1px}" +
+      ".ux-tip{position:fixed;z-index:50;background:#23211d;color:#fff;font-size:12px;padding:6px 9px;border-radius:6px;max-width:280px;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.2)}" +
+      ".ux-menu{position:fixed;z-index:60;background:#fff;border:1px solid var(--line,#e2ddd2);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);min-width:180px;overflow:hidden;padding:4px 0}" +
+      ".ux-menu button{display:block;width:100%;text-align:left;border:0;background:#fff;padding:9px 13px;cursor:pointer;font:inherit;font-size:13px;color:var(--ink,#23211d)}" +
+      ".ux-menu button:hover,.ux-menu button:focus{background:var(--accent2,#eaf0f5)}" +
+      ".ux-menu .sep{border-top:1px solid var(--line,#e2ddd2);margin:4px 0}";
+    document.head.appendChild(s);
+  }
+  // Tabs: a container with .ux-tab[data-tab=KEY] buttons; panels are .ux-panel[data-panel=KEY]
+  // searched within panelsRoot (default: document) so multiple tab groups can coexist.
+  function tabs(container, panelsRoot, onShow) {
+    var rootEl = typeof container === "string" ? document.getElementById(container) : container;
+    if (!rootEl) return { show: function () {} };
+    var pRoot = panelsRoot ? (typeof panelsRoot === "string" ? document.getElementById(panelsRoot) : panelsRoot) : document;
+    var btns = [].slice.call(rootEl.querySelectorAll(".ux-tab"));
+    var panels = [].slice.call(pRoot.querySelectorAll(".ux-panel"));
+    rootEl.setAttribute("role", "tablist");
+    function show(key) {
+      btns.forEach(function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === key ? "true" : "false"); b.tabIndex = b.getAttribute("data-tab") === key ? 0 : -1; });
+      panels.forEach(function (p) { p.hidden = (p.getAttribute("data-panel") !== key); });
+      if (onShow) onShow(key);
+    }
+    btns.forEach(function (b, idx) {
+      b.setAttribute("role", "tab");
+      b.onclick = function () { show(b.getAttribute("data-tab")); };
+      b.onkeydown = function (e) {
+        if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+          var n = (idx + (e.key === "ArrowRight" ? 1 : btns.length - 1)) % btns.length;
+          btns[n].focus(); show(btns[n].getAttribute("data-tab"));
+        }
+      };
+    });
+    if (btns.length) show(btns[0].getAttribute("data-tab"));
+    return { show: show };
+  }
+  // Toggle chips. opts=[{key,label,tip}]; multi => selected is array, else string|null.
+  function chips(el, opts, selected, onChange, multi) {
+    var node = typeof el === "string" ? document.getElementById(el) : el;
+    var sel = multi ? (selected || []).slice() : (selected || null);
+    function render() {
+      node.innerHTML = ""; node.className = "chips"; node.setAttribute("role", "group");
+      opts.forEach(function (o) {
+        var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = o.label;
+        if (o.tip) b.setAttribute("data-tip", o.tip);
+        var on = multi ? sel.indexOf(o.key) >= 0 : sel === o.key;
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+        b.onclick = function () {
+          if (multi) { var i = sel.indexOf(o.key); if (i >= 0) sel.splice(i, 1); else sel.push(o.key); }
+          else { sel = (sel === o.key ? null : o.key); }
+          render(); if (onChange) onChange(multi ? sel.slice() : sel);
+        };
+        node.appendChild(b);
+      });
+    }
+    render();
+    return { get: function () { return multi ? sel.slice() : sel; }, set: function (v) { sel = multi ? (v || []).slice() : v; render(); }, render: render };
+  }
+  // Tooltips for any [data-tip] element on hover/focus.
+  function initTips() {
+    if (typeof document === "undefined") return;
+    var tip = null;
+    function show(t) { var txt = t.getAttribute("data-tip"); if (!txt) return; hide();
+      tip = document.createElement("div"); tip.className = "ux-tip"; tip.textContent = txt; document.body.appendChild(tip);
+      var r = t.getBoundingClientRect();
+      tip.style.left = Math.max(6, Math.min(window.innerWidth - tip.offsetWidth - 6, r.left)) + "px";
+      tip.style.top = (r.bottom + 6 + tip.offsetHeight > window.innerHeight ? r.top - tip.offsetHeight - 6 : r.bottom + 6) + "px"; }
+    function hide() { if (tip) { tip.remove(); tip = null; } }
+    document.addEventListener("mouseover", function (e) { var t = e.target.closest && e.target.closest("[data-tip]"); if (t) show(t); });
+    document.addEventListener("mouseout", function (e) { if (e.target.closest && e.target.closest("[data-tip]")) hide(); });
+    document.addEventListener("focusin", function (e) { var t = e.target.closest && e.target.closest("[data-tip]"); if (t) show(t); });
+    document.addEventListener("focusout", hide);
+    document.addEventListener("scroll", hide, true);
+  }
+  // Right-click context menu. itemsFn(target) -> [{label,action(target)} | {sep:true}].
+  var menuEl = null;
+  function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
+  function contextMenu(selector, itemsFn) {
+    if (typeof document === "undefined") return;
+    document.addEventListener("contextmenu", function (e) {
+      var t = e.target.closest && e.target.closest(selector); if (!t) return;
+      var items = itemsFn(t) || []; if (!items.length) return;
+      e.preventDefault(); closeMenu();
+      menuEl = document.createElement("div"); menuEl.className = "ux-menu"; menuEl.setAttribute("role", "menu");
+      items.forEach(function (it) {
+        if (it.sep) { var d = document.createElement("div"); d.className = "sep"; menuEl.appendChild(d); return; }
+        var b = document.createElement("button"); b.type = "button"; b.setAttribute("role", "menuitem"); b.textContent = it.label;
+        b.onclick = function () { closeMenu(); it.action(t); };
+        menuEl.appendChild(b);
+      });
+      document.body.appendChild(menuEl);
+      menuEl.style.left = Math.min(e.clientX, window.innerWidth - menuEl.offsetWidth - 6) + "px";
+      menuEl.style.top = Math.min(e.clientY, window.innerHeight - menuEl.offsetHeight - 6) + "px";
+    });
+    document.addEventListener("click", closeMenu);
+    document.addEventListener("scroll", closeMenu, true);
+  }
+  var API = { version: "0.1.0", injectCSS: injectCSS, tabs: tabs, chips: chips, initTips: initTips, contextMenu: contextMenu };
+  if (typeof module !== "undefined" && module.exports) module.exports = API;
+  else {
+    root.GPAFUX = API;
+    if (typeof document !== "undefined") {
+      if (document.readyState !== "loading") { injectCSS(); initTips(); }
+      else document.addEventListener("DOMContentLoaded", function () { injectCSS(); initTips(); });
+    }
+  }
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+<script>/* GPAF pure-JS SHA-256 v0.1.0 — synchronous, dependency-free, works in any context
+   (file://, jsdom, hosted) where window.crypto.subtle may be unavailable. Used to derive
+   deterministic, verifiable Team/Game IDs from project metadata. */
+(function (root) {
+  "use strict";
+  function rotr(n, x) { return (x >>> n) | (x << (32 - n)); }
+  function sha256bytes(bytes) {
+    var K = [
+      0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+      0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+      0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+      0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+      0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+      0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+      0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+      0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+    var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+    var l = bytes.length;
+    var withOne = l + 1;
+    var k = (56 - withOne % 64 + 64) % 64;
+    var total = withOne + k + 8;
+    var msg = new Uint8Array(total);
+    msg.set(bytes); msg[l] = 0x80;
+    var bitLen = l * 8;
+    // 64-bit length (we support < 2^32 bytes; high word handles a few more bits)
+    var hi = Math.floor(bitLen / 0x100000000), lo = bitLen >>> 0;
+    msg[total - 8] = (hi >>> 24) & 0xff; msg[total - 7] = (hi >>> 16) & 0xff; msg[total - 6] = (hi >>> 8) & 0xff; msg[total - 5] = hi & 0xff;
+    msg[total - 4] = (lo >>> 24) & 0xff; msg[total - 3] = (lo >>> 16) & 0xff; msg[total - 2] = (lo >>> 8) & 0xff; msg[total - 1] = lo & 0xff;
+    var w = new Array(64);
+    for (var off = 0; off < total; off += 64) {
+      for (var i = 0; i < 16; i++) {
+        w[i] = (msg[off + i * 4] << 24) | (msg[off + i * 4 + 1] << 16) | (msg[off + i * 4 + 2] << 8) | (msg[off + i * 4 + 3]);
+      }
+      for (i = 16; i < 64; i++) {
+        var s0 = rotr(7, w[i - 15]) ^ rotr(18, w[i - 15]) ^ (w[i - 15] >>> 3);
+        var s1 = rotr(17, w[i - 2]) ^ rotr(19, w[i - 2]) ^ (w[i - 2] >>> 10);
+        w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
+      }
+      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (i = 0; i < 64; i++) {
+        var S1 = rotr(6, e) ^ rotr(11, e) ^ rotr(25, e);
+        var ch = (e & f) ^ (~e & g);
+        var t1 = (h + S1 + ch + K[i] + w[i]) | 0;
+        var S0 = rotr(2, a) ^ rotr(13, a) ^ rotr(22, a);
+        var maj = (a & b) ^ (a & c) ^ (b & c);
+        var t2 = (S0 + maj) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      H[0] = (H[0] + a) | 0; H[1] = (H[1] + b) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0;
+      H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
+    }
+    var out = "";
+    for (i = 0; i < 8; i++) out += ("00000000" + (H[i] >>> 0).toString(16)).slice(-8);
+    return out;
+  }
+  function utf8(str) {
+    if (typeof TextEncoder !== "undefined") return new TextEncoder().encode(String(str));
+    var s = unescape(encodeURIComponent(String(str))), a = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+    return a;
+  }
+  function sha256hex(str) { return sha256bytes(utf8(str)); }
+  var API = { version: "0.1.0", sha256hex: sha256hex };
+  if (typeof module !== "undefined" && module.exports) module.exports = API;
+  else root.GPAFHash = API;
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+<script>
+var C=window.GPAFCore;
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function dl(name,text){var b=new Blob([text],{type:'application/json'});var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
+function computeIds(){if(typeof GPAFHash==='undefined')return;
+  var course=((el('courseCode')&&el('courseCode').value)||'').trim().toUpperCase();
+  var ids=STATE.members.map(function(m){return (m.legalStudentId||'').trim();}).filter(Boolean).sort();
+  var teamId=ids.length?('TM-'+GPAFHash.sha256hex(ids.join('|')+'::'+course).slice(0,12).toUpperCase()):'';
+  if(el('teamId'))el('teamId').value=teamId;
+  var propHash=STATE.proposal?GPAFHash.sha256hex(JSON.stringify(STATE.proposal.state||STATE.proposal)).slice(0,12):'';
+  var title=((el('title')&&el('title').value)||'').trim();
+  var gameId=(title&&teamId)?('GM-'+GPAFHash.sha256hex(title+'::'+course+'::'+teamId+'::'+propHash).slice(0,12).toUpperCase()):'';
+  if(el('gameId'))el('gameId').value=gameId;
+  STATE.idBasis={memberLegalIds:ids,courseCode:course,title:title,proposalHash:propHash};}
+function renderRewardPanel(){var pnl=el('rewardPanel');if(!pnl)return;
+  if(!STATE.proposal){pnl.innerHTML='<p class="hint">Import a GPPT proposal above to list what players can earn and mark each as realized.</p>';return;}
+  var st=STATE.proposal.state||{};var mech=st.mechanics||[];var rew=st.rewardStructure||{};
+  function stat(cat,ref){var r=STATE.realizations.filter(function(x){return x.category===cat&&(ref==null||x.ref===ref);})[0];return r?r.fulfilled:'—';}
+  var rows='';
+  mech.forEach(function(m,i){rows+='<tr><td>Mechanic</td><td>'+esc(m)+'</td><td>'+esc(stat('mechanics','mechanics['+i+']'))+'</td></tr>';});
+  Object.keys(rew).forEach(function(k){rows+='<tr><td>Reward tier</td><td><strong>'+esc(k)+'</strong>: '+esc(String(rew[k]).slice(0,120))+'</td><td>'+esc(stat('rewardStructure',null))+'</td></tr>';});
+  if(!rows)rows='<tr><td colspan="3" class="hint">No explicit mechanics or reward tiers declared in the proposal.</td></tr>';
+  pnl.innerHTML='<h3>What players can earn (declared in proposal)</h3><p class="hint">Mark each item\'s realization in the proof table below. The numeric max score (actual cap) is entered under Deployment.</p><table><thead><tr><th>Kind</th><th>Declared</th><th>Realized?</th></tr></thead><tbody>'+rows+'</tbody></table>';}
+async function sha256hex(str){var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
+
+var STATE={proposal:null,realizations:[],players:[],ratings:[],logs:[],members:[]};
+var CRIT=[{id:"C1",type:"learning_gain_min",target:0.30},{id:"C2",type:"players_reached_min",target:10},{id:"C3",type:"completion_rate_min",target:0.50}];
+
+function normName(x){return (x==null?'':String(x)).toLowerCase().replace(/\s+/g,' ').trim();}
+function renderMemberCompare(){var host=el('memberCompare');if(!host)return;
+  var tm=(((STATE.proposal||{}).state)||{}).teamMembers||[];
+  if(!STATE.proposal||!tm.length){host.innerHTML='';return;}
+  var pm=tm.map(function(t){return {key:normName((t.name||'')+' '+(t.surname||'')),disp:((t.name||'')+' '+(t.surname||'')).trim()||'(unnamed)'};});
+  var tl=(STATE.members||[]).map(function(m){return {key:normName((m.name||'')+' '+(m.surname||'')),disp:((m.name||'')+' '+(m.surname||'')).trim()||'(unnamed)'};});
+  var tk={};tl.forEach(function(x){if(x.key)tk[x.key]=1;});var pk={};pm.forEach(function(x){if(x.key)pk[x.key]=1;});
+  var matched=pm.filter(function(x){return x.key&&tk[x.key];});
+  var onlyProp=pm.filter(function(x){return x.key&&!tk[x.key];});
+  var onlyTeam=tl.filter(function(x){return x.key&&!pk[x.key];});
+  var h='<p class="hint">Proposal team vs your submitting roster. Members may legitimately differ (e.g. someone left) — this is informational, not enforced.</p>';
+  h+='<p>✓ In both: <strong>'+matched.length+'</strong>';
+  if(onlyProp.length)h+='<br>⚠ In proposal, not in your roster: '+onlyProp.map(function(x){return esc(x.disp);}).join(', ');
+  if(onlyTeam.length)h+='<br>⚠ In your roster, not in proposal: '+onlyTeam.map(function(x){return esc(x.disp);}).join(', ');
+  if(!onlyProp.length&&!onlyTeam.length&&matched.length)h+=' — rosters match.';
+  h+='</p>';
+  host.innerHTML='<div class="msg">'+h+'</div>';}
+function fillMembersFromProposal(state){var tm=(state&&state.teamMembers)||[];if(!tm.length)return;
+  var hasData=(STATE.members||[]).some(function(m){return (m.name||m.surname||m.legalStudentId);});
+  if(hasData)return;
+  STATE.members=tm.map(function(t){return {legalStudentId:'',name:t.name||'',surname:t.surname||'',role:t.role||''};});
+  if(typeof renderMembers==='function')renderMembers();computeIds();}
+function importProposal(ev){importProposalFile(ev.target.files[0]);}
+function importProposalFile(f){if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var p=JSON.parse(r.result);var state=p.state||p;STATE.proposal={gppt_version:p.gppt_version||null,exported_at:p.exported_at||null,state:state};
+    if(el('courseCode'))el('courseCode').value=(state.courseCode||'').toString().trim();
+    if(el('title'))el('title').value=(state.projectTitle||state.title||'').toString().trim();
+    fillProposal(state);fillMembersFromProposal(state);renderMemberCompare();computeIds();
+    el('propSummary').textContent='Imported proposal (gppt '+(p.gppt_version||'?')+'): course '+(el('courseCode').value||'?')+', '+STATE.realizations.length+' element(s).';
+  }catch(e){alert('Bad proposal JSON: '+e);}};r.readAsText(f);}
+var FULFILMENT=["yes","partial","no","dropped"];
+var SECTIONS=[
+ {n:1,title:'Project Identity',sub:'Course, scope, deliverable area, project title',fields:[
+   {k:'projectTitle',l:'Project Title',meta:1},{k:'courseCode',l:'Course Code',meta:1},{k:'domain',l:'Domain',meta:1},{k:'deliverableArea',l:'Deliverable Area',meta:1},{k:'audience',l:'Audience',meta:1},{k:'successVision',l:'Success Vision',meta:1},{k:'ideaBrief',l:'Idea Brief',meta:1}]},
+ {n:2,title:'Problem & Population',sub:'Quantified problem; target population; success criteria; team & dates',fields:[
+   {k:'problemStatement',l:'Problem Statement',hint:'≥80 chars + a percentage for full credit'},{k:'targetPopulation',l:'Target Population',hint:'≥30 chars + numeric size'},{k:'successCriteria',l:'Success Criteria',hint:'≥4 measurable criteria'},
+   {k:'organisation',l:'Organisation',meta:1},{k:'teamMembers',l:'Team Members',meta:1},{k:'proposalDate',l:'Proposal Date',meta:1},{k:'startDate',l:'Project Start Date',meta:1}]},
+ {n:3,title:'Scope & Requirements',sub:'User stories, FRs, NFRs',fields:[
+   {k:'userStories',l:'User Stories',hint:'≥5 stories'},{k:'frs',l:'Functional Requirements',hint:'≥1 FR mentioning logs/events/audit/recording'},{k:'nfrs',l:'Non-Functional Requirements',hint:'≥5 NFRs incl. privacy/GDPR/KVKK'},
+   {k:'logPrivacy',l:'Log Privacy Statement',hint:'Auxiliary for keyword detection'},{k:'dataCollectionPlan',l:'Data Collection Plan',hint:'Auxiliary for keyword detection'}]},
+ {n:4,title:'Theoretical Framework',sub:'Bloom outcomes, theories, MDA analysis, HEXAD distribution',fields:[
+   {k:'bloomOutcomes',l:'Bloom Outcomes',hint:'All 6 levels (L1-L6), outcome ≥20 chars'},{k:'theories',l:'Theories used',hint:'≥4 theories woven into the narrative by full name'},{k:'mdaAnalysis',l:'MDA Analysis',hint:'Mechanics/Dynamics/Aesthetics each ≥50 chars'},{k:'hexad',l:'HEXAD distribution',hint:'Percentages summing to 100±5'},{k:'mechanics',l:'Mechanics',hint:'≥5 NON-PBL items'}]},
+ {n:5,title:'Motivational Design',sub:'SDT depth + Octalysis balance',fields:[
+   {k:'sdtAutonomy',l:'SDT — Autonomy support',hint:'≥50 chars'},{k:'sdtCompetence',l:'SDT — Competence support',hint:'≥50 chars'},{k:'sdtRelatedness',l:'SDT — Relatedness support',hint:'≥50 chars'},{k:'octalysis',l:'Octalysis (0.0-1.0 per drive)',hint:'≥2 white-hat drives ≥0.5; whiteTotal ≥ blackTotal'}]},
+ {n:6,title:'Narrative & Concept Mapping',sub:'Story arc + theory weaving + concept→game mappings',fields:[
+   {k:'narrativeTheme',l:'Narrative Theme',hint:'Rich at ≥400 chars; weave all 5 theories by full name'},{k:'gameOverview',l:'Game Overview',hint:'Auxiliary for narrative weaving'},{k:'conceptMappings',l:'Concept-Game Mappings',hint:'≥5 mappings'}]},
+ {n:7,title:'Session Flow & Scoring',sub:'Win/lose paths, game duration, session steps',fields:[
+   {k:'scenarios',l:'Scenarios',hint:'≥3 scenarios'},{k:'gameDuration',l:'Game Duration',hint:'Descriptive ≥30 chars (not a bare number)'},{k:'sessionSteps',l:'Session Steps',hint:'≥4 steps'}]},
+ {n:8,title:'Social & Rewards',sub:'Three-tier reward structure',fields:[
+   {k:'rewardStructure',l:'Reward Structure',hint:'All 3 tiers (elite / professional / access) required'}]},
+ {n:9,title:'Learning Outcomes & KPIs',sub:'KPIs at each Kirkpatrick level (L1 → L4)',fields:[
+   {k:'kpis',l:'KPIs',hint:'≥1 KPI at each of L1, L2, L3, L4'}]},
+ {n:10,title:'Risks & Support Team',sub:'Tusler 4-category risk distribution + support roles',fields:[
+   {k:'tuslerRisks',l:'Tusler Risks',hint:'≥4 risks across all 4 categories; ≥25-char mitigation each'},{k:'supportTeam',l:'Support Team',hint:'≥3 members'},{k:'facilitatorRole',l:'Facilitator Role',hint:'≥30 chars'}]},
+ {n:11,title:'Wireframes & Cascade',sub:'3 surfaces + structural cascade verification',fields:[
+   {k:'wf_dash',l:'Dashboard Wireframe',hint:'≥80 chars layout description'},{k:'wf_asset',l:'Asset Wireframe',hint:'≥80 chars'},{k:'wf_portfolio',l:'Portfolio Wireframe',hint:'≥80 chars'}]},
+ {n:12,title:'Preview & Export',sub:'Final scope, ethics, motivation',fields:[
+   {k:'inScope',l:'In Scope',hint:'For compassion model: include "losePoints=0" / "no punitive"'},{k:'outScope',l:'Out of Scope'},{k:'whyMotivation',l:'Why (Motivation)'},{k:'howEthics',l:'How (Ethics)'}]}
+];
+function claimFields(){var a=[];SECTIONS.forEach(function(s){s.fields.forEach(function(f){if(!f.meta)a.push({k:f.k,l:f.l,hint:f.hint||'',sec:s.n});});});return a;}
+function formatVal(v){if(v==null||v==='')return '';
+  if(Array.isArray(v))return v.map(function(x){return (x&&typeof x==='object')?Object.keys(x).map(function(k){return k+': '+x[k];}).join(', '):String(x);}).join(' · ');
+  if(typeof v==='object')return Object.keys(v).map(function(k){return k+': '+(v[k]&&typeof v[k]==='object'?JSON.stringify(v[k]):String(v[k]));}).join(' · ');
+  return String(v);}
+function initRealizations(){STATE.realizations=claimFields().map(function(f){return {ref:f.k,category:f.k,sec:f.sec,label:f.l,hint:f.hint,promised:'',fulfilled:'no',proof:'',evidenceRefs:'',reason:''};});}
+function fillProposal(state){if(!STATE.realizations||!STATE.realizations.length)initRealizations();STATE.realizations.forEach(function(rz){rz.promised=formatVal(state[rz.ref]);});if(!STATE.activeSec)STATE.activeSec=1;renderProposal();}
+function setPropSec(n){STATE.activeSec=n;renderProposal();}
+function setReal(i,v){STATE.realizations[i].fulfilled=v;renderProposal();}
+function secProgress(n){var fz=STATE.realizations.filter(function(r){return r.sec===n;});if(!fz.length)return null;var done=fz.filter(function(r){return (r.fulfilled&&r.fulfilled!=='no')||r.proof;}).length;return Math.round(100*done/fz.length);}
+function renderProposal(){var nav=el('propCatNav'),body=el('propFields');if(!nav||!body){computeIds();return;}
+  if(!STATE.activeSec)STATE.activeSec=1;
+  var st=(STATE.proposal||{}).state||{};
+  if(el('ideaBanner'))el('ideaBanner').innerHTML=st.ideaBrief?('<div class="msg"><strong>Idea brief:</strong> '+esc(String(st.ideaBrief).replace(/\s+/g,' ').slice(0,300))+'</div>'):'';
+  nav.innerHTML=SECTIONS.map(function(s){var p=secProgress(s.n);var ring=(p===null)?'':(p>=100?' ●':(p>0?' ◐':' ◯'));var pct=(p===null)?'':(' '+p+'%'+ring);return '<button type="button" class="chip" aria-pressed="'+(STATE.activeSec===s.n?'true':'false')+'" onclick="setPropSec('+s.n+')">'+('0'+s.n).slice(-2)+' '+esc(s.title)+pct+'</button>';}).join('');
+  var sec=SECTIONS.filter(function(s){return s.n===STATE.activeSec;})[0];
+  var html='<div class="msg"><strong>Step '+sec.n+' — '+esc(sec.title)+'</strong><br><span class="hint">'+esc(sec.sub)+'</span></div>';
+  sec.fields.forEach(function(f){
+    if(f.meta){var mv=formatVal(st[f.k]);html+='<div class="reItem"><div class="hint">'+esc(f.l)+'</div><div>'+(mv?esc(mv):'<span class="hint">(empty)</span>')+'</div></div>';return;}
+    var rz=STATE.realizations.filter(function(r){return r.ref===f.k;})[0];var i=STATE.realizations.indexOf(rz);var pv=rz.promised;
+    html+='<div class="reItem"><div class="hint">'+esc(f.l)+' <code>'+esc(f.k)+'</code></div>'+
+      (f.hint?'<div class="hint" style="font-style:italic">GPPT guidance: '+esc(f.hint)+'</div>':'')+
+      '<div style="margin:4px 0"><strong>Proposed:</strong> '+(pv?esc(pv):'<span class="hint">(not in the imported proposal)</span>')+'</div>'+
+      '<div class="chips">'+FULFILMENT.map(function(sn){return '<button type="button" class="chip" aria-pressed="'+(rz.fulfilled===sn?'true':'false')+'" onclick="setReal('+i+',\''+sn+'\')">'+sn+'</button>';}).join('')+'</div>'+
+      '<label class="hint">Explanation — how it was implemented (or why not)</label>'+
+      '<textarea oninput="STATE.realizations['+i+'].proof=this.value" placeholder="Describe the implementation status…">'+esc(rz.proof||'')+'</textarea>'+
+      '<details><summary class="hint">More: evidence refs / reason</summary><label class="hint">Evidence refs</label><textarea oninput="STATE.realizations['+i+'].evidenceRefs=this.value">'+esc(rz.evidenceRefs||'')+'</textarea><label class="hint">Reason if not / dropped</label><textarea oninput="STATE.realizations['+i+'].reason=this.value">'+esc(rz.reason||'')+'</textarea></details>'+
+    '</div>';});
+  body.innerHTML=html;computeIds();}
+function renderReal(){renderProposal();}
+function addReal(){STATE.realizations.push({ref:'custom['+STATE.realizations.length+']',category:'custom',promised:'',fulfilled:'yes',proof:'',evidenceRefs:'',reason:''});renderReal();}
+
+function renderCrit(){var tb=el('critTable').querySelector('tbody');tb.innerHTML='';
+  CRIT.forEach(function(c,i){var tr=document.createElement('tr');
+    tr.innerHTML='<td><input value="'+esc(c.id)+'" onchange="CRIT['+i+'].id=this.value"></td>'+
+      '<td><select onchange="CRIT['+i+'].type=this.value">'+["learning_gain_min","players_reached_min","completion_rate_min"].map(function(t){return '<option '+(t===c.type?'selected':'')+'>'+t+'</option>';}).join('')+'</select></td>'+
+      '<td><input type="number" step="0.01" value="'+c.target+'" onchange="CRIT['+i+'].target=parseFloat(this.value)"></td>'+
+      '<td><button class="act ghost" onclick="CRIT.splice('+i+',1);renderCrit()">×</button></td>';
+    tb.appendChild(tr);});computeIds();renderMemberCompare();}
+function addCrit(){CRIT.push({id:"C"+(CRIT.length+1),type:"learning_gain_min",target:0.3});renderCrit();}
+
+
+var CATS=[['class-member','class member'],['test','test'],['prototype','prototype'],['external','external']];
+function buildPlayerRegistry(){var ids={};STATE.logs.forEach(function(l){(l.content||'').split('\n').forEach(function(line){line=line.trim();if(!line)return;try{var e=JSON.parse(line);if(e&&e.playerPseudoId)ids[e.playerPseudoId]=1;}catch(x){}});});
+  var def=(el('submissionPhase')&&el('submissionPhase').value==='final')?'class-member':'test';
+  STATE.playerCategories=STATE.playerCategories||{};
+  Object.keys(ids).forEach(function(pp){if(!STATE.playerCategories[pp])STATE.playerCategories[pp]=def;});
+  Object.keys(STATE.playerCategories).forEach(function(pp){if(!ids[pp])delete STATE.playerCategories[pp];});
+  renderRegistry(Object.keys(ids).sort());}
+function setCat(pp,c){STATE.playerCategories[pp]=c;renderRegistry(Object.keys(STATE.playerCategories).sort());}
+function setAllCat(c){Object.keys(STATE.playerCategories).forEach(function(pp){STATE.playerCategories[pp]=c;});renderRegistry(Object.keys(STATE.playerCategories).sort());}
+function renderRegistry(ids){var r=el('playerRegistry');if(!r)return;
+  if(!ids||!ids.length){r.innerHTML='<p class="hint">Import logs above to list the players found in them and tag each one.</p>';return;}
+  var counts={};ids.forEach(function(pp){var c=STATE.playerCategories[pp];counts[c]=(counts[c]||0)+1;});
+  var setall='<p class="hint">Set all to: '+CATS.map(function(c){return '<button class="act ghost" onclick="setAllCat(\''+c[0]+'\')">'+c[1]+'</button>';}).join(' ')+'</p>';
+  var summ='<p class="hint">class members: <strong>'+(counts['class-member']||0)+'</strong> · test: '+(counts['test']||0)+' · prototype: '+(counts['prototype']||0)+' · external: '+(counts['external']||0)+'</p>';
+  var rows=ids.map(function(pp){var cur=STATE.playerCategories[pp];
+    var btns=CATS.map(function(c){return '<button class="chip" aria-pressed="'+(cur===c[0]?'true':'false')+'" onclick="setCat(\''+esc(pp)+'\',\''+c[0]+'\')">'+c[1]+'</button>';}).join('');
+    return '<tr><td>'+esc(pp)+'</td><td><div class="chips">'+btns+'</div></td></tr>';}).join('');
+  r.innerHTML=setall+summ+'<table><thead><tr><th>Player (pseudonymous id)</th><th>Category</th></tr></thead><tbody>'+rows+'</tbody></table>';}
+function downloadLogFormat(){var t={
+  "gpaf_log_format":"1.0",
+  "stored_as":"One JSON event per line (JSONL .jsonl file). This template shows the event shape; the player categories are assigned in the team tool, not inside the log.",
+  "event_fields":{"ts":"ISO-8601 timestamp e.g. 2026-05-01T09:00:00Z","playerPseudoId":"stable pseudonymous id (NOT a name or student number)","sessionId":"groups events of one play session","gameId":"the team GM-... code","eventType":"session_start | score_update | level_complete | session_end (others allowed)","payload":"object; score_update uses payload.score (number); session_end may use payload.completed"},
+  "player_categories":["class-member","test","prototype","external"],
+  "example_events":[
+    {"ts":"2026-05-01T09:00:00Z","playerPseudoId":"p001","sessionId":"s1","gameId":"GM-XXXXXXXXXXXX","eventType":"session_start","payload":{}},
+    {"ts":"2026-05-01T09:00:30Z","playerPseudoId":"p001","sessionId":"s1","gameId":"GM-XXXXXXXXXXXX","eventType":"score_update","payload":{"score":5}},
+    {"ts":"2026-05-01T09:01:35Z","playerPseudoId":"p001","sessionId":"s1","gameId":"GM-XXXXXXXXXXXX","eventType":"level_complete","payload":{"level":1}},
+    {"ts":"2026-05-01T09:01:40Z","playerPseudoId":"p001","sessionId":"s1","gameId":"GM-XXXXXXXXXXXX","eventType":"session_end","payload":{"completed":true}}
+  ]};
+  var b=new Blob([JSON.stringify(t,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='gpaf_log_format_v1.json';a.click();setTimeout(function(){URL.revokeObjectURL(a.href);},500);}
+function importLogs(ev){var files=Array.from(ev.target.files);
+  files.forEach(function(f){var r=new FileReader();r.onload=async function(){var content=r.result;
+    STATE.logs.push({path:'logs/'+f.name,sha256:await sha256hex(content),content:content});
+    el('logSummary').textContent=STATE.logs.length+' log file(s) attached.';buildPlayerRegistry();};r.readAsText(f);});}
+
+function renderMembers(){var tb=el('memTable').querySelector('tbody');tb.innerHTML='';
+  STATE.members.forEach(function(m,i){var tr=document.createElement('tr');
+    tr.innerHTML='<td><input value="'+esc(m.legalStudentId)+'" oninput="STATE.members['+i+'].legalStudentId=this.value;computeIds()"></td>'+
+      '<td><input value="'+esc(m.name)+'" oninput="STATE.members['+i+'].name=this.value"></td>'+
+      '<td><input value="'+esc(m.surname)+'" oninput="STATE.members['+i+'].surname=this.value"></td>'+
+      '<td><input value="'+esc(m.role)+'" oninput="STATE.members['+i+'].role=this.value"></td>'+
+      '<td><button class="act ghost" onclick="STATE.members.splice('+i+',1);renderMembers()">×</button></td>';
+    tb.appendChild(tr);});computeIds();renderMemberCompare();}
+function addMember(){STATE.members.push({legalStudentId:'',name:'',surname:'',role:''});renderMembers();}
+function buildStructure(){var members=STATE.members.map(function(m){return m.legalStudentId||m.name||"";}).filter(Boolean);
+  var course=(el('courseCode')?el('courseCode').value.trim():'');
+  return {teams:[{teamId:el('teamId').value,gameId:el('gameId').value,classId:course,members:members}],
+          classes:[{classId:course,coordinator:(el('coordName')?el('coordName').value.trim()||null:null),teams:[el('teamId').value]}]};}
+function projectEvidence(){return {repoUrl:el('pe_repo').value.trim(),deployUrl:el('pe_deploy').value.trim(),demoUrl:el('pe_demo').value.trim(),buildSha:el('pe_build').value.trim(),notes:el('pe_notes').value.trim()};}
+function buildTeam(){return {
+  gpaf_team_export:"0.5.0",
+  proposalLink:{gpptVersion:(STATE.proposal||{}).gppt_version||null,successCriteria:CRIT,proposalState:(STATE.proposal||{}).state||null},
+  realizations:STATE.realizations.filter(function(rz){return rz.promised||rz.proof||(rz.fulfilled&&rz.fulfilled!=='no');}),
+  projectEvidence:projectEvidence(),
+  deployment:{gameId:el('gameId').value,title:el('title').value,projectStatus:el('projectStatus').value,coordinatorName:(el('coordName')?el('coordName').value.trim():''),evidenceMode:el('mode').value,claimsDeployed:el('claims').value==='true',
+    courseCode:(el('courseCode')?el('courseCode').value.trim():''),maxGameScore:el('maxScore').value!==''?+el('maxScore').value:null,
+    platform:(el('platform')?el('platform').value.trim():''),githubUrl:(el('githubUrl')?el('githubUrl').value.trim():''),contactForAccess:(el('contactAccess')?el('contactAccess').value.trim():''),availableDate:(el('availableDate')?el('availableDate').value:''),
+    description:(function(){var st=(STATE.proposal||{}).state||{};return String(st.gameOverview||st.narrativeTheme||'').replace(/\s+/g,' ').trim().slice(0,200);})(),
+    whatYouCanEarn:((((STATE.proposal||{}).state||{}).mechanics)||[]).join(', '),
+    estPlayTime:((((STATE.proposal||{}).state||{}).gameDuration)||''),
+    audience:(function(){var st=(STATE.proposal||{}).state||{};return st.audience||st.targetPopulation||'';})(),
+    howToPlay:el('howToPlay').value.trim(),accessUrl:el('accessUrl').value.trim(),downloadUrl:el('downloadUrl').value.trim(),accessRights:el('accessRights').value.trim(),
+    logFiles:STATE.logs.map(function(l){return {path:l.path,sha256:l.sha256,format:'jsonl',rowCount:l.content.split('\n').filter(function(x){return x.trim();}).length};})},
+  embeddedLogs:STATE.logs.map(function(l){return {path:l.path,sha256:l.sha256,content:l.content};}),
+  teamMembers:STATE.members,
+  players:[],subjectiveRatings:[],idBasis:STATE.idBasis||null,proposal:STATE.proposal||null,submissionPhase:(el('submissionPhase')?el('submissionPhase').value:'initial'),playerCategories:STATE.playerCategories||{},structure:buildStructure()};}
+
+function validateTeam(){var s=buildTeam();var allLogs=STATE.logs.map(function(l){return l.content;}).join('\n');
+  var v=C.validateSubmission(s,allLogs);
+  var needProof=STATE.realizations.filter(function(r){return (r.fulfilled==='yes'||r.fulfilled==='partial')&&!r.proof;}).length;
+  var needReason=STATE.realizations.filter(function(r){return (r.fulfilled==='no'||r.fulfilled==='partial')&&!r.reason;}).length;
+  var h='<div class="msg '+(v.status==='PASS'?'ok':'err')+'"><strong>'+v.status+'</strong>'+(v.errors.length?'<ul>'+v.errors.map(function(e){return '<li>'+esc(e)+'</li>';}).join('')+'</ul>':' — no structural errors')+'</div>';
+  var warns=v.warnings.slice();if(!STATE.proposal)warns.push("No proposal imported — fulfilment mapping is empty.");
+  var pst=el('projectStatus').value;if((el('submissionPhase')&&el('submissionPhase').value==='final')&&!Object.keys(STATE.playerCategories||{}).some(function(k){return STATE.playerCategories[k]==='class-member';}))warns.push("Final phase but no players are tagged as class-member.");if(!el('teamId').value)warns.push("No Team Id yet — add team members (with legal IDs) to generate it.");if(!el('courseCode').value)warns.push("No course yet — import the GPPT proposal (course & title come from it).");if(!el('gameId').value)warns.push("No Game Id yet — import the proposal (title) and add members.");if(pst==='play_link'&&!el('accessUrl').value.trim())warns.push("Status is Play Link but no play link was entered.");if(pst==='download_link'&&!el('downloadUrl').value.trim())warns.push("Status is Download Link but no download link was entered.");
+  if(needProof)warns.push(needProof+" element(s) marked fulfilled/partial without proof — add how you realized them.");
+  if(needReason)warns.push(needReason+" element(s) marked not/partial without an honest reason.");
+  if(warns.length)h+='<div class="msg warn"><strong>Warnings</strong><ul>'+warns.map(function(w){return '<li>'+esc(w)+'</li>';}).join('')+'</ul></div>';
+  el('result').innerHTML=h;return v.status==='PASS';}
+function exportTeam(){var s=buildTeam();dl((el('teamId').value||'team')+'.gpaf-team.json',JSON.stringify(s,null,2));}
+function importTeam(){el('teamFile').click();}
+function reimportTeam(ev){var f=ev.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var s=JSON.parse(r.result);
+  var d=s.deployment||{};el('gameId').value=d.gameId||'';el('title').value=d.title||'';if(el('courseCode'))el('courseCode').value=d.courseCode||'';el('mode').value=d.evidenceMode||'real';el('claims').value=String(d.claimsDeployed!==false);
+  el('maxScore').value=d.maxGameScore!=null?d.maxGameScore:'';el('howToPlay').value=d.howToPlay||'';el('accessUrl').value=d.accessUrl||'';el('downloadUrl').value=d.downloadUrl||'';el('accessRights').value=d.accessRights||'';if(el('coordName'))el('coordName').value=d.coordinatorName||'';if(el('platform'))el('platform').value=d.platform||'';if(el('githubUrl'))el('githubUrl').value=d.githubUrl||'';if(el('contactAccess'))el('contactAccess').value=d.contactForAccess||'';if(el('availableDate'))el('availableDate').value=d.availableDate||'';if(el('projectStatus')){el('projectStatus').value=d.projectStatus||'play_link';if(typeof applyStatus==='function')applyStatus();}
+  STATE.members=s.teamMembers||[];renderMembers();renderMemberCompare();
+  var st=(s.structure||{}).teams||[];if(st[0]){el('teamId').value=st[0].teamId||'';}if(el('submissionPhase'))el('submissionPhase').value=s.submissionPhase||'initial';STATE.playerCategories=s.playerCategories||{};buildPlayerRegistry();
+  CRIT=((s.proposalLink||{}).successCriteria||CRIT).slice();renderCrit();
+  STATE.proposal=s.proposal||null;initRealizations();(s.realizations||[]).forEach(function(old){var m=STATE.realizations.filter(function(r){return r.ref===old.ref;})[0];if(m){m.promised=old.promised||'';m.fulfilled=old.fulfilled||m.fulfilled;m.proof=old.proof||'';m.evidenceRefs=old.evidenceRefs||'';m.reason=old.reason||'';}});STATE.activeSec=1;renderProposal();
+  var pe=s.projectEvidence||{};el('pe_repo').value=pe.repoUrl||'';el('pe_deploy').value=pe.deployUrl||'';el('pe_demo').value=pe.demoUrl||'';el('pe_build').value=pe.buildSha||'';el('pe_notes').value=pe.notes||'';
+  STATE.players=s.players||[];STATE.ratings=s.subjectiveRatings||[];STATE.logs=s.embeddedLogs||[];
+  STATE.proposal=(s.proposalLink||{}).proposalState?{state:(s.proposalLink).proposalState,gppt_version:(s.proposalLink).gpptVersion}:null;
+  el('propSummary').textContent=STATE.realizations.length+' element(s) loaded.';el('logSummary').textContent=STATE.logs.length+' log(s) loaded.';
+}catch(e){alert('Bad team JSON: '+e);}};r.readAsText(f);}
+
+initRealizations();renderProposal();renderCrit();renderMembers();computeIds();
+GPAFUX.tabs('ttabs',document.querySelector('main')||document);
+GPAFUX.chips('modechips',[{key:'real',label:'real',tip:'hash-verified live logs'},{key:'pilot',label:'pilot',tip:'limited run'},{key:'synthetic',label:'synthetic',tip:'not really deployed'}],el('mode').value,function(v){el('mode').value=v||'real';},false);
+GPAFUX.chips('claimchips',[{key:'true',label:'yes'},{key:'false',label:'no'}],el('claims').value,function(v){el('claims').value=v||'true';},false);
+
+function applyStatus(){var st=el('projectStatus').value;
+  el('playLinkWrap').style.display=(st==='play_link')?'':'none';
+  el('downloadLinkWrap').style.display=(st==='download_link')?'':'none';
+  el('notPlayableNote').style.display=(st==='not_playable')?'':'none';}
+GPAFUX.chips('statuschips',[{key:'play_link',label:'Play Link',tip:'hosted/online — players open a link'},{key:'download_link',label:'Download Link',tip:'players download and run it'},{key:'not_playable',label:'Not Playable',tip:'no player access'}],el('projectStatus').value,function(v){el('projectStatus').value=v||'play_link';applyStatus();},false);
+applyStatus();
+GPAFUX.chips('phasechips',[{key:'initial',label:'Initial — test / prototype / external'},{key:'final',label:'Final — real class members'}],el('submissionPhase').value,function(v){el('submissionPhase').value=v||'initial';buildPlayerRegistry();},false);
+buildPlayerRegistry();
+['propDrop','logDrop'].forEach(function(zid){var z=el(zid);if(!z)return;z.addEventListener('dragover',function(e){e.preventDefault();z.classList.add('dragover');});z.addEventListener('dragleave',function(){z.classList.remove('dragover');});z.addEventListener('drop',function(e){e.preventDefault();z.classList.remove('dragover');var fls=e.dataTransfer&&e.dataTransfer.files;if(!fls||!fls.length)return;if(zid==='propDrop'){importProposalFile(fls[0]);}else{Array.prototype.forEach.call(fls,function(f){var r=new FileReader();r.onload=async function(){STATE.logs.push({path:'logs/'+f.name,sha256:await sha256hex(r.result),content:r.result});el('logSummary').textContent=STATE.logs.length+' log file(s) attached.';buildPlayerRegistry();};r.readAsText(f);});}});});
+GPAFUX.contextMenu('#memTable tbody tr',function(t){var i=[].indexOf.call(t.parentNode.children,t);return [{label:'Remove member',action:function(){STATE.members.splice(i,1);renderMembers();}}];});
+GPAFUX.contextMenu('#realTable tbody tr',function(t){return [{label:'Mark fulfilled',action:function(){}},{label:'Jump to proof field',action:function(){var ta=t.querySelector('textarea');ta&&ta.focus();}}];});
+</script>
+</body></html>

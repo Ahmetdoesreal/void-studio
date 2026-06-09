@@ -380,3 +380,43 @@ its not working
 ## Codex
 
 I found the previous background process was no longer running, while dependencies and ports were healthy. I restarted the launcher, confirmed API and client both returned 200, and updated launcher behavior so `run-all.bat` opens the browser and reports "already running" instead of failing when ports are occupied by a healthy existing instance.
+
+## User
+
+can you generate size-sample textures and some textures supposed to be on corners
+
+## Codex
+
+I added editable power-of-two footprint sample textures under `client/src/assets/sprites/furni_samples/` for `1x1`, `2x1`, and `L-corner` layouts, surfaced them in the dashboard tuning panel, and updated furniture generation/rendering so corner-tagged props bias toward room edges instead of sitting centered in their cells. I also bumped the furniture layout version so existing saved rooms refresh to the new anchor metadata, and verified the changes with `python3 -m unittest tests.test_game_rules` plus `npm run build`.
+
+## User
+
+samples are not placeable
+
+## Codex
+
+I wired the footprint sample cards into the real map placement flow. They now enter a client-side placement mode with rotate/cancel support, stamp visible footprint overlays directly onto the grid without spending points, and can be cleared from the tuning panel. I also made the legacy normalization test deterministic around blackholes, then re-ran `python3 -m unittest tests.test_game_rules` and `npm run build`.
+
+## User
+
+the test textures should follow furni rules
+
+## Codex
+
+I moved the placeable footprint samples onto the furni render pipeline instead of leaving them as overlay-only debug shapes. They now load as `furni_*` textures, use the shared furniture sizing rules and scale multiplier, render bottom-aligned like other furniture references, and the sample SVG art was shifted downward in-frame so it follows the same visual anchoring convention. Verification passed again with `python3 -m unittest tests.test_game_rules` and `npm run build`.
+
+## User
+
+the sample texture is floating and in a werid orientation
+
+## Codex
+
+I fixed the sample footprint art itself instead of only nudging the transform math. The `1x1`, `2x1`, and `L-corner` SVGs are now drawn in the same isometric direction as the map grid, their visible bottoms sit near the actual sprite baseline, and the multi-tile samples now switch to rotation-specific texture variants so a rotated sample no longer keeps showing the wrong orientation. They still render through the shared furni transform helper, so the scale and X/Y/Z offset sliders continue to affect them just like normal furniture. Verification passed with `npm run build`.
+
+## User
+
+oki umm just make th adjuster hidden unless js console have a DEBUG_VOID_OFFICE is set to true can you do this?
+
+## Codex
+
+I hid the world tuning adjuster behind a browser-global `DEBUG_VOID_OFFICE` flag. The dashboard now renders the scale/offset/sample tuning panel only when `globalThis.DEBUG_VOID_OFFICE === true`, and I installed a real getter/setter on that flag so changing it from the JS console immediately re-renders the page without needing a refresh. I also cancel an active sample-placement mode when the flag is turned back off so the hidden debug UI cannot leave that tool half-active. Verification passed with `npm run build`.

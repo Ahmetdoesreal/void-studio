@@ -11,8 +11,9 @@ CHUNK_COUNT = 32
 SUBCELLS_PER_CELL = 4
 WORLD_SIZE = CHUNK_COUNT
 BLACKHOLE_DANGER_RADIUS = 2
-PATH_BUILD_COST = 2
+PATH_BUILD_COST = 1
 MAX_PLAYS_PER_MINIGAME = 2
+STARTING_POINTS = 30
 
 DEFAULT_RESOURCES = {
     "budget": 70,
@@ -51,6 +52,22 @@ SCENARIOS = [
         "successDelta": {"budget": 0, "team": 0, "quality": 0},
         "failDelta": {"budget": 0, "team": 0, "quality": 0},
     },
+    {
+        "id": "SC-04",
+        "minigameId": "risk_vault",
+        "title": "Risk Vault",
+        "points": 70,
+        "successDelta": {"budget": 4, "team": 2, "quality": 10},
+        "failDelta": {"budget": -7, "team": -4, "quality": -10},
+    },
+    {
+        "id": "SC-05",
+        "minigameId": "stakeholder_booth",
+        "title": "Stakeholder Booth",
+        "points": 55,
+        "successDelta": {"budget": 2, "team": 12, "quality": 3},
+        "failDelta": {"budget": -4, "team": -10, "quality": -3},
+    },
 ]
 
 SCENARIOS_BY_MINIGAME = {item["minigameId"]: item for item in SCENARIOS}
@@ -58,134 +75,124 @@ SCENARIOS_BY_ID = {item["id"]: item for item in SCENARIOS}
 
 BUDGET_RIFT_CHOICES = {
     "budget_patch": {
-        "label": "Stabilize procurement",
+        "label": "Lock down the supply chain",
         "resourceDelta": {"budget": 15, "team": -4, "quality": 0},
     },
     "team_sync": {
-        "label": "Protect the team",
+        "label": "Invest in crew resilience",
         "resourceDelta": {"budget": -6, "team": 14, "quality": 2},
     },
     "quality_gate": {
-        "label": "Fund quality gates",
+        "label": "Pre-pay for release safeguards",
         "resourceDelta": {"budget": -8, "team": 0, "quality": 16},
     },
 }
 
-REQUIRED_DEPARTMENT_IDS = [
-    "scope_desk",
-    "bug_lab",
-    "sprint_floor",
-    "risk_vault",
-    "stakeholder_booth",
-]
+CORRECT_BACKLOG_ORDER = ["s1", "s6", "s2", "s4", "s3", "s5"]
+SERIOUS_BUG_IDS = {"b1", "b3", "b5"}
+CRITICAL_RISK_IDS = {"r1", "r3", "r5"}
+STAKEHOLDER_BOOTH_CHOICES = {
+    "reply_with_decision": {
+        "label": "Present the trade-off and ask for a ruling",
+        "best": True,
+    },
+    "promise_later": {
+        "label": "Defer the hard talk to the next cycle",
+        "best": False,
+    },
+    "send_metrics_only": {
+        "label": "Broadcast raw dashboards without commentary",
+        "best": False,
+    },
+}
 
 PORTAL_ROOM_ID = "portal_room"
 
+# The three office building types, one per resource. Each has a FIXED, rotatable
+# shape in ROOM offsets (a room = ROOM_SIZE x ROOM_SIZE cells), matching the
+# reference image: Budget = black L-corner, Team = blue L, Quality = green bar.
+RESOURCE_BUILDING_IDS = ["budget", "team", "quality"]
+
+BUILDING_SHAPES = {
+    "budget": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 0, "y": 1}],                    # L-corner, 3 rooms
+    "team": [{"x": 0, "y": 0}, {"x": 0, "y": 1}, {"x": 0, "y": 2}, {"x": 1, "y": 2}],     # L, 4 rooms
+    "quality": [{"x": 0, "y": 0}, {"x": 1, "y": 0}],                                      # bar, 2 rooms
+    PORTAL_ROOM_ID: [{"x": 0, "y": 0}],
+}
+
+# Default anchors (used by debug helpers and legacy normalisation).
 DEPARTMENT_WORLD_CELLS = {
-    "scope_desk": {"x": 2, "y": 14},
-    "bug_lab": {"x": 2, "y": 17},
-    "sprint_floor": {"x": 5, "y": 15},
-    "risk_vault": {"x": 8, "y": 13},
-    "stakeholder_booth": {"x": 8, "y": 18},
-    PORTAL_ROOM_ID: {"x": 30, "y": 16},
+    "budget": {"x": 1, "y": 11},
+    "team": {"x": 1, "y": 17},
+    "quality": {"x": 6, "y": 12},
+    PORTAL_ROOM_ID: {"x": 27, "y": 14},
 }
 
-DEPARTMENT_FOOTPRINTS = {
-    "scope_desk": {
-        "label": "#_/##",
-        "cells": [{"x": 0, "y": 0}, {"x": 0, "y": 1}, {"x": 1, "y": 1}],
-    },
-    "bug_lab": {
-        "label": "##_/_#",
-        "cells": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 1, "y": 1}],
-    },
-    "sprint_floor": {
-        "label": "##_#_",
-        "cells": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 0, "y": 1}],
-    },
-    "risk_vault": {
-        "label": "#/#/#",
-        "cells": [{"x": 0, "y": 0}, {"x": 0, "y": 1}, {"x": 0, "y": 2}],
-    },
-    "stakeholder_booth": {
-        "label": "##_#_",
-        "cells": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 0, "y": 1}],
-    },
-    PORTAL_ROOM_ID: {
-        "label": "##/##",
-        "cells": [{"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 0, "y": 1}, {"x": 1, "y": 1}],
-    },
+# A "room" (a.k.a. subcell) is a ROOM_SIZE x ROOM_SIZE block of normal cells.
+# An office occupies whole rooms, not a subdivided single cell.
+ROOM_SIZE = 4
+FURNITURE_LAYOUT_VERSION = 4
+
+# Furniture sprite keys (match client FURNI palette). A computer sits ON a desk
+# (rendered lifted); workstation chairs now sit to the side of desks because
+# the extracted Habbo sprites only give us clean side-facing chairs.
+DESK_SURFACE = "desk"
+COMPUTER_LIFT = 1.65
+COMPUTER_OFFSET_X = -0.18
+COMPUTER_OFFSET_Y = -0.24
+WORKSTATION_CHAIR = "officeChair"
+WORKSTATION_CHAIR_OFFSET_X = 0.2
+WORKSTATION_CHAIR_OFFSET_Y = -0.16
+MEETING_CHAIR = "chair"
+MEETING_CHAIR_OFFSET_X = 0.14
+MEETING_CHAIR_OFFSET_Y = -0.12
+
+# Which computer models each office type uses on its desks.
+COMPUTER_CHOICES = {
+    "budget": ["monitor", "imac", "monitor"],
+    "team": ["laptop", "monitor", "laptop"],
+    "quality": ["laptop", "monitor", "imac"],
+    "spawn": ["monitor", "laptop", "imac"],
 }
 
-DEPARTMENT_CATALOG = [
+
+def building_cost(type_id: str) -> int:
+    return BUILDING_TYPES_BY_ID.get(type_id, {}).get("cost", 50)
+
+
+# The three buyable office building types shown in the Department Shop. Each is
+# tied to one resource, buyable repeatedly to expand the office. Applies its
+# resourceEffect on every purchase.
+BUILDING_TYPES = [
     {
-        "id": "scope_desk",
-        "name": "Scope Desk",
-        "price": 40,
-        "upgradePrice": 30,
-        "resourceEffect": {"budget": 5, "team": 0, "quality": 8},
-        "upgradeEffect": {"budget": 4, "team": 2, "quality": 5},
-        "meaning": "Clarifies must-have work before the project spends effort.",
-        "gridArea": "scope",
-        "footprint": deepcopy(DEPARTMENT_FOOTPRINTS["scope_desk"]),
+        "id": "budget",
+        "name": "Budget Office",
+        "resource": "budget",
+        "cost": 55,
+        "resourceEffect": {"budget": 20, "team": -2, "quality": 0},
+        "meaning": "Finance wing that protects and grows the project budget.",
+        "shapeLabel": "L-corner",
     },
     {
-        "id": "bug_lab",
-        "name": "Bug Lab",
-        "price": 45,
-        "upgradePrice": 34,
-        "resourceEffect": {"budget": -4, "team": 2, "quality": 15},
-        "upgradeEffect": {"budget": -3, "team": 3, "quality": 9},
-        "meaning": "Turns quality work into visible project protection.",
-        "gridArea": "quality",
-        "footprint": deepcopy(DEPARTMENT_FOOTPRINTS["bug_lab"]),
+        "id": "team",
+        "name": "Team Office",
+        "resource": "team",
+        "cost": 80,
+        "resourceEffect": {"budget": -4, "team": 22, "quality": 2},
+        "meaning": "Collaboration space that keeps the team healthy and fast.",
+        "shapeLabel": "L",
     },
     {
-        "id": "sprint_floor",
-        "name": "Sprint Floor",
-        "price": 50,
-        "upgradePrice": 38,
-        "resourceEffect": {"budget": -5, "team": 15, "quality": 4},
-        "upgradeEffect": {"budget": -4, "team": 9, "quality": 4},
-        "meaning": "Shows how coordination and velocity depend on team health.",
-        "gridArea": "team",
-        "footprint": deepcopy(DEPARTMENT_FOOTPRINTS["sprint_floor"]),
-    },
-    {
-        "id": "risk_vault",
-        "name": "Risk Vault",
-        "price": 55,
-        "upgradePrice": 42,
-        "resourceEffect": {"budget": 10, "team": -2, "quality": 6},
-        "upgradeEffect": {"budget": 8, "team": 0, "quality": 4},
-        "meaning": "Stores warnings before they become expensive surprises.",
-        "gridArea": "risk",
-        "footprint": deepcopy(DEPARTMENT_FOOTPRINTS["risk_vault"]),
-    },
-    {
-        "id": "stakeholder_booth",
-        "name": "Stakeholder Booth",
-        "price": 50,
-        "upgradePrice": 38,
-        "resourceEffect": {"budget": 5, "team": 10, "quality": 3},
-        "upgradeEffect": {"budget": 4, "team": 7, "quality": 3},
-        "meaning": "Makes communication decisions part of the build strategy.",
-        "gridArea": "stakeholder",
-        "footprint": deepcopy(DEPARTMENT_FOOTPRINTS["stakeholder_booth"]),
-    },
-    {
-        "id": PORTAL_ROOM_ID,
-        "name": "Portal Room",
-        "price": 0,
-        "upgradePrice": 0,
-        "resourceEffect": {"budget": 0, "team": 0, "quality": 0},
-        "upgradeEffect": {"budget": 0, "team": 0, "quality": 0},
-        "meaning": "Opens only when the office is complete and balanced.",
-        "gridArea": "portal",
-        "footprint": deepcopy(DEPARTMENT_FOOTPRINTS[PORTAL_ROOM_ID]),
-        "portal": True,
+        "id": "quality",
+        "name": "Quality Office",
+        "resource": "quality",
+        "cost": 45,
+        "resourceEffect": {"budget": 0, "team": 2, "quality": 18},
+        "meaning": "Dev/QA lab that turns effort into protected quality.",
+        "shapeLabel": "bar",
     },
 ]
+BUILDING_TYPES_BY_ID = {item["id"]: item for item in BUILDING_TYPES}
 
 
 class RuleError(ValueError):
@@ -194,6 +201,19 @@ class RuleError(ValueError):
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def update_play_time(session: dict[str, Any]) -> None:
+    if session.get("paused") or session.get("finalResult"):
+        return
+    last_resumed = session.get("lastResumedAt")
+    if last_resumed:
+        try:
+            delta = datetime.now(timezone.utc) - datetime.fromisoformat(last_resumed)
+            session["playTimeMs"] = int(session.get("playTimeMs", 0)) + int(delta.total_seconds() * 1000)
+        except Exception:
+            pass
+    session["lastResumedAt"] = now_iso()
 
 
 def clamp(value: int, low: int = 0, high: int = 100) -> int:
@@ -209,16 +229,23 @@ def clamp_int(value: Any, low: int, high: int) -> int:
 
 
 def new_departments() -> dict[str, dict[str, Any]]:
-    departments: dict[str, dict[str, Any]] = {}
-    for item in DEPARTMENT_CATALOG:
-        department = deepcopy(item)
-        department["built"] = False
-        department["level"] = 0
-        department["builtAt"] = None
-        department["worldCell"] = None
-        department["placement"] = None
-        departments[department["id"]] = department
-    return departments
+    # Buildings are placed instances (keyed by unique id like "budget#1"), added
+    # to this dict on purchase. It starts empty.
+    return {}
+
+
+def building_type_built(session: dict[str, Any], type_id: str) -> bool:
+    return any(
+        d.get("typeId") == type_id and d.get("built")
+        for d in session.get("departments", {}).values()
+    )
+
+
+def building_instances(session: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        d for d in session.get("departments", {}).values()
+        if d.get("typeId") in BUILDING_TYPES_BY_ID and d.get("built")
+    ]
 
 
 def coord_key(x: int, y: int) -> str:
@@ -244,12 +271,10 @@ def normalize_rotation(value: Any) -> int:
     return rotation
 
 
-def rotated_offsets(department_id: str, rotation: int) -> list[dict[str, int]]:
-    footprint = DEPARTMENT_FOOTPRINTS.get(department_id, {"cells": [{"x": 0, "y": 0}]})
-    cells = deepcopy(footprint["cells"])
+def rotate_offsets(cells: list[dict[str, int]], rotation: int) -> list[dict[str, int]]:
+    """Rotate an arbitrary set of chunk offsets and re-normalise to origin."""
     rotation = normalize_rotation(rotation)
     rotated: list[dict[str, int]] = []
-
     for cell in cells:
         x = int(cell["x"])
         y = int(cell["y"])
@@ -260,61 +285,228 @@ def rotated_offsets(department_id: str, rotation: int) -> list[dict[str, int]]:
         elif rotation == 270:
             x, y = -y, x
         rotated.append({"x": x, "y": y})
-
     min_x = min(cell["x"] for cell in rotated)
     min_y = min(cell["y"] for cell in rotated)
     normalized = [{"x": cell["x"] - min_x, "y": cell["y"] - min_y} for cell in rotated]
-    return sorted(normalized, key=lambda cell: (cell["y"], cell["x"]))
+    return normalized
 
 
-def occupied_cells_for_placement(
-    department_id: str, anchor_cell: dict[str, int], rotation: int
-) -> list[dict[str, int]]:
-    anchor_x = int(anchor_cell["x"])
-    anchor_y = int(anchor_cell["y"])
-    return [
-        {
-            "x": anchor_x + offset["x"],
-            "y": anchor_y + offset["y"],
-            "offsetX": offset["x"],
-            "offsetY": offset["y"],
-        }
-        for offset in rotated_offsets(department_id, rotation)
-    ]
+def room_program(type_id: str, room_index: int) -> str:
+    programs = {
+        "budget": ["workstation", "archive", "meeting"],
+        "team": ["lounge", "workstation", "meeting", "lounge"],
+        "quality": ["lab", "lab"],
+        "spawn": ["workstation"],
+        PORTAL_ROOM_ID: ["meeting"],
+    }.get(type_id, ["workstation"])
+    return programs[room_index % len(programs)]
 
 
-def clamp_anchor_for_department(
-    department_id: str, anchor_cell: dict[str, Any], rotation: int
-) -> dict[str, int]:
-    offsets = rotated_offsets(department_id, rotation)
-    max_offset_x = max(offset["x"] for offset in offsets)
-    max_offset_y = max(offset["y"] for offset in offsets)
-    return {
-        "x": clamp_int(anchor_cell.get("x"), 0, WORLD_SIZE - 1 - max_offset_x),
-        "y": clamp_int(anchor_cell.get("y"), 0, WORLD_SIZE - 1 - max_offset_y),
+def room_should_mirror(rotation: int, room_index: int) -> bool:
+    normalized = normalize_rotation(rotation)
+    start_mirrored = normalized in {90, 270}
+    return bool((room_index + (1 if start_mirrored else 0)) % 2)
+
+
+def room_piece(
+    x: int,
+    y: int,
+    sprite_id: str,
+    *,
+    lift: float = 0.0,
+    offset_x: float = 0.0,
+    offset_y: float = 0.0,
+    anchor: str | None = None,
+    mirror_sprite: bool = False,
+) -> dict[str, Any]:
+    piece: dict[str, Any] = {
+        "x": x,
+        "y": y,
+        "spriteId": sprite_id,
+        "mirrorSprite": mirror_sprite,
     }
+    if lift:
+        piece["lift"] = lift
+    if offset_x:
+        piece["offsetX"] = offset_x
+    if offset_y:
+        piece["offsetY"] = offset_y
+    if anchor:
+        piece["anchor"] = anchor
+    return piece
 
 
-def subcell_stack_for_cell(department_id: str, cell: dict[str, int]) -> list[dict[str, Any]]:
-    center = SUBCELLS_PER_CELL // 2
-    return [
-        {
-            "cell": {"x": cell["x"], "y": cell["y"]},
-            "subcell": {"x": center, "y": center},
-            "sprites": [
-                {"id": "department_floor", "layer": "floor"},
-                {"id": department_id, "layer": "object"},
-            ],
-        },
-        {
-            "cell": {"x": cell["x"], "y": cell["y"]},
-            "subcell": {"x": max(0, center - 1), "y": center},
-            "sprites": [
-                {"id": "status_decal", "layer": "decal"},
-                {"id": f"{department_id}_glow", "layer": "effect"},
-            ],
-        },
+def mirror_anchor(anchor: str) -> str:
+    return {
+        "nw": "ne",
+        "ne": "nw",
+        "sw": "se",
+        "se": "sw",
+        "west": "east",
+        "east": "west",
+    }.get(anchor, anchor)
+
+
+def mirror_room_pieces(pieces: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    mirrored: list[dict[str, Any]] = []
+    for piece in pieces:
+        item = deepcopy(piece)
+        item["x"] = (ROOM_SIZE - 1) - int(item["x"])
+        if "offsetX" in item:
+            item["offsetX"] = -float(item["offsetX"])
+        if "anchor" in item:
+            item["anchor"] = mirror_anchor(str(item["anchor"]))
+        if item.pop("mirrorSprite", False):
+            item["flipX"] = not bool(item.get("flipX"))
+        mirrored.append(item)
+    return mirrored
+
+
+def workstation_room_layout(rng: random.Random, type_id: str, mirrored: bool = False) -> list[dict[str, Any]]:
+    computer = rng.choice(COMPUTER_CHOICES.get(type_id, COMPUTER_CHOICES["spawn"]))
+    pieces = [
+        room_piece(2, 1, DESK_SURFACE, mirror_sprite=True),
+        room_piece(
+            2,
+            1,
+            computer,
+            lift=COMPUTER_LIFT,
+            offset_x=COMPUTER_OFFSET_X,
+            offset_y=COMPUTER_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(
+            1,
+            2,
+            WORKSTATION_CHAIR,
+            offset_x=WORKSTATION_CHAIR_OFFSET_X,
+            offset_y=WORKSTATION_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(0, 0, "plantTall", offset_y=-0.08, anchor="nw"),
+        room_piece(3, 1, "books", offset_y=-0.06, anchor="east"),
     ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def lab_room_layout(rng: random.Random, type_id: str, mirrored: bool = False) -> list[dict[str, Any]]:
+    computer = rng.choice(COMPUTER_CHOICES.get(type_id, COMPUTER_CHOICES["spawn"]))
+    pieces = [
+        room_piece(2, 1, DESK_SURFACE, mirror_sprite=True),
+        room_piece(
+            2,
+            1,
+            computer,
+            lift=COMPUTER_LIFT,
+            offset_x=COMPUTER_OFFSET_X,
+            offset_y=COMPUTER_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(
+            1,
+            2,
+            WORKSTATION_CHAIR,
+            offset_x=WORKSTATION_CHAIR_OFFSET_X,
+            offset_y=WORKSTATION_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(0, 0, "shelf", anchor="nw", mirror_sprite=True),
+        room_piece(0, 1, "books", offset_x=0.06, offset_y=-0.06, anchor="west"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def archive_room_layout(mirrored: bool = False) -> list[dict[str, Any]]:
+    pieces = [
+        room_piece(1, 0, "shelf", anchor="north", mirror_sprite=True),
+        room_piece(2, 1, "books", offset_y=-0.06, anchor="east"),
+        room_piece(0, 2, "lamp", offset_y=-0.08, anchor="sw"),
+        room_piece(3, 2, "plant", offset_y=-0.06, anchor="se"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def meeting_room_layout(mirrored: bool = False) -> list[dict[str, Any]]:
+    pieces = [
+        room_piece(2, 1, "table", mirror_sprite=True),
+        room_piece(
+            1,
+            2,
+            MEETING_CHAIR,
+            offset_x=MEETING_CHAIR_OFFSET_X,
+            offset_y=MEETING_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(
+            3,
+            2,
+            MEETING_CHAIR,
+            offset_x=-MEETING_CHAIR_OFFSET_X,
+            offset_y=MEETING_CHAIR_OFFSET_Y,
+            mirror_sprite=True,
+        ),
+        room_piece(0, 0, "plant", offset_y=-0.06, anchor="nw"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def lounge_room_layout(mirrored: bool = False) -> list[dict[str, Any]]:
+    pieces = [
+        room_piece(2, 1, "sofa", mirror_sprite=True),
+        room_piece(1, 2, "coffeeTable", mirror_sprite=True),
+        room_piece(0, 0, "plantTall", offset_y=-0.08, anchor="nw"),
+        room_piece(3, 1, "lamp", offset_y=-0.08, anchor="east"),
+    ]
+    return mirror_room_pieces(pieces) if mirrored else pieces
+
+
+def room_layout_for_program(
+    program: str,
+    rng: random.Random,
+    type_id: str,
+    mirrored: bool,
+) -> list[dict[str, Any]]:
+    if program == "archive":
+        return archive_room_layout(mirrored)
+    if program == "meeting":
+        return meeting_room_layout(mirrored)
+    if program == "lounge":
+        return lounge_room_layout(mirrored)
+    if program == "lab":
+        return lab_room_layout(rng, type_id, mirrored)
+    return workstation_room_layout(rng, type_id, mirrored)
+
+
+def generate_office_furniture(
+    room_bases: list[tuple], rng: random.Random, type_id: str = "spawn", rotation: int = 0
+) -> list[dict[str, Any]]:
+    """Furnish each 4x4 room with structured office vignettes.
+
+    The extracted furniture set gives us strong left/right desk facings but no
+    clean front-facing chair, so we mirror supported workstation layouts instead
+    of forcing every 90-degree room rotation to use broken art."""
+    items: list[dict[str, Any]] = []
+    for room_index, (bx, by) in enumerate(room_bases):
+        program = room_program(type_id, room_index)
+        mirrored = room_should_mirror(rotation, room_index)
+        layout = room_layout_for_program(program, rng, type_id, mirrored)
+        for piece in layout:
+            cx, cy = int(bx) + int(piece["x"]), int(by) + int(piece["y"])
+            if not (0 <= cx < WORLD_SIZE and 0 <= cy < WORLD_SIZE):
+                continue
+            item: dict[str, Any] = {"cell": {"x": cx, "y": cy}, "spriteId": piece["spriteId"]}
+            if piece.get("lift"):
+                item["lift"] = float(piece["lift"])
+            if piece.get("offsetX"):
+                item["offsetX"] = float(piece["offsetX"])
+            if piece.get("offsetY"):
+                item["offsetY"] = float(piece["offsetY"])
+            if piece.get("anchor"):
+                item["anchor"] = str(piece["anchor"])
+            if piece.get("flipX"):
+                item["flipX"] = True
+            items.append(item)
+    return items
 
 
 def perimeter_walls(occupied_cells: list[dict[str, int]]) -> list[dict[str, Any]]:
@@ -337,19 +529,55 @@ def perimeter_walls(occupied_cells: list[dict[str, int]]) -> list[dict[str, Any]
     return walls
 
 
+def building_room_offsets(type_id: str, rotation: int) -> list[dict[str, int]]:
+    shape = BUILDING_SHAPES.get(type_id) or BUILDING_SHAPES.get("quality") or [{"x": 0, "y": 0}]
+    return rotate_offsets(shape, rotation)
+
+
+def occupied_cells_for_building(
+    type_id: str, anchor_cell: dict[str, int], rotation: int
+) -> list[dict[str, int]]:
+    """Expand a building's room-shape into every normal cell it covers."""
+    ax = int(anchor_cell["x"])
+    ay = int(anchor_cell["y"])
+    cells: list[dict[str, int]] = []
+    for room in building_room_offsets(type_id, rotation):
+        base_x = ax + room["x"] * ROOM_SIZE
+        base_y = ay + room["y"] * ROOM_SIZE
+        for dy in range(ROOM_SIZE):
+            for dx in range(ROOM_SIZE):
+                cells.append({"x": base_x + dx, "y": base_y + dy})
+    return cells
+
+
 def create_department_placement(
-    department_id: str, anchor_cell: dict[str, int], rotation: int
+    department_id: str,
+    anchor_cell: dict[str, int],
+    rotation: int,
+    preset_id: str = "single",
+    seed: str | None = None,
 ) -> dict[str, Any]:
+    # `department_id` is the building TYPE id (budget / team / quality / portal_room).
     normalized_rotation = normalize_rotation(rotation)
-    occupied_cells = occupied_cells_for_placement(department_id, anchor_cell, normalized_rotation)
-    sprite_stacks: list[dict[str, Any]] = []
-    for cell in occupied_cells:
-        sprite_stacks.extend(subcell_stack_for_cell(department_id, cell))
+    occupied_cells = occupied_cells_for_building(department_id, anchor_cell, normalized_rotation)
+    ax = int(anchor_cell["x"])
+    ay = int(anchor_cell["y"])
+    room_bases = [
+        (ax + room["x"] * ROOM_SIZE, ay + room["y"] * ROOM_SIZE)
+        for room in building_room_offsets(department_id, normalized_rotation)
+    ]
+    rng = random.Random(
+        seed or f"{department_id}:{anchor_cell.get('x')},{anchor_cell.get('y')}:{normalized_rotation}"
+    )
     return {
         "anchorCell": {"x": int(anchor_cell["x"]), "y": int(anchor_cell["y"])},
         "rotation": normalized_rotation,
+        "presetId": department_id,
+        "chunkCount": len(building_room_offsets(department_id, normalized_rotation)),
         "occupiedCells": occupied_cells,
-        "spriteStacks": sprite_stacks,
+        "furniture": generate_office_furniture(room_bases, rng, department_id, normalized_rotation),
+        "furnitureVersion": FURNITURE_LAYOUT_VERSION,
+        "spriteStacks": [],
         "walls": perimeter_walls(occupied_cells),
         "subcellsPerCell": SUBCELLS_PER_CELL,
     }
@@ -380,8 +608,27 @@ def department_at_cell(
     return None
 
 
-def placement_touches_path(world: dict[str, Any], occupied_cells: list[dict[str, int]]) -> bool:
-    path = set(world.get("builtPath", []))
+def office_cell_keys(session: dict[str, Any]) -> set[str]:
+    """All normal cells occupied by offices (spawn room + built departments)."""
+    keys: set[str] = set()
+    spawn = session.get("world", {}).get("spawnOffice")
+    if isinstance(spawn, dict):
+        for cell in spawn.get("cells", []):
+            keys.add(coord_key(int(cell["x"]), int(cell["y"])))
+    for department in session.get("departments", {}).values():
+        if department.get("built"):
+            for cell in department_cells(department):
+                keys.add(coord_key(cell["x"], cell["y"]))
+    return keys
+
+
+def is_border_cell(world: dict[str, Any], x: int, y: int) -> bool:
+    size = int(world.get("size", WORLD_SIZE))
+    return x == 0 or y == 0 or x == size - 1 or y == size - 1
+
+
+def placement_touches_buildable(buildable: set[str], occupied_cells: list[dict[str, int]]) -> bool:
+    own = {coord_key(int(c["x"]), int(c["y"])) for c in occupied_cells}
     for cell in occupied_cells:
         neighbors = [
             coord_key(cell["x"] + 1, cell["y"]),
@@ -389,7 +636,7 @@ def placement_touches_path(world: dict[str, Any], occupied_cells: list[dict[str,
             coord_key(cell["x"], cell["y"] + 1),
             coord_key(cell["x"], cell["y"] - 1),
         ]
-        if any(neighbor in path for neighbor in neighbors):
+        if any(neighbor in buildable and neighbor not in own for neighbor in neighbors):
             return True
     return False
 
@@ -410,25 +657,30 @@ def validate_department_placement(
     session: dict[str, Any], department_id: str, placement: dict[str, Any]
 ) -> None:
     world = session["world"]
-    start_key = coord_key(world["start"]["x"], world["start"]["y"])
     end_key = coord_key(world["end"]["x"], world["end"]["y"])
     path = set(world.get("builtPath", []))
+    offices = office_cell_keys(session)
 
     for cell in placement["occupiedCells"]:
         x = int(cell["x"])
         y = int(cell["y"])
         key = coord_key(x, y)
         if not in_world_bounds(world, x, y):
-            raise RuleError("Department footprint must stay inside the 32x32 world.")
-        if key in {start_key, end_key} or key in path:
-            raise RuleError("Department footprints cannot overlap the office path or nebula gate.")
+            raise RuleError("Office must stay inside the 32x32 world.")
+        if key == end_key or key in path:
+            raise RuleError("Offices cannot overlap the corridor or the nebula gate.")
+        if key in offices:
+            raise RuleError("Offices cannot overlap the spawn office or another department.")
         if cell_touches_blackhole_danger(world, x, y):
-            raise RuleError("Department footprints cannot touch blackhole gravity fields.")
-        if department_at_cell(session, x, y, excluding_department_id=department_id):
-            raise RuleError("Department footprints cannot overlap another department.")
+            raise RuleError("Offices cannot touch blackhole gravity fields.")
 
-    if not placement_touches_path(world, placement["occupiedCells"]):
-        raise RuleError("Place the department next to the built office path.")
+    buildable = path | offices
+    on_border = any(
+        is_border_cell(world, int(cell["x"]), int(cell["y"]))
+        for cell in placement["occupiedCells"]
+    )
+    if not on_border and not placement_touches_buildable(buildable, placement["occupiedCells"]):
+        raise RuleError("Place the office next to your corridor, an existing office, or a map border.")
 
 
 def reserved_world_cells() -> list[dict[str, int]]:
@@ -468,6 +720,22 @@ def generate_blackholes(seed: str) -> list[dict[str, Any]]:
     return blackholes
 
 
+def starting_office(start: dict[str, int]) -> list[str]:
+    """A small pre-built office room the player expands from, instead of a
+    single lonely tile. Stays inside the grid and ends at the front door so the
+    player marker faces the void."""
+    sx, sy = start["x"], start["y"]
+    offsets = [(0, -1), (1, -1), (0, 0), (1, 0), (0, 1), (1, 1), (2, 0)]
+    cells: list[str] = []
+    for ox, oy in offsets:
+        x, y = sx + ox, sy + oy
+        if 0 <= x < WORLD_SIZE and 0 <= y < WORLD_SIZE:
+            key = coord_key(x, y)
+            if key not in cells:
+                cells.append(key)
+    return cells
+
+
 def new_world(seed: str) -> dict[str, Any]:
     start = world_start()
     end = world_end()
@@ -480,6 +748,7 @@ def new_world(seed: str) -> dict[str, Any]:
         "pathBuildCost": PATH_BUILD_COST,
         "blackholes": generate_blackholes(seed),
         "builtPath": [coord_key(start["x"], start["y"])],
+        "spawnOffice": build_spawn_office({"start": start}, seed),
         "connectedToLight": False,
         "lostToBlackhole": None,
     }
@@ -513,45 +782,61 @@ def ensure_world(session: dict[str, Any]) -> dict[str, Any]:
         blackhole["dangerRadius"] = clamp_int(
             blackhole.get("dangerRadius", BLACKHOLE_DANGER_RADIUS), 0, 8
         )
-    if "departments" in session:
-        for department_id, department in session["departments"].items():
-            department.setdefault("footprint", deepcopy(DEPARTMENT_FOOTPRINTS.get(department_id, {"cells": [{"x": 0, "y": 0}]})))
-            department.setdefault("worldCell", None)
-            department.setdefault("placement", None)
-            if department.get("built") and not department.get("placement"):
-                anchor = department.get("worldCell") or deepcopy(DEPARTMENT_WORLD_CELLS.get(department_id, world_start()))
-                anchor = anchor if isinstance(anchor, dict) else world_start()
-                anchor = clamp_anchor_for_department(department_id, anchor, 0)
-                department["placement"] = create_department_placement(department_id, anchor, 0)
-                department["worldCell"] = deepcopy(department["placement"]["anchorCell"])
-            if department.get("placement"):
-                placement = department["placement"] if isinstance(department["placement"], dict) else {}
-                anchor = placement.get("anchorCell")
-                rotation = placement.get("rotation", 0)
-                if not isinstance(anchor, dict):
-                    anchor = department.get("worldCell") or deepcopy(DEPARTMENT_WORLD_CELLS.get(department_id, world_start()))
-                original_anchor = deepcopy(anchor)
-                anchor = clamp_anchor_for_department(department_id, anchor, rotation)
-                occupied = occupied_cells_for_placement(department_id, anchor, normalize_rotation(rotation))
-                existing_cells = [
-                    {"x": int(cell.get("x", -1)), "y": int(cell.get("y", -1))}
-                    for cell in placement.get("occupiedCells", [])
-                    if isinstance(cell, dict)
-                ]
-                normalized_cells = [{"x": cell["x"], "y": cell["y"]} for cell in occupied]
-                needs_normalized = (
-                    placement.get("subcellsPerCell") != SUBCELLS_PER_CELL
-                    or original_anchor.get("x") != anchor["x"]
-                    or original_anchor.get("y") != anchor["y"]
-                    or existing_cells != normalized_cells
-                    or any(not in_world_bounds(world, cell["x"], cell["y"]) for cell in occupied)
-                    or not isinstance(placement.get("spriteStacks"), list)
-                    or not isinstance(placement.get("walls"), list)
+    # Spawn office: a single furnished chunk the player expands from.
+    if not isinstance(world.get("spawnOffice"), dict):
+        world["spawnOffice"] = build_spawn_office(world, session.get("sessionId", "spawn"))
+    elif world["spawnOffice"].get("furnitureVersion") != FURNITURE_LAYOUT_VERSION:
+        world["spawnOffice"] = build_spawn_office(world, session.get("sessionId", "spawn"))
+
+    # Building instances are stored fully-formed on purchase; just backfill any
+    # missing optional fields so older sessions stay renderable.
+    for department in session.get("departments", {}).values():
+        department.setdefault("worldCell", None)
+        department.setdefault("placement", None)
+        if isinstance(department.get("placement"), dict):
+            placement = department["placement"]
+            anchor = placement.get("anchorCell")
+            rotation = placement.get("rotation", 0)
+            if (
+                department.get("built")
+                and isinstance(anchor, dict)
+                and placement.get("furnitureVersion") != FURNITURE_LAYOUT_VERSION
+            ):
+                seed = placement_seed(session, department.get("id"), anchor, rotation)
+                department["placement"] = create_department_placement(
+                    str(department.get("typeId") or "quality"),
+                    anchor,
+                    rotation,
+                    str(placement.get("presetId") or department.get("typeId") or "single"),
+                    seed=seed,
                 )
-                if needs_normalized:
-                    department["placement"] = create_department_placement(department_id, anchor, rotation)
-                department["worldCell"] = deepcopy(department["placement"]["anchorCell"])
+                placement = department["placement"]
+            placement.setdefault("furniture", [])
+            placement.setdefault("walls", [])
+            placement["subcellsPerCell"] = SUBCELLS_PER_CELL
+            placement["furnitureVersion"] = FURNITURE_LAYOUT_VERSION
+            department["worldCell"] = deepcopy(placement["anchorCell"])
     return session
+
+
+def build_spawn_office(world: dict[str, Any], seed: str) -> dict[str, Any]:
+    """The spawn office is one room (ROOM_SIZE x ROOM_SIZE cells) anchored at the
+    start cell, which sits at its top-left corner."""
+    start = world.get("start", world_start())
+    ax, ay = int(start["x"]), int(start["y"])
+    cells = [
+        {"x": ax + dx, "y": ay + dy}
+        for dy in range(ROOM_SIZE)
+        for dx in range(ROOM_SIZE)
+        if 0 <= ax + dx < WORLD_SIZE and 0 <= ay + dy < WORLD_SIZE
+    ]
+    rng = random.Random(f"{seed}:spawn-office")
+    return {
+        "cells": cells,
+        "walls": perimeter_walls(cells),
+        "furniture": generate_office_furniture([(ax, ay)], rng, "spawn", 0),
+        "furnitureVersion": FURNITURE_LAYOUT_VERSION,
+    }
 
 
 def new_session(student_id: str | None = None) -> dict[str, Any]:
@@ -564,7 +849,9 @@ def new_session(student_id: str | None = None) -> dict[str, Any]:
         "studentId": clean_student_id[:80],
         "createdAt": timestamp,
         "updatedAt": timestamp,
-        "points": 0,
+        "playTimeMs": 0,
+        "lastResumedAt": timestamp,
+        "points": STARTING_POINTS,
         "resources": deepcopy(DEFAULT_RESOURCES),
         "departments": new_departments(),
         "world": new_world(session_id),
@@ -591,12 +878,74 @@ def normalize_scenario_id(value: str | None, session: dict[str, Any]) -> dict[st
     raise RuleError(f"Unknown minigame id: {value}")
 
 
+def placement_seed(
+    session: dict[str, Any],
+    placement_id: str | None,
+    anchor: dict[str, Any],
+    rotation: int,
+) -> str:
+    return (
+        f"{session.get('sessionId')}:{placement_id or 'department'}:"
+        f"{int(anchor.get('x', 0))},{int(anchor.get('y', 0))}:{normalize_rotation(rotation)}"
+    )
+
+
+def evaluate_scope_fog(details: dict[str, Any]) -> tuple[bool, int, dict[str, Any]]:
+    order = [str(item) for item in details.get("order", []) if item is not None]
+    score = sum(1 for index, item in enumerate(order) if index < len(CORRECT_BACKLOG_ORDER) and CORRECT_BACKLOG_ORDER[index] == item)
+    return score == len(CORRECT_BACKLOG_ORDER), score, {"order": order}
+
+
+def evaluate_exact_selection(
+    details: dict[str, Any],
+    correct_ids: set[str],
+    detail_key: str = "selected",
+) -> tuple[bool, int, dict[str, Any]]:
+    selected = sorted({str(item) for item in details.get(detail_key, []) if item is not None})
+    score = sum(1 for item in selected if item in correct_ids)
+    return selected == sorted(correct_ids), score, {detail_key: selected}
+
+
+def evaluate_budget_rift(
+    session: dict[str, Any], details: dict[str, Any]
+) -> tuple[bool, int, dict[str, Any], dict[str, int]]:
+    choice_id = str(details.get("choiceId") or "")
+    if choice_id not in BUDGET_RIFT_CHOICES:
+        raise RuleError("Budget Rift requires a valid choiceId.")
+    resource_delta = deepcopy(BUDGET_RIFT_CHOICES[choice_id]["resourceDelta"])
+    projected = {
+        key: clamp(session["resources"][key] + resource_delta.get(key, 0))
+        for key in DEFAULT_RESOURCES
+    }
+    return (
+        all(value >= 50 for value in projected.values()),
+        1,
+        {
+            "choiceId": choice_id,
+            "choiceLabel": BUDGET_RIFT_CHOICES[choice_id]["label"],
+        },
+        resource_delta,
+    )
+
+
+def evaluate_stakeholder_booth(details: dict[str, Any]) -> tuple[bool, int, dict[str, Any]]:
+    choice_id = str(details.get("choiceId") or "")
+    if choice_id not in STAKEHOLDER_BOOTH_CHOICES:
+        raise RuleError("Stakeholder Booth requires a valid choiceId.")
+    choice = STAKEHOLDER_BOOTH_CHOICES[choice_id]
+    return bool(choice["best"]), int(bool(choice["best"])), {
+        "choiceId": choice_id,
+        "choiceLabel": choice["label"],
+    }
+
+
 def apply_resource_delta(session: dict[str, Any], delta: dict[str, int]) -> None:
     for key in DEFAULT_RESOURCES:
         session["resources"][key] = clamp(session["resources"].get(key, 0) + delta.get(key, 0))
 
 
 def touch(session: dict[str, Any]) -> None:
+    update_play_time(session)
     session["updatedAt"] = now_iso()
 
 
@@ -640,6 +989,7 @@ def make_log_entry(
         "departmentBuilt": department_built,
         "resourceChange": deepcopy(resource_change),
         "timestamp": now_iso(),
+        "playTimeMs": session.get("playTimeMs", 0),
         "finalResult": deepcopy(session.get("finalResult")),
     }
     if debug_action:
@@ -666,22 +1016,30 @@ def record_minigame_result(
         )
 
     details = payload.get("details") if isinstance(payload.get("details"), dict) else {}
-    success = bool(payload.get("success"))
-    resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    minigame_id = scenario["minigameId"]
+    if minigame_id == "scope_fog":
+        success, score, details = evaluate_scope_fog(details)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "bug_rain":
+        success, score, details = evaluate_exact_selection(details, SERIOUS_BUG_IDS)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "risk_vault":
+        success, score, details = evaluate_exact_selection(details, CRITICAL_RISK_IDS)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "stakeholder_booth":
+        success, score, details = evaluate_stakeholder_booth(details)
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
+    elif minigame_id == "budget_rift":
+        success, score, details, resource_delta = evaluate_budget_rift(session, details)
+    else:
+        success = bool(payload.get("success"))
+        score = int(payload.get("score", 0))
+        resource_delta = deepcopy(scenario["successDelta"] if success else scenario["failDelta"])
 
-    if scenario["minigameId"] == "budget_rift":
-        choice_id = details.get("choiceId")
-        if choice_id not in BUDGET_RIFT_CHOICES:
-            raise RuleError("Budget Rift requires a valid choiceId.")
-        resource_delta = deepcopy(BUDGET_RIFT_CHOICES[choice_id]["resourceDelta"])
-        projected = {
-            key: clamp(session["resources"][key] + resource_delta.get(key, 0))
-            for key in DEFAULT_RESOURCES
-        }
-        success = all(value >= 50 for value in projected.values())
-        details["choiceLabel"] = BUDGET_RIFT_CHOICES[choice_id]["label"]
-
-    points_earned = scenario["points"] if success else 0
+    # Budget Rift is a judgement call rather than a skill check: making a choice
+    # always earns its points, while the resource trade-off is the real lesson.
+    awards_points = success or minigame_id == "budget_rift"
+    points_earned = scenario["points"] if awards_points else 0
     session["points"] += points_earned
     apply_resource_delta(session, resource_delta)
     session["currentScenarioIndex"] = (int(session.get("currentScenarioIndex", 0)) + 1) % len(SCENARIOS)
@@ -691,7 +1049,7 @@ def record_minigame_result(
         "scenarioId": scenario["id"],
         "title": scenario["title"],
         "success": success,
-        "score": int(payload.get("score", 0)),
+        "score": score,
         "pointsEarned": points_earned,
         "resourceChange": resource_delta,
         "details": details,
@@ -716,54 +1074,60 @@ def buy_department(
     department_id: str,
     anchor_cell: dict[str, Any] | None = None,
     rotation: int = 0,
+    preset_id: str = "single",
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     ensure_world(session)
     ensure_action_allowed(session)
 
-    departments = session.get("departments", {})
+    departments = session.setdefault("departments", {})
     if department_id == PORTAL_ROOM_ID:
         raise RuleError("The Portal Room opens through the escape check.")
-    if department_id not in departments:
-        raise RuleError(f"Unknown department id: {department_id}")
+    if department_id not in BUILDING_TYPES_BY_ID:
+        raise RuleError(f"Unknown building type: {department_id}")
+    if not isinstance(anchor_cell, dict):
+        raise RuleError("anchorCell is required when placing a building.")
 
-    department = departments[department_id]
-    is_upgrade = bool(department.get("built"))
-    if is_upgrade and department.get("level", 0) >= 2:
-        raise RuleError(f"{department['name']} is already fully upgraded.")
+    btype = BUILDING_TYPES_BY_ID[department_id]
+    anchor = {
+        "x": clamp_int(anchor_cell.get("x"), 0, WORLD_SIZE - 1),
+        "y": clamp_int(anchor_cell.get("y"), 0, WORLD_SIZE - 1),
+    }
+    existing = sum(1 for d in departments.values() if d.get("typeId") == department_id)
+    instance_id = f"{department_id}#{existing + 1}"
+    seed = placement_seed(session, instance_id, anchor, rotation)
+    placement = create_department_placement(department_id, anchor, rotation, department_id, seed=seed)
+    validate_department_placement(session, instance_id, placement)
 
-    price = department["upgradePrice"] if is_upgrade else department["price"]
+    price = btype["cost"]
     if session["points"] < price:
-        raise RuleError(f"Not enough points for {department['name']}.")
+        raise RuleError(f"Not enough points for {btype['name']}.")
 
-    resource_delta = deepcopy(department["upgradeEffect"] if is_upgrade else department["resourceEffect"])
-    placement = department.get("placement")
-    if not is_upgrade:
-        if not isinstance(anchor_cell, dict):
-            raise RuleError("anchorCell is required when placing a new department.")
-        anchor = {
-            "x": clamp_int(anchor_cell.get("x"), 0, WORLD_SIZE - 1),
-            "y": clamp_int(anchor_cell.get("y"), 0, WORLD_SIZE - 1),
-        }
-        placement = create_department_placement(department_id, anchor, rotation)
-        validate_department_placement(session, department_id, placement)
-
+    resource_delta = deepcopy(btype["resourceEffect"])
     session["points"] -= price
-    department["built"] = True
-    department["level"] = 2 if is_upgrade else 1
-    department["builtAt"] = department["builtAt"] or now_iso()
-    department["lastChangedAt"] = now_iso()
-    if placement:
-        department["placement"] = deepcopy(placement)
-        department["worldCell"] = deepcopy(placement["anchorCell"])
+    instance = {
+        "id": instance_id,
+        "typeId": department_id,
+        "name": btype["name"],
+        "resource": btype["resource"],
+        "meaning": btype["meaning"],
+        "built": True,
+        "level": 1,
+        "builtAt": now_iso(),
+        "lastChangedAt": now_iso(),
+        "resourceEffect": deepcopy(resource_delta),
+        "placement": deepcopy(placement),
+        "worldCell": deepcopy(placement["anchorCell"]),
+    }
+    departments[instance_id] = instance
     apply_resource_delta(session, resource_delta)
 
     action = {
-        "departmentId": department_id,
-        "departmentName": department["name"],
-        "action": "upgrade" if is_upgrade else "build",
+        "departmentId": instance_id,
+        "departmentName": btype["name"],
+        "action": "build",
         "cost": price,
         "resourceChange": resource_delta,
-        "placement": deepcopy(department.get("placement")),
+        "placement": deepcopy(placement),
         "timestamp": now_iso(),
     }
 
@@ -771,7 +1135,7 @@ def buy_department(
     log_entry = make_log_entry(
         session,
         minigame_id=None,
-        department_built=department["name"],
+        department_built=btype["name"],
         resource_change=resource_delta,
     )
     session["choiceLog"].append(log_entry)
@@ -781,7 +1145,9 @@ def buy_department(
 
 def set_pause(session: dict[str, Any], paused: bool) -> dict[str, Any]:
     ensure_world(session)
+    update_play_time(session)
     session["paused"] = bool(paused)
+    session["lastResumedAt"] = now_iso()
     touch(session)
     return session
 
@@ -826,12 +1192,15 @@ def build_world_cell(
         raise RuleError("That cell is outside the 32x32 office grid.")
 
     cell_key = coord_key(x, y)
+    offices = office_cell_keys(session)
     if cell_key in world.get("builtPath", []):
         raise RuleError("That path tile is already built.")
-    if department_at_cell(session, x, y):
-        raise RuleError("Path tiles cannot overlap placed departments.")
-    if not is_adjacent_to_path(world, x, y):
-        raise RuleError("Build from the existing office path outward.")
+    if cell_key in offices:
+        raise RuleError("Corridors cannot run through an office.")
+    buildable = set(world.get("builtPath", [])) | offices
+    neighbors = [coord_key(x + 1, y), coord_key(x - 1, y), coord_key(x, y + 1), coord_key(x, y - 1)]
+    if not is_border_cell(world, x, y) and not any(n in buildable for n in neighbors):
+        raise RuleError("Build the corridor from your office, path, or a map border.")
 
     blackhole = is_near_blackhole(world, x, y)
     if blackhole:
@@ -891,10 +1260,9 @@ def missing_escape_requirements(session: dict[str, Any]) -> list[str]:
     if not session["world"].get("connectedToLight"):
         missing.append("Build a safe path from the office core to the nebula gate")
 
-    for department_id in REQUIRED_DEPARTMENT_IDS:
-        department = session["departments"][department_id]
-        if not department.get("built"):
-            missing.append(f"Build {department['name']}")
+    for type_id in RESOURCE_BUILDING_IDS:
+        if not building_type_built(session, type_id):
+            missing.append(f"Build a {BUILDING_TYPES_BY_ID[type_id]['name']}")
 
     for resource, value in session["resources"].items():
         if value < 50:
@@ -916,14 +1284,21 @@ def escape_check(session: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any
     missing = missing_escape_requirements(session)
     eligible = len(missing) == 0
     if eligible and not session.get("finalResult"):
-        session["departments"][PORTAL_ROOM_ID]["built"] = True
-        session["departments"][PORTAL_ROOM_ID]["level"] = 1
-        session["departments"][PORTAL_ROOM_ID]["builtAt"] = now_iso()
         portal_placement = create_department_placement(
             PORTAL_ROOM_ID, DEPARTMENT_WORLD_CELLS[PORTAL_ROOM_ID], 0
         )
-        session["departments"][PORTAL_ROOM_ID]["placement"] = portal_placement
-        session["departments"][PORTAL_ROOM_ID]["worldCell"] = deepcopy(portal_placement["anchorCell"])
+        session["departments"][PORTAL_ROOM_ID] = {
+            "id": PORTAL_ROOM_ID,
+            "typeId": PORTAL_ROOM_ID,
+            "name": "Portal Room",
+            "resource": None,
+            "built": True,
+            "level": 1,
+            "builtAt": now_iso(),
+            "portal": True,
+            "placement": portal_placement,
+            "worldCell": deepcopy(portal_placement["anchorCell"]),
+        }
         session["finalResult"] = {
             "status": "escaped",
             "escaped": True,
@@ -974,6 +1349,7 @@ def build_report(session: dict[str, Any], proposal: dict[str, Any]) -> dict[str,
         "studentId": session["studentId"],
         "sessionId": session["sessionId"],
         "points": session["points"],
+        "playTimeMs": session.get("playTimeMs", 0),
         "resources": deepcopy(session["resources"]),
         "builtDepartments": built_departments(session),
         "world": deepcopy(session["world"]),
@@ -1027,30 +1403,46 @@ def safe_light_path(world: dict[str, Any]) -> list[str]:
     return route
 
 
+def debug_place_building(session: dict[str, Any], type_id: str) -> dict[str, Any]:
+    """Debug helper: place one building of a type at its default anchor (no cost,
+    no validation)."""
+    departments = session.setdefault("departments", {})
+    anchor = deepcopy(DEPARTMENT_WORLD_CELLS.get(type_id, world_start()))
+    anchor = {"x": clamp_int(anchor.get("x"), 0, WORLD_SIZE - 1), "y": clamp_int(anchor.get("y"), 0, WORLD_SIZE - 1)}
+    placement = create_department_placement(type_id, anchor, 0)
+    if type_id == PORTAL_ROOM_ID:
+        instance_id = PORTAL_ROOM_ID
+    else:
+        existing = sum(1 for d in departments.values() if d.get("typeId") == type_id)
+        instance_id = f"{type_id}#{existing + 1}"
+    btype = BUILDING_TYPES_BY_ID.get(type_id, {"name": type_id, "resource": None})
+    instance = {
+        "id": instance_id,
+        "typeId": type_id,
+        "name": btype.get("name", type_id),
+        "resource": btype.get("resource"),
+        "built": True,
+        "level": 1,
+        "builtAt": now_iso(),
+        "placement": placement,
+        "worldCell": deepcopy(placement["anchorCell"]),
+    }
+    departments[instance_id] = instance
+    return instance
+
+
 def set_department_debug(
     session: dict[str, Any], department_id: str, built: bool | None, level: int | None
 ) -> dict[str, Any]:
-    if department_id not in session["departments"]:
-        raise RuleError(f"Unknown department id: {department_id}")
-    department = session["departments"][department_id]
-    next_level = clamp_int(level if level is not None else department.get("level", 0), 0, 2)
-    next_built = bool(built) if built is not None else next_level > 0
-    if next_built and next_level == 0:
-        next_level = 1
-    department["built"] = next_built
-    department["level"] = next_level if next_built else 0
-    department["builtAt"] = department.get("builtAt") or (now_iso() if next_built else None)
-    department["lastChangedAt"] = now_iso()
-    if next_built:
-        anchor = clamp_anchor_for_department(
-            department_id, deepcopy(DEPARTMENT_WORLD_CELLS.get(department_id, world_start())), 0
-        )
-        department["placement"] = create_department_placement(department_id, anchor, 0)
-        department["worldCell"] = deepcopy(department["placement"]["anchorCell"])
-    else:
-        department["placement"] = None
-        department["worldCell"] = None
-    return department
+    departments = session.setdefault("departments", {})
+    if built is False:
+        # Remove all instances of this type / this instance id.
+        for key in [k for k, d in departments.items() if d.get("typeId") == department_id or k == department_id]:
+            departments.pop(key, None)
+        return {}
+    if department_id in departments:
+        return departments[department_id]
+    return debug_place_building(session, department_id)
 
 
 def force_minigame_debug(session: dict[str, Any], value: Any) -> dict[str, Any]:
@@ -1108,11 +1500,11 @@ def apply_debug_action(
         )
         result["department"] = deepcopy(department)
     elif action == "build_all_departments":
-        for department_id in REQUIRED_DEPARTMENT_IDS:
-            set_department_debug(session, department_id, True, 1)
+        for type_id in RESOURCE_BUILDING_IDS:
+            debug_place_building(session, type_id)
     elif action == "upgrade_all_departments":
-        for department_id in REQUIRED_DEPARTMENT_IDS:
-            set_department_debug(session, department_id, True, 2)
+        for type_id in RESOURCE_BUILDING_IDS:
+            debug_place_building(session, type_id)
     elif action == "set_world_path":
         session["world"]["builtPath"] = normalize_path_cells(session["world"], value)
         session["world"]["connectedToLight"] = coord_key(session["world"]["end"]["x"], session["world"]["end"]["y"]) in session["world"]["builtPath"]
@@ -1141,9 +1533,10 @@ def apply_debug_action(
         result["minigameResult"] = force_minigame_debug(session, value)
     elif action == "force_escape":
         session["world"]["connectedToLight"] = True
-        for department_id in REQUIRED_DEPARTMENT_IDS:
-            set_department_debug(session, department_id, True, max(1, session["departments"][department_id].get("level", 1)))
-        set_department_debug(session, PORTAL_ROOM_ID, True, 1)
+        for type_id in RESOURCE_BUILDING_IDS:
+            if not building_type_built(session, type_id):
+                debug_place_building(session, type_id)
+        debug_place_building(session, PORTAL_ROOM_ID)
         for key in DEFAULT_RESOURCES:
             session["resources"][key] = max(session["resources"].get(key, 0), 50)
         session["finalResult"] = {
@@ -1174,16 +1567,10 @@ def apply_debug_action(
         session["world"]["lostToBlackhole"] = None
     elif action == "reset_sandbox_world":
         session["world"] = new_world(f"{session['sessionId']}-{now_iso()}")
-        for department_id, department in session["departments"].items():
-            if department.get("built"):
-                anchor = clamp_anchor_for_department(
-                    department_id, deepcopy(DEPARTMENT_WORLD_CELLS.get(department_id, world_start())), 0
-                )
-                department["placement"] = create_department_placement(department_id, anchor, 0)
-                department["worldCell"] = deepcopy(department["placement"]["anchorCell"])
-            else:
-                department["placement"] = None
-                department["worldCell"] = None
+        # Drop placed buildings and clear terminal state so the fresh sandbox is
+        # actually playable again.
+        session["departments"] = {}
+        session["finalResult"] = None
     else:
         raise RuleError(f"Unknown debug action: {action}")
 

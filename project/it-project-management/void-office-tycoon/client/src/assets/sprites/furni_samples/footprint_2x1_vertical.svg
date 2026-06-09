@@ -1,0 +1,11 @@
+<svg width="108" height="56" viewBox="0 0 108 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="72,1 107,19 72,37 37,19" fill="#214158" fill-opacity="0.7"/>
+  <polygon points="36,19 71,37 36,55 1,37" fill="#214158" fill-opacity="0.7"/>
+  <polygon points="72,6 96,19 72,32 48,19" fill="#35698F" fill-opacity="0.88"/>
+  <polygon points="36,24 60,37 36,50 12,37" fill="#35698F" fill-opacity="0.88"/>
+  <path d="M72 1L107 19L72 37L37 19L72 1Z" stroke="#92D3FF" stroke-width="2"/>
+  <path d="M36 19L71 37L36 55L1 37L36 19Z" stroke="#92D3FF" stroke-width="2"/>
+  <path d="M72 6L96 19L72 32L48 19L72 6Z" stroke="#E6F7FF" stroke-opacity="0.5" stroke-width="1"/>
+  <path d="M36 24L60 37L36 50L12 37L36 24Z" stroke="#E6F7FF" stroke-opacity="0.5" stroke-width="1"/>
+  <path d="M72 37L36 19" stroke="#D2ECFF" stroke-opacity="0.44" stroke-width="1.5"/>
+</svg>

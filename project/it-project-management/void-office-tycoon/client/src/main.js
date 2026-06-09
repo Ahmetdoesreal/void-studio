@@ -21,6 +21,120 @@ import tileVoidSprite from './assets/sprites/habbo_world/void_tile.png';
 import wallPanelSprite from './assets/sprites/habbo_world/wall_panel.png';
 import woodFloorSprite from './assets/sprites/habbo_world/wood_floor.png';
 
+// Real isometric Habbo furniture extracted from the retro-hotel nitro bundles.
+import furniDesk from './assets/sprites/furni/desk.png';
+import furniWoodDesk from './assets/sprites/furni/woodDesk.png';
+import furniMonitor from './assets/sprites/furni/monitor.png';
+import furniImac from './assets/sprites/furni/imac.png';
+import furniLaptop from './assets/sprites/furni/laptop.png';
+import furniOfficeChair from './assets/sprites/furni/officeChair.png';
+import furniOfficeChairBack from './assets/sprites/furni/officeChairBack.png';
+import furniChair from './assets/sprites/furni/chair.png';
+import furniTable from './assets/sprites/furni/table.png';
+import furniCoffeeTable from './assets/sprites/furni/coffeeTable.png';
+import furniPlant from './assets/sprites/furni/plant.png';
+import furniPlantTall from './assets/sprites/furni/plantTall.png';
+import furniLamp from './assets/sprites/furni/lamp.png';
+import furniShelf from './assets/sprites/furni/shelf.png';
+import furniBooks from './assets/sprites/furni/books.png';
+import furniSofa from './assets/sprites/furni/sofa.png';
+import furniRug from './assets/sprites/furni/rug.png';
+import footprint1x1Sprite from './assets/sprites/furni_samples/footprint_1x1_64x64.svg';
+import footprint2x1Sprite from './assets/sprites/furni_samples/footprint_2x1_128x64.svg';
+import footprint2x1VerticalSprite from './assets/sprites/furni_samples/footprint_2x1_vertical.svg';
+import footprintLCornerSprite from './assets/sprites/furni_samples/footprint_l_corner_128x128.svg';
+import footprintLCorner90Sprite from './assets/sprites/furni_samples/footprint_l_corner_90.svg';
+import footprintLCorner180Sprite from './assets/sprites/furni_samples/footprint_l_corner_180.svg';
+import footprintLCorner270Sprite from './assets/sprites/furni_samples/footprint_l_corner_270.svg';
+
+// Furniture sprite keys (match server OFFICE_FURNITURE palette). Loaded under a
+// "furni_" prefix in Phaser; drawn at native aspect ratio.
+const FURNI = {
+  desk: furniDesk,
+  woodDesk: furniWoodDesk,
+  monitor: furniMonitor,
+  imac: furniImac,
+  laptop: furniLaptop,
+  officeChair: furniOfficeChair,
+  officeChairBack: furniOfficeChairBack,
+  chair: furniChair,
+  table: furniTable,
+  coffeeTable: furniCoffeeTable,
+  plant: furniPlant,
+  plantTall: furniPlantTall,
+  lamp: furniLamp,
+  shelf: furniShelf,
+  books: furniBooks,
+  sofa: furniSofa,
+  rug: furniRug,
+  sampleFootprint1x1: footprint1x1Sprite,
+  sampleFootprint2x1: footprint2x1Sprite,
+  sampleFootprint2x1Vertical: footprint2x1VerticalSprite,
+  sampleFootprintLCorner: footprintLCornerSprite,
+  sampleFootprintLCorner90: footprintLCorner90Sprite,
+  sampleFootprintLCorner180: footprintLCorner180Sprite,
+  sampleFootprintLCorner270: footprintLCorner270Sprite
+};
+
+// UI currency icons lifted from the retro-hotel nitro wallet assets.
+import iconCoin from './assets/ui/coin.png';
+import iconDiamond from './assets/ui/diamond.png';
+import iconHc from './assets/ui/hc.png';
+import iconDucket from './assets/ui/ducket.png';
+
+const RESOURCE_ICONS = {
+  budget: iconCoin,
+  team: iconHc,
+  quality: iconDiamond
+};
+const POINTS_ICON = iconDucket;
+const FOOTPRINT_SAMPLES = [
+  {
+    id: 'sample-1x1',
+    label: '1x1',
+    detail: 'single-tile prop',
+    image: footprint1x1Sprite,
+    spriteId: 'sampleFootprint1x1',
+    shapeLabel: 'single tile',
+    shape: [{ x: 0, y: 0 }],
+    fillColor: 0x2f6a55,
+    lineColor: 0x8be7b1
+  },
+  {
+    id: 'sample-2x1',
+    label: '2x1',
+    detail: 'desk or table span',
+    image: footprint2x1Sprite,
+    spriteIdsByRotation: {
+      0: 'sampleFootprint2x1',
+      90: 'sampleFootprint2x1Vertical',
+      180: 'sampleFootprint2x1',
+      270: 'sampleFootprint2x1Vertical'
+    },
+    shapeLabel: 'bar',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+    fillColor: 0x315877,
+    lineColor: 0x92d3ff
+  },
+  {
+    id: 'sample-l-corner',
+    label: 'L-corner',
+    detail: 'three-tile corner room',
+    image: footprintLCornerSprite,
+    spriteIdsByRotation: {
+      0: 'sampleFootprintLCorner',
+      90: 'sampleFootprintLCorner90',
+      180: 'sampleFootprintLCorner180',
+      270: 'sampleFootprintLCorner270'
+    },
+    shapeLabel: 'corner',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
+    fillColor: 0x6a442d,
+    lineColor: 0xf4c897
+  }
+];
+const FOOTPRINT_SAMPLES_BY_ID = Object.fromEntries(FOOTPRINT_SAMPLES.map(sample => [sample.id, sample]));
+
 const appEl = document.querySelector('#app');
 
 const api = {
@@ -47,19 +161,115 @@ const api = {
 };
 
 const STORAGE_KEY = 'voidOfficeTycoon.sessionId';
+const FURNITURE_SCALE_STORAGE_KEY = 'voidOfficeTycoon.furnitureScaleMultiplier';
+const FURNITURE_OFFSET_STORAGE_KEYS = {
+  x: 'voidOfficeTycoon.furnitureOffsetX',
+  y: 'voidOfficeTycoon.furnitureOffsetY',
+  z: 'voidOfficeTycoon.furnitureOffsetZ'
+};
+const LEGACY_FURNITURE_OFFSET_STORAGE_KEY = 'voidOfficeTycoon.furnitureOffsetAdjustment';
 const FULLSCREEN_PATH = '/fullscreen';
+const BUILDER_PATH = '/builder';
+const BUILDER_STORAGE_KEY = 'voidOfficeTycoon.builderState';
+const VOID_OFFICE_DEBUG_FLAG = 'DEBUG_VOID_OFFICE';
 const CHUNK_COUNT = 32;
 const SUBCELLS_PER_CELL = 4;
 const WORLD_TILE_SIZE = CHUNK_COUNT;
-const TILE_STEP_X = 24;
-const TILE_STEP_Y = 12;
+const TILE_STEP_X = 36;
+const TILE_STEP_Y = 18;
+const CHUNK_OFFSET_Y = TILE_STEP_Y * 2;
 const BOARD_LEFT_PADDING = 64;
 const BOARD_TOP_PADDING = 80;
 const MIN_MAP_ZOOM = 0.12;
-const MAX_MAP_ZOOM = 1.6;
-const ZOOM_STEP = 0.15;
+const MAX_MAP_ZOOM = 3.4;
+const ZOOM_STEP = 0.2;
 const CORRECT_BACKLOG_ORDER = ['s1', 's6', 's2', 's4', 's3', 's5'];
 const START_BACKLOG_ORDER = ['s3', 's1', 's5', 's2', 's6', 's4'];
+const DEFAULT_FURNITURE_SCALE_MULTIPLIER = 1;
+const MIN_FURNITURE_SCALE_MULTIPLIER = 0.5;
+const MAX_FURNITURE_SCALE_MULTIPLIER = 2;
+const FURNITURE_SCALE_STEP = 0.05;
+const DEFAULT_FURNITURE_OFFSET_AXIS = 0;
+const MIN_FURNITURE_OFFSET_AXIS = -0.5;
+const MAX_FURNITURE_OFFSET_AXIS = 0.5;
+const FURNITURE_OFFSET_STEP = 0.05;
+const FURNITURE_ANCHOR_BIAS = {
+  north: { x: 0, y: -0.18 },
+  south: { x: 0, y: 0.08 },
+  west: { x: -0.3, y: -0.04 },
+  east: { x: 0.3, y: -0.04 },
+  nw: { x: -0.3, y: -0.18 },
+  ne: { x: 0.3, y: -0.18 },
+  sw: { x: -0.3, y: 0.08 },
+  se: { x: 0.3, y: 0.08 }
+};
+
+const FURNI_RENDER_CONFIG = {
+  desk: {
+    fit: 'width',
+    target: TILE_STEP_X * 2.85,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 1,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  woodDesk: {
+    fit: 'width',
+    target: TILE_STEP_X * 2.85,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 1,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  table: { fit: 'width', target: TILE_STEP_X * 2.22, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  coffeeTable: { fit: 'width', target: TILE_STEP_X * 1.86, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  officeChair: { fit: 'height', target: TILE_STEP_Y * 3.7, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  officeChairBack: { fit: 'height', target: TILE_STEP_Y * 3.7, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  chair: { fit: 'height', target: TILE_STEP_Y * 2.9, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  monitor: {
+    fit: 'width',
+    target: TILE_STEP_X * 0.84,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 0.98,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  imac: {
+    fit: 'width',
+    target: TILE_STEP_X * 0.9,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 0.98,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  laptop: {
+    fit: 'width',
+    target: TILE_STEP_X * 0.78,
+    groundOffset: TILE_STEP_Y * 0.74,
+    originY: 0.98,
+    baseOffsetX: TILE_STEP_X * 0.5,
+    baseOffsetY: TILE_STEP_Y * 0.5,
+    mirrorOffsetX: true
+  },
+  plant: { fit: 'height', target: TILE_STEP_Y * 1.95, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  plantTall: { fit: 'height', target: TILE_STEP_Y * 2.45, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  lamp: { fit: 'height', target: TILE_STEP_Y * 3.05, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  shelf: { fit: 'height', target: TILE_STEP_Y * 4.15, groundOffset: TILE_STEP_Y * 0.74, originY: 1 },
+  books: { fit: 'width', target: TILE_STEP_X * 0.58, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
+  sofa: { fit: 'width', target: TILE_STEP_X * 2.1, groundOffset: TILE_STEP_Y * 0.76, originY: 1 },
+  rug: { fit: 'width', target: TILE_STEP_X * 2.8, groundOffset: TILE_STEP_Y * 0.76, originY: 1 },
+  sampleFootprint1x1: { fit: 'width', target: TILE_STEP_X * 2, groundOffset: TILE_STEP_Y, originY: 37 / 38 },
+  sampleFootprint2x1: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprint2x1Vertical: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprintLCorner: { fit: 'width', target: TILE_STEP_X * 4, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprintLCorner90: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 73 / 74 },
+  sampleFootprintLCorner180: { fit: 'width', target: TILE_STEP_X * 4, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprintLCorner270: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 73 / 74 }
+};
 
 const sprites = {
   tileVoid: tileVoidSprite,
@@ -90,10 +300,249 @@ const sprites = {
   wallPanel: wallPanelSprite
 };
 
+// A room (subcell) is ROOM_SIZE x ROOM_SIZE normal cells.
+const ROOM_SIZE = 4;
+
+// The three office building types (mirror of the server). Each ties to a
+// resource, has a FIXED rotatable shape (in ROOM offsets) and a theme. Buyable
+// repeatedly to expand the office. Image colours: budget=black, team=blue,
+// quality=green.
+const BUILDING_TYPES = [
+  {
+    id: 'budget', name: 'Budget Office', resource: 'budget', cost: 55, shapeLabel: 'L-corner',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
+    resourceEffect: { budget: 20, team: -2, quality: 0 },
+    meaning: 'Finance wing that protects and grows the project budget.',
+    theme: { floor: 0x2c2f3b, top: 0xe5bd57, left: 0x24262f, right: 0x3a3d49, label: 'BUDGET' }
+  },
+  {
+    id: 'team', name: 'Team Office', resource: 'team', cost: 80, shapeLabel: 'L',
+    shape: [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }, { x: 1, y: 2 }],
+    resourceEffect: { budget: -4, team: 22, quality: 2 },
+    meaning: 'Collaboration space that keeps the team healthy and fast.',
+    theme: { floor: 0x2f3c57, top: 0x7fb5e6, left: 0x2a3450, right: 0x41557d, label: 'TEAM' }
+  },
+  {
+    id: 'quality', name: 'Quality Office', resource: 'quality', cost: 45, shapeLabel: 'bar',
+    shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+    resourceEffect: { budget: 0, team: 2, quality: 18 },
+    meaning: 'Dev/QA lab that turns effort into protected quality.',
+    theme: { floor: 0x2c4636, top: 0x6fe0a8, left: 0x224031, right: 0x356048, label: 'QUALITY' }
+  }
+];
+const BUILDING_TYPES_BY_ID = Object.fromEntries(BUILDING_TYPES.map(b => [b.id, b]));
+const BUILDING_SHAPES = Object.fromEntries(BUILDING_TYPES.map(b => [b.id, b.shape]));
+
+// Isometric building theme per building TYPE (keyed by typeId).
+const DEPARTMENT_THEME = {
+  budget: BUILDING_TYPES_BY_ID.budget.theme,
+  team: BUILDING_TYPES_BY_ID.team.theme,
+  quality: BUILDING_TYPES_BY_ID.quality.theme,
+  default: { floor: 0x3a3f4d, top: 0x9fc0ec, left: 0x3a4a63, right: 0x4f607f, label: 'OFFICE' }
+};
+
+// Furniture sprite keys usable inside office chunks (matches server palette).
+const OFFICE_FURNITURE_SPRITES = {
+  table: tableSprite,
+  laptopDesk: laptopDeskSprite,
+  officeChair: officeChairSprite,
+  labTable: labTableSprite,
+  coffeeMachine: coffeeMachineSprite,
+  coffeeTable: coffeeTableSprite,
+  sofa: sofaSprite,
+  plant: plantSprite,
+  floorLamp: floorLampSprite
+};
+
+function rotateOffsets(cells, rotation) {
+  const r = normalizeRotation(rotation);
+  const rotated = cells.map(cell => {
+    let x = Number(cell.x);
+    let y = Number(cell.y);
+    if (r === 90) [x, y] = [y, -x];
+    if (r === 180) [x, y] = [-x, -y];
+    if (r === 270) [x, y] = [-y, x];
+    return { x, y };
+  });
+  const minX = Math.min(...rotated.map(cell => cell.x));
+  const minY = Math.min(...rotated.map(cell => cell.y));
+  return rotated.map(cell => ({ x: cell.x - minX, y: cell.y - minY }));
+}
+
+function isPlacementMode() {
+  if (game.placement.kind === 'sample') return Boolean(game.placement.sampleId);
+  return Boolean(game.placement.departmentId);
+}
+
+function placementSample() {
+  return FOOTPRINT_SAMPLES_BY_ID[game.placement.sampleId] || null;
+}
+
+function sampleSpriteIdForRotation(sample, rotation = 0) {
+  if (!sample) return '';
+  const normalized = normalizeRotation(rotation);
+  if (sample.spriteIdsByRotation) {
+    return sample.spriteIdsByRotation[normalized] || sample.spriteIdsByRotation[0] || '';
+  }
+  return sample.spriteId || '';
+}
+
+function activePlacementShape() {
+  if (game.placement.kind === 'sample') {
+    return placementSample()?.shape || [{ x: 0, y: 0 }];
+  }
+  return BUILDING_SHAPES[game.placement.departmentId] || [{ x: 0, y: 0 }];
+}
+
+function placementType() {
+  if (game.placement.kind === 'sample') return null;
+  return BUILDING_TYPES_BY_ID[game.placement.departmentId] || null;
+}
+
+function placementChunkCount() {
+  return activePlacementShape().length;
+}
+
+function placementCost() {
+  return placementType()?.cost || 0;
+}
+
 const spriteKeyByUrl = new Map(Object.entries(sprites).map(([key, value]) => [value, key]));
 
 function spriteKeyForUrl(url) {
   return spriteKeyByUrl.get(url) || 'tileVoid';
+}
+
+function clampFurnitureScaleMultiplier(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return DEFAULT_FURNITURE_SCALE_MULTIPLIER;
+  return Math.max(MIN_FURNITURE_SCALE_MULTIPLIER, Math.min(MAX_FURNITURE_SCALE_MULTIPLIER, parsed));
+}
+
+function loadFurnitureScaleMultiplier() {
+  try {
+    return clampFurnitureScaleMultiplier(localStorage.getItem(FURNITURE_SCALE_STORAGE_KEY));
+  } catch {
+    return DEFAULT_FURNITURE_SCALE_MULTIPLIER;
+  }
+}
+
+function saveFurnitureScaleMultiplier(value) {
+  try {
+    localStorage.setItem(FURNITURE_SCALE_STORAGE_KEY, String(value));
+  } catch {
+    // Ignore storage failures; live tuning still works for this session.
+  }
+}
+
+function clampFurnitureOffsetAxis(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return DEFAULT_FURNITURE_OFFSET_AXIS;
+  return Math.max(MIN_FURNITURE_OFFSET_AXIS, Math.min(MAX_FURNITURE_OFFSET_AXIS, parsed));
+}
+
+function loadFurnitureOffsetAxis(axis) {
+  try {
+    const next = localStorage.getItem(FURNITURE_OFFSET_STORAGE_KEYS[axis]);
+    if (next !== null) return clampFurnitureOffsetAxis(next);
+    if (axis === 'x' || axis === 'y') {
+      return clampFurnitureOffsetAxis(localStorage.getItem(LEGACY_FURNITURE_OFFSET_STORAGE_KEY));
+    }
+    return DEFAULT_FURNITURE_OFFSET_AXIS;
+  } catch {
+    return DEFAULT_FURNITURE_OFFSET_AXIS;
+  }
+}
+
+function saveFurnitureOffsetAxis(axis, value) {
+  try {
+    localStorage.setItem(FURNITURE_OFFSET_STORAGE_KEYS[axis], String(value));
+  } catch {
+    // Ignore storage failures; live tuning still works for this session.
+  }
+}
+
+function furnitureScaleLabel(value = game.furnitureScaleMultiplier) {
+  return `${clampFurnitureScaleMultiplier(value).toFixed(2)}x`;
+}
+
+function furnitureOffsetAxisLabel(axis, value = game.furnitureOffsetAxes[axis]) {
+  const next = clampFurnitureOffsetAxis(value);
+  return `${next >= 0 ? '+' : ''}${next.toFixed(2)}`;
+}
+
+function furnitureAnchorBias(anchor) {
+  return FURNITURE_ANCHOR_BIAS[String(anchor || '').toLowerCase()] || { x: 0, y: 0 };
+}
+
+function furnitureRenderMetrics(spriteId, sourceImage) {
+  const cfg = FURNI_RENDER_CONFIG[spriteId] || {};
+  let scale;
+  if (cfg.fit === 'width') {
+    scale = (cfg.target || TILE_STEP_X * 1.6) / Math.max(1, sourceImage.width);
+  } else if (cfg.fit === 'height') {
+    scale = (cfg.target || TILE_STEP_Y * 3.4) / Math.max(1, sourceImage.height);
+  } else {
+    scale = Math.min(0.95, (TILE_STEP_X * 1.7) / Math.max(sourceImage.width, sourceImage.height));
+  }
+  return {
+    scale: scale * clampFurnitureScaleMultiplier(game.furnitureScaleMultiplier),
+    groundOffset: cfg.groundOffset ?? TILE_STEP_Y * 0.68,
+    originY: cfg.originY ?? 0.98,
+    baseOffsetX: cfg.baseOffsetX ?? 0,
+    baseOffsetY: cfg.baseOffsetY ?? 0,
+    mirrorOffsetX: Boolean(cfg.mirrorOffsetX)
+  };
+}
+
+function furnitureSpriteTransform({
+  spriteId,
+  sourceImage,
+  baseX,
+  baseY,
+  flipX = false,
+  offsetX = 0,
+  offsetY = 0,
+  lift = 0,
+  anchor = '',
+  depth = 1000
+}) {
+  const metrics = furnitureRenderMetrics(spriteId, sourceImage);
+  const offsetAxes = game.furnitureOffsetAxes;
+  const anchorBias = furnitureAnchorBias(anchor);
+  const totalLift = (Number(lift || 0) + clampFurnitureOffsetAxis(offsetAxes.z)) * TILE_STEP_Y;
+  const resolvedBaseOffsetX = metrics.mirrorOffsetX && Boolean(flipX)
+    ? -metrics.baseOffsetX
+    : metrics.baseOffsetX;
+  const resolvedOffsetX = resolvedBaseOffsetX
+    + anchorBias.x * TILE_STEP_X
+    + clampFurnitureOffsetAxis(offsetAxes.x) * TILE_STEP_X
+    + Number(offsetX || 0) * TILE_STEP_X;
+  const resolvedOffsetY = metrics.baseOffsetY
+    + anchorBias.y * TILE_STEP_Y
+    + clampFurnitureOffsetAxis(offsetAxes.y) * TILE_STEP_Y
+    + Number(offsetY || 0) * TILE_STEP_Y;
+  return {
+    metrics,
+    x: Number(baseX) + resolvedOffsetX,
+    y: Number(baseY) + metrics.groundOffset + resolvedOffsetY - totalLift,
+    depth: Number(depth) + (totalLift > 0 ? 2 : 0),
+    flipX: Boolean(flipX)
+  };
+}
+
+function placementSpriteAnchor(world, cells) {
+  if (!cells?.length) return null;
+  const centers = cells.map(cell => tileCenter(world, Number(cell.x), Number(cell.y)));
+  const minX = Math.min(...centers.map(center => center.x));
+  const maxX = Math.max(...centers.map(center => center.x));
+  const maxY = Math.max(...centers.map(center => center.y));
+  const maxDepth = Math.max(...cells.map(cell => Number(cell.x) + Number(cell.y)));
+  return {
+    x: (minX + maxX) / 2,
+    y: maxY,
+    depth: 1000 + maxDepth * 4 + 1
+  };
 }
 
 const SAMPLE_OFFICE = {
@@ -128,49 +577,55 @@ const SAMPLE_OFFICE = {
   ]
 };
 
+function pickVariant(variants) {
+  return variants[Math.floor(Math.random() * variants.length)];
+}
+
 const backlogItems = [
-  { id: 's1', text: 'Class ID login before saving a report', note: 'Persistence and privacy gate' },
-  { id: 's2', text: 'Portal Room opens after balanced resources', note: 'Core win condition' },
-  { id: 's3', text: 'Animated desk plant skins', note: 'Cosmetic polish' },
-  { id: 's4', text: 'Final reflection export for facilitator review', note: 'Assessment artifact' },
-  { id: 's5', text: 'Optional neon nameplates for departments', note: 'Cosmetic polish' },
-  { id: 's6', text: 'Pause state keeps the office visible', note: 'Classroom facilitation' }
+  { id: 's1', ...pickVariant([{ text: 'Class ID login before saving a report', note: 'Persistence and privacy gate' }, { text: 'Secure sign-in wall for progress saves', note: 'Data ownership checkpoint' }]) },
+  { id: 's2', ...pickVariant([{ text: 'Portal Room opens after balanced resources', note: 'Core win condition' }, { text: 'Victory gate unlocks when metrics align', note: 'Primary completion trigger' }]) },
+  { id: 's3', ...pickVariant([{ text: 'Animated desk plant skins', note: 'Cosmetic polish' }, { text: 'Seasonal wallpaper pack for lobbies', note: 'Visual flair upgrade' }]) },
+  { id: 's4', ...pickVariant([{ text: 'Final reflection export for facilitator review', note: 'Assessment artifact' }, { text: 'Post-game summary sheet for instructor grading', note: 'Learning evidence output' }]) },
+  { id: 's5', ...pickVariant([{ text: 'Optional neon nameplates for departments', note: 'Cosmetic polish' }, { text: 'Glow-effect title banners per office wing', note: 'Decorative enhancement' }]) },
+  { id: 's6', ...pickVariant([{ text: 'Pause state keeps the office visible', note: 'Classroom facilitation' }, { text: 'Freeze mode preserves the live office view', note: 'Instructor pacing tool' }]) }
 ];
 
 const bugCards = [
-  { id: 'b1', title: 'Report export deletes the latest choice', severity: 'serious' },
-  { id: 'b2', title: 'Budget text wraps on one laptop size', severity: 'minor' },
-  { id: 'b3', title: 'Portal opens with Quality below 50', severity: 'serious' },
-  { id: 'b4', title: 'Department hover color feels too quiet', severity: 'minor' },
-  { id: 'b5', title: 'Paused students can still buy upgrades', severity: 'serious' },
-  { id: 'b6', title: 'Reflection prompt has a typo', severity: 'minor' }
+  { id: 'b1', severity: 'serious', ...pickVariant([{ title: 'Report export deletes the latest choice' }, { title: 'Download report overwrites the newest decision' }]) },
+  { id: 'b2', severity: 'minor', ...pickVariant([{ title: 'Budget text wraps on one laptop size' }, { title: 'Financial display clips on narrow screens' }]) },
+  { id: 'b3', severity: 'serious', ...pickVariant([{ title: 'Portal opens with Quality below 50' }, { title: 'Escape gate activates despite failing quality score' }]) },
+  { id: 'b4', severity: 'minor', ...pickVariant([{ title: 'Department hover color feels too quiet' }, { title: 'Office wing highlight contrast is barely visible' }]) },
+  { id: 'b5', severity: 'serious', ...pickVariant([{ title: 'Paused students can still buy upgrades' }, { title: 'Frozen sessions still allow shop purchases' }]) },
+  { id: 'b6', severity: 'minor', ...pickVariant([{ title: 'Reflection prompt has a typo' }, { title: 'Summary question contains a spelling mistake' }]) }
+];
+
+const riskCards = [
+  { id: 'r1', severity: 'serious', ...pickVariant([{ title: 'Vendor contract expires before sprint 4', note: 'External dependency' }, { title: 'Supplier agreement lapses mid-iteration', note: 'Third-party timeline gap' }]) },
+  { id: 'r2', severity: 'minor', ...pickVariant([{ title: 'Office posters are off-brand', note: 'Cosmetic issue' }, { title: 'Lobby signage uses outdated colour palette', note: 'Brand consistency note' }]) },
+  { id: 'r3', severity: 'serious', ...pickVariant([{ title: 'Single tester is covering every release gate', note: 'Capacity bottleneck' }, { title: 'One QA engineer owns all go/no-go checkpoints', note: 'Staffing single-point-of-failure' }]) },
+  { id: 'r4', severity: 'minor', ...pickVariant([{ title: 'Coffee machine uses the old logo', note: 'Low-impact nuisance' }, { title: 'Break room appliance still shows legacy branding', note: 'Minor visual mismatch' }]) },
+  { id: 'r5', severity: 'serious', ...pickVariant([{ title: 'Key stakeholder decisions arrive after planning closes', note: 'Schedule risk' }, { title: 'Executive approvals land after the sprint window shuts', note: 'Late-authority bottleneck' }]) },
+  { id: 'r6', severity: 'minor', ...pickVariant([{ title: 'Break room lamp flickers in one corner', note: 'Annoying but contained' }, { title: 'Utility light in the lounge pulses intermittently', note: 'Isolated facility glitch' }]) }
 ];
 
 const budgetChoices = [
-  {
-    id: 'budget_patch',
-    title: 'Stabilize procurement',
-    text: 'Protect Budget while accepting a small Team cost.',
-    delta: { budget: 15, team: -4, quality: 0 }
-  },
-  {
-    id: 'team_sync',
-    title: 'Protect the team',
-    text: 'Recover Team confidence with a controlled budget spend.',
-    delta: { budget: -6, team: 14, quality: 2 }
-  },
-  {
-    id: 'quality_gate',
-    title: 'Fund quality gates',
-    text: 'Spend Budget now to prevent weaker releases later.',
-    delta: { budget: -8, team: 0, quality: 16 }
-  }
+  { id: 'budget_patch', delta: { budget: 15, team: -4, quality: 0 }, ...pickVariant([{ title: 'Stabilize procurement', text: 'Protect Budget while accepting a small Team cost.' }, { title: 'Lock down the supply chain', text: 'Secure funding pipelines at the expense of short-term morale.' }]) },
+  { id: 'team_sync', delta: { budget: -6, team: 14, quality: 2 }, ...pickVariant([{ title: 'Protect the team', text: 'Recover Team confidence with a controlled budget spend.' }, { title: 'Invest in crew resilience', text: 'Boost staff trust by diverting a measured slice of the budget.' }]) },
+  { id: 'quality_gate', delta: { budget: -8, team: 0, quality: 16 }, ...pickVariant([{ title: 'Fund quality gates', text: 'Spend Budget now to prevent weaker releases later.' }, { title: 'Pre-pay for release safeguards', text: 'Front-load testing costs to avoid costly post-launch patches.' }]) }
+];
+
+const stakeholderChoices = [
+  { id: 'reply_with_decision', ...pickVariant([{ title: 'Request a decision with context', text: 'Share the blocker, the mitigation path, and the one decision you need today.', note: 'Best practice' }, { title: 'Present the trade-off and ask for a ruling', text: 'Lay out the obstacle, two possible remedies, and the single call the sponsor must make now.', note: 'Transparency win' }]) },
+  { id: 'promise_later', ...pickVariant([{ title: 'Promise an update later', text: 'Avoid the hard conversation now and hope the next sprint goes better.', note: 'Delays alignment' }, { title: 'Defer the hard talk to the next cycle', text: 'Sidestep the confrontation today and bet that the following iteration resolves itself.', note: 'Postpones clarity' }]) },
+  { id: 'send_metrics_only', ...pickVariant([{ title: 'Send metrics only', text: 'Reply with charts but no recommendation or ask.', note: 'Leaves the stakeholder guessing' }, { title: 'Broadcast raw dashboards without commentary', text: 'Forward the numbers with zero interpretation or proposed next steps.', note: 'Forces the sponsor to decode alone' }]) }
 ];
 
 const minigames = [
   { id: 'scope_fog', title: 'Scope Fog', sourceId: 'SC-01' },
   { id: 'bug_rain', title: 'Bug Rain', sourceId: 'SC-02' },
-  { id: 'budget_rift', title: 'Budget Rift', sourceId: 'SC-03' }
+  { id: 'budget_rift', title: 'Budget Rift', sourceId: 'SC-03' },
+  { id: 'risk_vault', title: 'Risk Vault', sourceId: 'SC-04' },
+  { id: 'stakeholder_booth', title: 'Stakeholder Booth', sourceId: 'SC-05' }
 ];
 
 const game = {
@@ -187,16 +642,329 @@ const game = {
   minigameState: {},
   backlogOrder: [...START_BACKLOG_ORDER],
   draggedBacklogId: '',
-  placement: { departmentId: '', rotation: 0, previewAnchor: null },
+  placement: {
+    kind: '',
+    departmentId: '',
+    sampleId: '',
+    presetId: '',
+    rotation: 0,
+    previewAnchor: null
+  },
+  samplePlacements: [],
   fullscreen: {
     zoom: 1,
     hoverCell: null,
     hasAutoSnapped: false
   },
+  furnitureScaleMultiplier: loadFurnitureScaleMultiplier(),
+  furnitureOffsetAxes: {
+    x: loadFurnitureOffsetAxis('x'),
+    y: loadFurnitureOffsetAxis('y'),
+    z: loadFurnitureOffsetAxis('z')
+  },
+  voidOfficeDebugEnabled: false,
   debugOpen: false,
   showCorrectAnswers: false,
-  showTutorial: false
+  showTutorial: false,
+  builder: loadBuilderState()
 };
+
+function defaultBuilderState() {
+  return {
+    selectedTypeId: 'budget',
+    rotation: 0,
+    furniture: [],
+    selectedFurnitureIdx: -1,
+    selectedSpriteId: 'desk',
+    mode: 'place',
+    exportText: ''
+  };
+}
+
+function loadBuilderState() {
+  try {
+    const raw = localStorage.getItem(BUILDER_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { ...defaultBuilderState(), ...parsed, selectedFurnitureIdx: -1, exportText: '' };
+    }
+  } catch { /* ignore */ }
+  return defaultBuilderState();
+}
+
+function saveBuilderState() {
+  try {
+    const { selectedFurnitureIdx, exportText, ...persist } = game.builder;
+    localStorage.setItem(BUILDER_STORAGE_KEY, JSON.stringify(persist));
+  } catch { /* ignore */ }
+}
+
+function isBuilderRoute() {
+  return window.location.pathname === BUILDER_PATH;
+}
+
+// --- Ported server furniture generation (mirrors game_rules.py) ---
+
+const BUILDER_ROOM_SIZE = 4;
+const BUILDER_FURNITURE_LAYOUT_VERSION = 4;
+const BUILDER_DESK_SURFACE = 'desk';
+const BUILDER_COMPUTER_LIFT = 1.65;
+const BUILDER_COMPUTER_OFFSET_X = -0.18;
+const BUILDER_COMPUTER_OFFSET_Y = -0.24;
+const BUILDER_WORKSTATION_CHAIR = 'officeChair';
+const BUILDER_WORKSTATION_CHAIR_OFFSET_X = 0.2;
+const BUILDER_WORKSTATION_CHAIR_OFFSET_Y = -0.16;
+const BUILDER_MEETING_CHAIR = 'chair';
+const BUILDER_MEETING_CHAIR_OFFSET_X = 0.14;
+const BUILDER_MEETING_CHAIR_OFFSET_Y = -0.12;
+
+const BUILDER_COMPUTER_CHOICES = {
+  budget: ['monitor', 'imac', 'monitor'],
+  team: ['laptop', 'monitor', 'laptop'],
+  quality: ['laptop', 'monitor', 'imac'],
+  spawn: ['monitor', 'laptop', 'imac']
+};
+
+function builderRoomPiece(x, y, spriteId, opts = {}) {
+  const piece = { x, y, spriteId, mirrorSprite: Boolean(opts.mirrorSprite) };
+  if (opts.lift) piece.lift = opts.lift;
+  if (opts.offsetX) piece.offsetX = opts.offsetX;
+  if (opts.offsetY) piece.offsetY = opts.offsetY;
+  if (opts.anchor) piece.anchor = opts.anchor;
+  return piece;
+}
+
+function builderMirrorAnchor(anchor) {
+  return { nw: 'ne', ne: 'nw', sw: 'se', se: 'sw', west: 'east', east: 'west' }[anchor] || anchor;
+}
+
+function builderMirrorRoomPieces(pieces) {
+  return pieces.map(piece => {
+    const item = { ...piece };
+    item.x = (BUILDER_ROOM_SIZE - 1) - item.x;
+    if (item.offsetX) item.offsetX = -item.offsetX;
+    if (item.anchor) item.anchor = builderMirrorAnchor(item.anchor);
+    if (item.mirrorSprite) {
+      delete item.mirrorSprite;
+      item.flipX = !item.flipX;
+    }
+    return item;
+  });
+}
+
+function builderSeededRandom(seed) {
+  // Simple seeded pseudo-random (xorshift32-like).
+  let s = 0;
+  for (let i = 0; i < seed.length; i++) s = ((s << 5) - s + seed.charCodeAt(i)) | 0;
+  return function() {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+    return ((s >>> 0) % 1000) / 1000;
+  };
+}
+
+function builderPickRandom(rng, arr) {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+function builderWorkstationLayout(rng, typeId, mirrored) {
+  const computer = builderPickRandom(rng, BUILDER_COMPUTER_CHOICES[typeId] || BUILDER_COMPUTER_CHOICES.spawn);
+  const pieces = [
+    builderRoomPiece(2, 1, BUILDER_DESK_SURFACE, { mirrorSprite: true }),
+    builderRoomPiece(2, 1, computer, { lift: BUILDER_COMPUTER_LIFT, offsetX: BUILDER_COMPUTER_OFFSET_X, offsetY: BUILDER_COMPUTER_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(1, 2, BUILDER_WORKSTATION_CHAIR, { offsetX: BUILDER_WORKSTATION_CHAIR_OFFSET_X, offsetY: BUILDER_WORKSTATION_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'plantTall', { offsetY: -0.08, anchor: 'nw' }),
+    builderRoomPiece(3, 1, 'books', { offsetY: -0.06, anchor: 'east' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderLabLayout(rng, typeId, mirrored) {
+  const computer = builderPickRandom(rng, BUILDER_COMPUTER_CHOICES[typeId] || BUILDER_COMPUTER_CHOICES.spawn);
+  const pieces = [
+    builderRoomPiece(2, 1, BUILDER_DESK_SURFACE, { mirrorSprite: true }),
+    builderRoomPiece(2, 1, computer, { lift: BUILDER_COMPUTER_LIFT, offsetX: BUILDER_COMPUTER_OFFSET_X, offsetY: BUILDER_COMPUTER_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(1, 2, BUILDER_WORKSTATION_CHAIR, { offsetX: BUILDER_WORKSTATION_CHAIR_OFFSET_X, offsetY: BUILDER_WORKSTATION_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'shelf', { anchor: 'nw', mirrorSprite: true }),
+    builderRoomPiece(0, 1, 'books', { offsetX: 0.06, offsetY: -0.06, anchor: 'west' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderArchiveLayout(mirrored) {
+  const pieces = [
+    builderRoomPiece(1, 0, 'shelf', { anchor: 'north', mirrorSprite: true }),
+    builderRoomPiece(2, 1, 'books', { offsetY: -0.06, anchor: 'east' }),
+    builderRoomPiece(0, 2, 'lamp', { offsetY: -0.08, anchor: 'sw' }),
+    builderRoomPiece(3, 2, 'plant', { offsetY: -0.06, anchor: 'se' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderMeetingLayout(mirrored) {
+  const pieces = [
+    builderRoomPiece(2, 1, 'table', { mirrorSprite: true }),
+    builderRoomPiece(1, 2, BUILDER_MEETING_CHAIR, { offsetX: BUILDER_MEETING_CHAIR_OFFSET_X, offsetY: BUILDER_MEETING_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(3, 2, BUILDER_MEETING_CHAIR, { offsetX: -BUILDER_MEETING_CHAIR_OFFSET_X, offsetY: BUILDER_MEETING_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'plant', { offsetY: -0.06, anchor: 'nw' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderLoungeLayout(mirrored) {
+  const pieces = [
+    builderRoomPiece(2, 1, 'sofa', { mirrorSprite: true }),
+    builderRoomPiece(1, 2, 'coffeeTable', { mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'plantTall', { offsetY: -0.08, anchor: 'nw' }),
+    builderRoomPiece(3, 1, 'lamp', { offsetY: -0.08, anchor: 'east' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderRoomProgram(typeId, roomIndex) {
+  const programs = {
+    budget: ['workstation', 'archive', 'meeting'],
+    team: ['lounge', 'workstation', 'meeting', 'lounge'],
+    quality: ['lab', 'lab'],
+    spawn: ['workstation']
+  };
+  const list = programs[typeId] || ['workstation'];
+  return list[roomIndex % list.length];
+}
+
+function builderRoomShouldMirror(rotation, roomIndex) {
+  const norm = normalizeRotation(rotation);
+  const startMirrored = norm === 90 || norm === 270;
+  return Boolean((roomIndex + (startMirrored ? 1 : 0)) % 2);
+}
+
+function builderLayoutForProgram(program, rng, typeId, mirrored) {
+  if (program === 'archive') return builderArchiveLayout(mirrored);
+  if (program === 'meeting') return builderMeetingLayout(mirrored);
+  if (program === 'lounge') return builderLoungeLayout(mirrored);
+  if (program === 'lab') return builderLabLayout(rng, typeId, mirrored);
+  return builderWorkstationLayout(rng, typeId, mirrored);
+}
+
+function builderGenerateFurniture(roomBases, rng, typeId, rotation) {
+  const items = [];
+  roomBases.forEach((base, roomIndex) => {
+    const [bx, by] = base;
+    const program = builderRoomProgram(typeId, roomIndex);
+    const mirrored = builderRoomShouldMirror(rotation, roomIndex);
+    const layout = builderLayoutForProgram(program, rng, typeId, mirrored);
+    layout.forEach(piece => {
+      const cx = bx + piece.x;
+      const cy = by + piece.y;
+      const item = {
+        id: `furni-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        spriteId: piece.spriteId,
+        cell: { x: cx, y: cy },
+        offsetX: piece.offsetX || 0,
+        offsetY: piece.offsetY || 0,
+        lift: piece.lift || 0,
+        anchor: piece.anchor || '',
+        flipX: Boolean(piece.flipX)
+      };
+      items.push(item);
+    });
+  });
+  return items;
+}
+
+function builderOccupiedCells(typeId, anchorCell, rotation) {
+  const shape = BUILDING_SHAPES[typeId] || [{ x: 0, y: 0 }];
+  const rotated = rotateOffsets(shape, rotation);
+  const ax = anchorCell.x;
+  const ay = anchorCell.y;
+  const cells = [];
+  rotated.forEach(room => {
+    const baseX = ax + room.x * BUILDER_ROOM_SIZE;
+    const baseY = ay + room.y * BUILDER_ROOM_SIZE;
+    for (let dy = 0; dy < BUILDER_ROOM_SIZE; dy++) {
+      for (let dx = 0; dx < BUILDER_ROOM_SIZE; dx++) {
+        cells.push({ x: baseX + dx, y: baseY + dy });
+      }
+    }
+  });
+  return cells;
+}
+
+function builderRoomBases(typeId, anchorCell, rotation) {
+  const shape = BUILDING_SHAPES[typeId] || [{ x: 0, y: 0 }];
+  const rotated = rotateOffsets(shape, rotation);
+  const ax = anchorCell.x;
+  const ay = anchorCell.y;
+  return rotated.map(room => [ax + room.x * BUILDER_ROOM_SIZE, ay + room.y * BUILDER_ROOM_SIZE]);
+}
+
+function builderPerimeterWalls(occupiedCells) {
+  const occupied = new Set(occupiedCells.map(c => coordKey(c.x, c.y)));
+  const walls = [];
+  occupiedCells.forEach(cell => {
+    if (!occupied.has(coordKey(cell.x, cell.y - 1))) {
+      walls.push({ cell: { x: cell.x, y: cell.y }, edge: 'north' });
+    }
+    if (!occupied.has(coordKey(cell.x - 1, cell.y))) {
+      walls.push({ cell: { x: cell.x, y: cell.y }, edge: 'west' });
+    }
+  });
+  return walls;
+}
+
+function builderAutoFillFurniture() {
+  const b = game.builder;
+  const anchor = { x: 2, y: 2 };
+  const rotation = normalizeRotation(b.rotation);
+  const bases = builderRoomBases(b.selectedTypeId, anchor, rotation);
+  const seed = `builder:${b.selectedTypeId}:${rotation}`;
+  const rng = builderSeededRandom(seed);
+  return builderGenerateFurniture(bases, rng, b.selectedTypeId, rotation);
+}
+
+function builderCreatePlacement() {
+  const b = game.builder;
+  const anchor = { x: 2, y: 2 };
+  const rotation = normalizeRotation(b.rotation);
+  const cells = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+  const walls = builderPerimeterWalls(cells);
+  return { typeId: b.selectedTypeId, rotation, anchorCell: anchor, occupiedCells: cells, furniture: b.furniture, walls, subcellsPerCell: SUBCELLS_PER_CELL, furnitureVersion: BUILDER_FURNITURE_LAYOUT_VERSION };
+}
+
+let voidOfficeDebugFlagValue = false;
+
+function isVoidOfficeDebugEnabled() {
+  return game.voidOfficeDebugEnabled;
+}
+
+function setVoidOfficeDebugEnabled(value) {
+  const next = value === true;
+  voidOfficeDebugFlagValue = next;
+  if (game.voidOfficeDebugEnabled === next) return;
+  game.voidOfficeDebugEnabled = next;
+  if (!next && game.placement.kind === 'sample') clearPlacement();
+  render();
+}
+
+function installVoidOfficeDebugFlag() {
+  const existing = globalThis[VOID_OFFICE_DEBUG_FLAG];
+  voidOfficeDebugFlagValue = existing === true;
+  game.voidOfficeDebugEnabled = voidOfficeDebugFlagValue;
+  try {
+    Object.defineProperty(globalThis, VOID_OFFICE_DEBUG_FLAG, {
+      configurable: true,
+      enumerable: true,
+      get() {
+        return voidOfficeDebugFlagValue;
+      },
+      set(value) {
+        setVoidOfficeDebugEnabled(value);
+      }
+    });
+  } catch {
+    // If the global cannot be redefined, fall back to reading its current value.
+    game.voidOfficeDebugEnabled = globalThis[VOID_OFFICE_DEBUG_FLAG] === true;
+  }
+}
 
 const MAX_PLAYS_PER_MINIGAME = 2;
 
@@ -230,7 +998,9 @@ async function boot() {
     }
   } catch (error) {
     game.screen = 'start';
-    game.error = `API unavailable: ${error.message}`;
+    if (!isBuilderRoute()) {
+      game.error = `API unavailable: ${error.message}`;
+    }
   }
 
   resetMinigameState();
@@ -246,9 +1016,9 @@ function activeScenario() {
 }
 
 function resetMinigameState() {
-  if (game.activeMinigame === 'bug_rain') {
+  if (['bug_rain', 'risk_vault'].includes(game.activeMinigame)) {
     game.minigameState = { selected: [] };
-  } else if (game.activeMinigame === 'budget_rift') {
+  } else if (['budget_rift', 'stakeholder_booth'].includes(game.activeMinigame)) {
     game.minigameState = { choiceId: '' };
   } else {
     game.minigameState = {};
@@ -282,13 +1052,55 @@ function formatDelta(delta = {}) {
   return parts.length ? parts.join(', ') : 'No resource change';
 }
 
+function renderDeltaChips(delta = {}) {
+  const chips = Object.entries(delta)
+    .filter(([, value]) => Number(value) !== 0)
+    .map(([key, value]) => {
+      const sign = value > 0 ? '+' : '';
+      const tone = value > 0 ? 'up' : 'down';
+      return `<span class="delta-chip ${tone}">${resourceLabel(key)} ${sign}${value}</span>`;
+    });
+  return chips.length
+    ? `<span class="delta-chips">${chips.join('')}</span>`
+    : '<span class="delta-chips"><span class="delta-chip flat">No change</span></span>';
+}
+
 function canAct() {
   return game.session && !game.session.paused && !game.session.finalResult;
 }
 
+function formatPlayTime(ms) {
+  const totalSeconds = Math.max(0, Math.floor((ms || 0) / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function currentPlayTimeMs() {
+  const session = game.session;
+  if (!session) return 0;
+  let playTime = session.playTimeMs || 0;
+  if (!session.paused && !session.finalResult && session.lastResumedAt) {
+    const resumed = new Date(session.lastResumedAt).getTime();
+    if (!isNaN(resumed)) {
+      playTime += (Date.now() - resumed);
+    }
+  }
+  return playTime;
+}
+
+setInterval(() => {
+  const el = document.getElementById('live-timer');
+  if (el && game.session) {
+    el.textContent = formatPlayTime(currentPlayTimeMs());
+  }
+}, 1000);
+
 function isFullscreenRoute() {
   return window.location.pathname === FULLSCREEN_PATH;
 }
+
+
 
 function navigateTo(path) {
   if (window.location.pathname !== path) {
@@ -297,6 +1109,9 @@ function navigateTo(path) {
   if (path === FULLSCREEN_PATH) {
     clearPlacement();
     game.fullscreen.hasAutoSnapped = false;
+  }
+  if (path === BUILDER_PATH) {
+    clearPlacement();
   }
   render();
 }
@@ -308,16 +1123,9 @@ function clampZoom(value) {
 }
 
 function sortedDepartments() {
-  const departments = Object.values(game.session?.departments || {});
-  const order = [
-    'scope_desk',
-    'bug_lab',
-    'sprint_floor',
-    'risk_vault',
-    'stakeholder_booth',
-    'portal_room'
-  ];
-  return departments.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  // Placed building instances (and the portal), oldest first.
+  return Object.values(game.session?.departments || {})
+    .sort((a, b) => String(a.builtAt || '').localeCompare(String(b.builtAt || '')));
 }
 
 function worldState() {
@@ -636,13 +1444,27 @@ function rotatedOffsets(department, rotation) {
 }
 
 function placementCells(department, anchor, rotation) {
-  if (!department || !anchor) return [];
-  return rotatedOffsets(department, rotation).map(offset => ({
-    x: Number(anchor.x) + offset.x,
-    y: Number(anchor.y) + offset.y,
-    offsetX: offset.x,
-    offsetY: offset.y
-  }));
+  if ((!department && !placementSample()) || !anchor) return [];
+  if (game.placement.kind === 'sample') {
+    return rotateOffsets(activePlacementShape(), rotation).map(cell => ({
+      x: Number(anchor.x) + Number(cell.x),
+      y: Number(anchor.y) + Number(cell.y),
+      offsetX: Number(cell.x),
+      offsetY: Number(cell.y)
+    }));
+  }
+  // Each preset offset is a ROOM; expand it to the 4x4 block of normal cells.
+  const cells = [];
+  for (const room of rotateOffsets(activePlacementShape(), rotation)) {
+    const bx = Number(anchor.x) + room.x * ROOM_SIZE;
+    const by = Number(anchor.y) + room.y * ROOM_SIZE;
+    for (let dy = 0; dy < ROOM_SIZE; dy += 1) {
+      for (let dx = 0; dx < ROOM_SIZE; dx += 1) {
+        cells.push({ x: bx + dx, y: by + dy, offsetX: room.x * ROOM_SIZE + dx, offsetY: room.y * ROOM_SIZE + dy });
+      }
+    }
+  }
+  return cells;
 }
 
 function cellTouchesBlackholeDanger(x, y) {
@@ -660,14 +1482,34 @@ function pathSet() {
   return new Set(worldState().builtPath || []);
 }
 
+function officeCellKeys() {
+  const world = worldState();
+  const keys = new Set();
+  for (const cell of world.spawnOffice?.cells || []) keys.add(coordKey(Number(cell.x), Number(cell.y)));
+  for (const department of sortedDepartments()) {
+    if (!department.built) continue;
+    for (const cell of department.placement?.occupiedCells || []) {
+      keys.add(coordKey(Number(cell.x), Number(cell.y)));
+    }
+  }
+  return keys;
+}
+
+// Cells you can extend a corridor from: built path plus any office floor.
+function buildableSet() {
+  const set = pathSet();
+  for (const key of officeCellKeys()) set.add(key);
+  return set;
+}
+
 function isAdjacentToPath(x, y) {
-  const path = pathSet();
+  const buildable = buildableSet();
   return [
     coordKey(x + 1, y),
     coordKey(x - 1, y),
     coordKey(x, y + 1),
     coordKey(x, y - 1)
-  ].some(key => path.has(key));
+  ].some(key => buildable.has(key));
 }
 
 function blackholeAt(x, y) {
@@ -693,8 +1535,15 @@ function departmentAnchorAt(x, y) {
 }
 
 function placementModeDepartment() {
-  if (!game.placement.departmentId) return null;
-  return sortedDepartments().find(department => department.id === game.placement.departmentId) || null;
+  // When placing, the "department" is the building TYPE being placed.
+  return placementType();
+}
+
+function samplePlacementOverlaps(cells) {
+  const keys = new Set(cells.map(cell => coordKey(Number(cell.x), Number(cell.y))));
+  return game.samplePlacements.some(placement => (
+    (placement.cells || []).some(cell => keys.has(coordKey(Number(cell.x), Number(cell.y))))
+  ));
 }
 
 function occupiedByOtherDepartment(x, y, departmentId) {
@@ -705,25 +1554,33 @@ function occupiedByOtherDepartment(x, y, departmentId) {
   ));
 }
 
-function cellsTouchPath(cells) {
-  const path = pathSet();
+// A building can expand from the corridor, the spawn office, another building,
+// or a map border — mirrors the server's validate_department_placement.
+function cellsTouchBuildable(cells) {
+  const buildable = buildableSet();
+  const own = new Set(cells.map(c => coordKey(c.x, c.y)));
   return cells.some(cell => [
     coordKey(cell.x + 1, cell.y),
     coordKey(cell.x - 1, cell.y),
     coordKey(cell.x, cell.y + 1),
     coordKey(cell.x, cell.y - 1)
-  ].some(key => path.has(key)));
+  ].some(key => buildable.has(key) && !own.has(key)));
+}
+
+function cellsOnBorder(cells, size) {
+  return cells.some(c => c.x === 0 || c.y === 0 || c.x === size - 1 || c.y === size - 1);
 }
 
 function placementPreview(anchor = game.placement.previewAnchor) {
   const department = placementModeDepartment();
+  const sample = placementSample();
   const world = worldState();
-  if (!department || !anchor) return { cells: [], valid: false, reason: '' };
+  if ((!department && !sample) || !anchor) return { cells: [], valid: false, reason: '' };
   const size = worldTileSize(world);
-  const cells = placementCells(department, anchor, game.placement.rotation);
-  const startKey = coordKey(world.start.x, world.start.y);
+  const cells = placementCells(department || sample, anchor, game.placement.rotation);
   const endKey = coordKey(world.end.x, world.end.y);
   const path = pathSet();
+  const offices = officeCellKeys();
   const invalid = cells.find(cell => {
     const key = coordKey(cell.x, cell.y);
     return (
@@ -731,20 +1588,35 @@ function placementPreview(anchor = game.placement.previewAnchor) {
       cell.y < 0 ||
       cell.x >= size ||
       cell.y >= size ||
-      key === startKey ||
       key === endKey ||
-      path.has(key) ||
-      cellTouchesBlackholeDanger(cell.x, cell.y) ||
-      occupiedByOtherDepartment(cell.x, cell.y, department.id)
+      (game.placement.kind !== 'sample' && path.has(key)) ||
+      (game.placement.kind !== 'sample' && offices.has(key)) ||
+      cellTouchesBlackholeDanger(cell.x, cell.y)
     );
   });
-  if (invalid) return { cells, valid: false, reason: 'Blocked footprint' };
-  if (!cellsTouchPath(cells)) return { cells, valid: false, reason: 'Must touch path' };
+  if (invalid) {
+    return {
+      cells,
+      valid: false,
+      reason: game.placement.kind === 'sample'
+        ? 'Blocked — outside the map, on the gate, or inside blackhole danger'
+        : 'Blocked — overlaps a corridor, office, gate or blackhole'
+    };
+  }
+  if (game.placement.kind === 'sample' && samplePlacementOverlaps(cells)) {
+    return { cells, valid: false, reason: 'Blocked — overlaps another footprint sample' };
+  }
+  if (game.placement.kind === 'sample') {
+    return { cells, valid: true, reason: 'Stamp anywhere safe on the grid to compare footprint size' };
+  }
+  if (!cellsOnBorder(cells, size) && !cellsTouchBuildable(cells)) {
+    return { cells, valid: false, reason: 'Touch your office, corridor or a map border' };
+  }
   return { cells, valid: true, reason: 'Valid placement' };
 }
 
 function placementPreviewForCell(x, y) {
-  if (!game.placement.departmentId || !game.placement.previewAnchor) return null;
+  if (!isPlacementMode() || !game.placement.previewAnchor) return null;
   const preview = placementPreview();
   const inFootprint = preview.cells.some(cell => cell.x === x && cell.y === y);
   return inFootprint ? preview : null;
@@ -763,7 +1635,7 @@ function playerBoardPosition(world = worldState()) {
   const pos = isoCellPosition(world, player.x, player.y);
   return {
     left: pos.left,
-    top: pos.top + 24
+    top: pos.top + CHUNK_OFFSET_Y
   };
 }
 
@@ -867,7 +1739,7 @@ let activeOfficeMap = null;
 
 function tileCenter(world, x, y) {
   const pos = isoCellPosition(world, x, y);
-  return { x: pos.left, y: pos.top + 24 };
+  return { x: pos.left, y: pos.top + CHUNK_OFFSET_Y };
 }
 
 function spriteDisplaySize(size = 'medium') {
@@ -882,7 +1754,7 @@ function spriteDisplaySize(size = 'medium') {
 }
 
 function mapCellFromWorldPoint(world, worldX, worldY) {
-  return cellFromBoardPoint(world, worldX, worldY - 24);
+  return cellFromBoardPoint(world, worldX, worldY - CHUNK_OFFSET_Y);
 }
 
 class OfficeMapScene extends Phaser.Scene {
@@ -897,6 +1769,9 @@ class OfficeMapScene extends Phaser.Scene {
   preload() {
     Object.entries(sprites).forEach(([key, url]) => {
       this.load.image(key, url);
+    });
+    Object.entries(FURNI).forEach(([key, url]) => {
+      this.load.image(`furni_${key}`, url);
     });
   }
 
@@ -916,10 +1791,132 @@ class OfficeMapScene extends Phaser.Scene {
     this.drawBackground(dims);
     this.drawFineGrid(world);
     this.drawTiles(world);
-    this.drawRoomWalls(world);
-    this.drawSampleFurniture(world);
+    this.drawOffices(world);
+    this.drawSamplePlacements(world);
     this.drawWorldObjects(world);
     this.drawPlacementPreview(world);
+  }
+
+  officeCellSet(world) {
+    const set = new Set();
+    for (const cell of world.spawnOffice?.cells || []) set.add(coordKey(Number(cell.x), Number(cell.y)));
+    for (const department of sortedDepartments()) {
+      if (!department.built) continue;
+      for (const cell of department.placement?.occupiedCells || []) {
+        set.add(coordKey(Number(cell.x), Number(cell.y)));
+      }
+    }
+    return set;
+  }
+
+  // Draw a furnished, walled office: room floor + 4x4 subtile grid, north/west
+  // back walls, and randomised furniture sprites.
+  drawFurnishedOffice(world, cells, furniture, options = {}) {
+    const SUB = subcellsPerCell(world);
+    const floor = this.add.graphics().setDepth(120);
+    const cellKeys = new Set(cells.map(c => coordKey(Number(c.x), Number(c.y))));
+
+    cells.forEach(cell => {
+      const x = Number(cell.x);
+      const y = Number(cell.y);
+      const center = tileCenter(world, x, y);
+      const diamond = this.tileDiamond(center, 1);
+      floor.fillStyle(options.floorColor ?? 0x6c5f3c, 0.96);
+      floor.fillPoints(diamond, true);
+      floor.lineStyle(1, options.edgeColor ?? 0xcdbb83, 0.35);
+      floor.strokePoints(diamond, true);
+    });
+
+    // North/west back walls on the office perimeter.
+    const walls = this.add.graphics().setDepth(500);
+    cells.forEach(cell => {
+      const x = Number(cell.x);
+      const y = Number(cell.y);
+      const c = tileCenter(world, x, y);
+      const H = Math.round(TILE_STEP_Y * 2.4);
+      const hasNorth = cellKeys.has(coordKey(x, y - 1));
+      const hasWest = cellKeys.has(coordKey(x - 1, y));
+      if (!hasNorth) {
+        walls.fillStyle(0x5a6b86, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y - H),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H)
+        ], true);
+      }
+      if (!hasWest) {
+        walls.fillStyle(0x44546b, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H),
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y - H)
+        ], true);
+      }
+    });
+
+    // Real Habbo furniture, one piece per cell, drawn at native aspect ratio
+    // and sized to roughly fill a tile (it is its own cell now).
+    (furniture || []).forEach(item => {
+      const texKey = `furni_${item.spriteId}`;
+      if (!this.textures.exists(texKey)) return;
+      const cx = Number(item.cell?.x);
+      const cy = Number(item.cell?.y);
+      const center = tileCenter(world, cx, cy);
+      const src = this.textures.get(texKey).getSourceImage();
+      const transform = furnitureSpriteTransform({
+        spriteId: item.spriteId,
+        sourceImage: src,
+        baseX: center.x,
+        baseY: center.y,
+        flipX: item.flipX,
+        offsetX: item.offsetX,
+        offsetY: item.offsetY,
+        lift: item.lift,
+        anchor: item.anchor,
+        depth: 1000 + (cx + cy) * 4
+      });
+      // Items with a lift (e.g. a computer) sit on top of the desk on the same
+      // cell, so raise them and draw them above the desk. offsetX nudges them
+      // horizontally so they sit centred on the desk surface.
+      this.add.image(transform.x, transform.y, texKey)
+        .setOrigin(0.5, transform.metrics.originY)
+        .setDisplaySize(src.width * transform.metrics.scale, src.height * transform.metrics.scale)
+        .setFlipX(transform.flipX)
+        .setDepth(transform.depth);
+    });
+
+    if (options.label) {
+      const anchor = cells[0];
+      const c = tileCenter(world, Number(anchor.x), Number(anchor.y));
+      this.add.text(c.x, c.y - (Math.round(TILE_STEP_Y * 2.4) + 14), options.label, {
+        fontFamily: 'Inter, sans-serif', fontSize: '10px', color: '#f4efe2', fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(1600);
+    }
+  }
+
+  drawOffices(world) {
+    // Spawn office room.
+    if (world.spawnOffice?.cells?.length) {
+      this.drawFurnishedOffice(world, world.spawnOffice.cells, world.spawnOffice.furniture, {
+        floorColor: 0x7a6a44,
+        edgeColor: 0xe0cf94,
+        label: 'HQ'
+      });
+    }
+    // Department expansion rooms.
+    for (const department of sortedDepartments()) {
+      if (!department.built || department.typeId === 'portal_room') continue;
+      const placement = department.placement;
+      if (!placement?.occupiedCells?.length) continue;
+      const theme = DEPARTMENT_THEME[department.typeId] || DEPARTMENT_THEME.default;
+      this.drawFurnishedOffice(world, placement.occupiedCells, placement.furniture, {
+        floorColor: theme.floor ?? 0x4a4f63,
+        edgeColor: theme.top,
+        label: theme.label
+      });
+    }
   }
 
   drawBackground(dims) {
@@ -930,24 +1927,26 @@ class OfficeMapScene extends Phaser.Scene {
 
   drawFineGrid(world) {
     const size = worldTileSize(world);
-    const subcellCount = subcellsPerCell(world);
     const alpha = this.mode === 'fullscreen' ? 0.16 : 0.12;
     const grid = this.add.graphics().setDepth(20);
 
+    // Grid lines run along tile EDGES (half-integer coords) so each diamond
+    // tile sits exactly inside one grid cell. Tile centers are integer coords,
+    // so the edges are at index - 0.5.
     for (let index = 0; index <= size; index += 1) {
-      const isChunk = index % subcellCount === 0;
+      const v = index - 0.5;
       const isBoundary = index === 0 || index === size;
-      const color = isBoundary ? 0xe6ecf6 : isChunk ? 0xb8cdf0 : 0xc5d6ee;
-      const lineAlpha = isBoundary ? alpha * 2.2 : isChunk ? alpha * 1.85 : alpha;
-      const lineWidth = isBoundary ? 1.2 : isChunk ? 0.9 : 0.45;
+      const color = isBoundary ? 0xe6ecf6 : 0xc5d6ee;
+      const lineAlpha = isBoundary ? alpha * 2.0 : alpha;
+      const lineWidth = isBoundary ? 1.1 : 0.5;
       grid.lineStyle(lineWidth, color, lineAlpha);
 
-      const west = fineCellPosition(world, 0, index);
-      const east = fineCellPosition(world, size, index);
-      const north = fineCellPosition(world, index, 0);
-      const south = fineCellPosition(world, index, size);
-      grid.lineBetween(west.left, west.top + 24, east.left, east.top + 24);
-      grid.lineBetween(north.left, north.top + 24, south.left, south.top + 24);
+      const west = fineCellPosition(world, -0.5, v);
+      const east = fineCellPosition(world, size - 0.5, v);
+      const north = fineCellPosition(world, v, -0.5);
+      const south = fineCellPosition(world, v, size - 0.5);
+      grid.lineBetween(west.left, west.top + CHUNK_OFFSET_Y, east.left, east.top + CHUNK_OFFSET_Y);
+      grid.lineBetween(north.left, north.top + CHUNK_OFFSET_Y, south.left, south.top + CHUNK_OFFSET_Y);
     }
   }
 
@@ -955,7 +1954,13 @@ class OfficeMapScene extends Phaser.Scene {
     const path = pathSet();
     const player = playerCell();
     const preview = placementPreview();
+    const sample = placementSample();
     const keys = collectRenderableCellKeys(world, path, player);
+    // One graphics object batches every floor diamond for performance.
+    const floor = this.add.graphics().setDepth(40);
+    const placing = isPlacementMode();
+    const lightStart = Math.floor(worldTileSize(world) * 0.7);
+    const officeKeys = this.officeCellSet(world);
 
     [...keys]
       .map(key => key.split(',').map(Number))
@@ -965,23 +1970,157 @@ class OfficeMapScene extends Phaser.Scene {
         const isPath = path.has(key);
         const isStart = world.start.x === x && world.start.y === y;
         const isEnd = world.end.x === x && world.end.y === y;
-        const lightSide = x >= Math.floor(worldTileSize(world) * 0.68);
+        const lightSide = x >= lightStart;
         const previewCell = preview.cells?.some(cell => Number(cell.x) === x && Number(cell.y) === y);
         const department = departmentAt(x, y);
-        const shouldDrawVoid = isPath || isStart || isEnd || blackholeAt(x, y) || blackholeDangerAt(x, y) || department || previewCell;
-        if (!isSampleOfficeFloor(x, y) && !shouldDrawVoid) return;
-
+        const danger = blackholeDangerAt(x, y);
+        const candidate = !isPath && !isEnd && !department && !danger && !officeKeys.has(key) && isAdjacentToPath(x, y);
         const center = tileCenter(world, x, y);
-        const spriteKey = spriteKeyForUrl(floorSpriteForCell(x, y, { isPath, isStart, isEnd, lightSide }));
-        const tile = this.add.image(center.x, center.y, spriteKey)
-          .setDisplaySize(48, 48)
-          .setDepth(100 + x + y);
-        tile.setAlpha(isSampleOfficeFloor(x, y) || isPath || isStart || isEnd ? 0.92 : 0.45);
+        const diamond = this.tileDiamond(center, 1);
 
-        if (department) tile.setTint(0x8fb7d9);
-        if (blackholeDangerAt(x, y)) tile.setTint(0x8b3940);
-        if (previewCell) tile.setTint(preview.valid ? 0x7ccf83 : 0xe77764).setAlpha(0.8);
+        // Pick a flat-color isometric floor by tile role.
+        let fill = null;
+        let line = 0x000000;
+        let lineAlpha = 0;
+        if (isEnd) { fill = 0x2f6f6b; line = 0x8ff0e6; lineAlpha = 0.9; }
+        else if (department) { fill = 0x33405c; line = 0x9fc0ec; lineAlpha = 0.8; }
+        else if (danger) { fill = 0x5e2330; line = 0xe2616f; lineAlpha = 0.85; }
+        else if (isPath || isStart) { fill = isStart ? 0x6a5a36 : 0x4a4330; line = 0xd8c98c; lineAlpha = 0.55; }
+        else if (lightSide) { fill = 0x223a45; line = 0x4f8fa0; lineAlpha = 0.35; }
+
+        if (previewCell) {
+          fill = preview.valid ? sample?.fillColor ?? 0x2f6a3a : 0x6a2f2c;
+          line = preview.valid ? sample?.lineColor ?? 0x7ccf83 : 0xe77764;
+          lineAlpha = 0.95;
+        }
+
+        if (fill !== null) {
+          floor.fillStyle(fill, 0.95);
+          floor.fillPoints(diamond, true);
+          floor.lineStyle(1, line, lineAlpha);
+          floor.strokePoints(diamond, true);
+        }
+
+        // Buildable hints: a glowing green diamond on safe cells next to the path.
+        if (candidate && !placing) {
+          const hint = this.tileDiamond(center, 0.82);
+          floor.fillStyle(0x7ccf83, 0.14);
+          floor.fillPoints(hint, true);
+          floor.lineStyle(1.4, 0x7ccf83, 0.7);
+          floor.strokePoints(hint, true);
+        }
       });
+  }
+
+  drawSamplePlacements(world) {
+    for (const placement of game.samplePlacements) {
+      const sample = FOOTPRINT_SAMPLES_BY_ID[placement.sampleId];
+      if (!sample) continue;
+      const graphics = this.add.graphics().setDepth(130);
+      graphics.fillStyle(sample.fillColor, 0.08);
+      graphics.lineStyle(1.2, sample.lineColor, 0.28);
+      for (const cell of placement.cells || []) {
+        const center = tileCenter(world, Number(cell.x), Number(cell.y));
+        const diamond = this.tileDiamond(center, 0.88);
+        graphics.fillPoints(diamond, true);
+        graphics.strokePoints(diamond, true);
+      }
+      this.drawSamplePlacementTexture(world, sample, placement.cells, placement.rotation, 0.96, 132);
+      const anchor = placement.anchorCell || placement.cells?.[0];
+      if (!anchor) continue;
+      const center = tileCenter(world, Number(anchor.x), Number(anchor.y));
+      this.add.text(center.x, center.y - TILE_STEP_Y * 1.65, sample.label, {
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '10px',
+        color: `#${sample.lineColor.toString(16).padStart(6, '0')}`,
+        fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(136);
+    }
+  }
+
+  drawSamplePlacementTexture(world, sample, cells, rotation = 0, alpha = 1, depth = 132) {
+    const spriteId = sampleSpriteIdForRotation(sample, rotation);
+    if (!spriteId) return;
+    const texKey = `furni_${spriteId}`;
+    if (!this.textures.exists(texKey)) return;
+    const anchor = placementSpriteAnchor(world, cells);
+    if (!anchor) return;
+    const src = this.textures.get(texKey).getSourceImage();
+    const transform = furnitureSpriteTransform({
+      spriteId,
+      sourceImage: src,
+      baseX: anchor.x,
+      baseY: anchor.y,
+      flipX: sample.flipX,
+      offsetX: sample.offsetX,
+      offsetY: sample.offsetY,
+      lift: sample.lift,
+      anchor: sample.anchor,
+      depth: Math.max(depth, anchor.depth)
+    });
+    this.add.image(transform.x, transform.y, texKey)
+      .setOrigin(0.5, transform.metrics.originY)
+      .setDisplaySize(src.width * transform.metrics.scale, src.height * transform.metrics.scale)
+      .setAlpha(alpha)
+      .setFlipX(transform.flipX)
+      .setDepth(transform.depth);
+  }
+
+  tileDiamond(center, scale = 1) {
+    const hw = TILE_STEP_X * scale;
+    const hh = TILE_STEP_Y * scale;
+    return [
+      new Phaser.Math.Vector2(center.x, center.y - hh),
+      new Phaser.Math.Vector2(center.x + hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x - hw, center.y)
+    ];
+  }
+
+  // Extruded isometric block (a "building") sitting on a tile.
+  drawIsoPrism(center, height, topColor, leftColor, rightColor, depth) {
+    const hw = TILE_STEP_X;
+    const hh = TILE_STEP_Y;
+    const g = this.add.graphics().setDepth(depth);
+    const top = center.y - height;
+    // Left face
+    g.fillStyle(leftColor, 1);
+    g.fillPoints([
+      new Phaser.Math.Vector2(center.x - hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x, center.y + hh - height),
+      new Phaser.Math.Vector2(center.x - hw, top)
+    ], true);
+    // Right face
+    g.fillStyle(rightColor, 1);
+    g.fillPoints([
+      new Phaser.Math.Vector2(center.x + hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x, center.y + hh - height),
+      new Phaser.Math.Vector2(center.x + hw, top)
+    ], true);
+    // Top diamond
+    g.fillStyle(topColor, 1);
+    g.lineStyle(1, 0xffffff, 0.18);
+    const topDiamond = [
+      new Phaser.Math.Vector2(center.x, top - hh),
+      new Phaser.Math.Vector2(center.x + hw, top),
+      new Phaser.Math.Vector2(center.x, top + hh),
+      new Phaser.Math.Vector2(center.x - hw, top)
+    ];
+    g.fillPoints(topDiamond, true);
+    g.strokePoints(topDiamond, true);
+    return { top };
+  }
+
+  // Glowing portal/vortex rendered from concentric ellipses.
+  drawGlowDisc(center, radii) {
+    const g = this.add.graphics().setDepth(1000 + center.x + center.y);
+    radii.forEach(({ rx, ry, color, alpha }) => {
+      g.fillStyle(color, alpha);
+      g.fillEllipse(center.x, center.y, rx * 2, ry * 2);
+    });
+    return g;
   }
 
   drawRoomWalls(world) {
@@ -1036,39 +2175,72 @@ class OfficeMapScene extends Phaser.Scene {
         const isEnd = world.end.x === x && world.end.y === y;
         const blackhole = blackholeAt(x, y);
         const anchorDepartment = departmentAnchorAt(x, y);
-        const objectSprite = getWorldObjectSprite({ isStart, isEnd, blackhole, department: anchorDepartment });
         const center = tileCenter(world, x, y);
+        const depth = 1000 + x + y;
 
-        if (objectSprite) {
-          const key = spriteKeyForUrl(objectSprite);
-          const isPortal = isEnd;
-          const isHole = Boolean(blackhole);
-          const object = this.add.image(center.x, center.y + (isHole ? 18 : 30), key)
-            .setOrigin(0.5, 1)
-            .setDepth(1000 + x + y);
-          object.setDisplaySize(isPortal ? 88 : isHole ? 70 : 64, isPortal ? 88 : isHole ? 70 : 82);
+        if (blackhole) {
+          this.drawGlowDisc(center, [
+            { rx: 50, ry: 26, color: 0x6c3ff2, alpha: 0.18 },
+            { rx: 36, ry: 19, color: 0x3a2a6e, alpha: 0.55 },
+            { rx: 21, ry: 12, color: 0x100820, alpha: 0.95 },
+            { rx: 9, ry: 5, color: 0x000000, alpha: 1 }
+          ]);
+        }
+
+        if (isEnd) {
+          const portalRoom = game.session?.departments?.portal_room?.built;
+          // Goal marker: always-visible glowing nebula gate so players can orient.
+          this.drawGlowDisc(center, [
+            { rx: 58, ry: 30, color: 0x55c7b2, alpha: 0.16 },
+            { rx: 44, ry: 23, color: 0x3aa0b8, alpha: 0.3 }
+          ]);
+          this.drawIsoPrism(
+            center,
+            portalRoom ? 44 : 32,
+            portalRoom ? 0xe5bd57 : 0x6fe0d4,
+            portalRoom ? 0x9b7e2c : 0x2f7f78,
+            portalRoom ? 0xb8962f : 0x3a9b91,
+            depth
+          );
+          this.add.text(center.x, center.y - 56, portalRoom ? 'PORTAL' : 'NEBULA', {
+            fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#dffaf4', fontStyle: 'bold'
+          }).setOrigin(0.5, 1).setDepth(depth + 5);
         }
 
         if (player.x === x && player.y === y && !game.session.finalResult) {
-          this.add.image(center.x, center.y + 18, 'player')
+          this.add.image(center.x, center.y, 'player')
             .setOrigin(0.5, 1)
-            .setDisplaySize(44, 44)
-            .setDepth(1200 + x + y);
+            .setDisplaySize(40, 40)
+            .setDepth(1300 + x + y);
         }
       });
   }
 
   drawPlacementPreview(world) {
-    if (!game.placement.departmentId || !game.placement.previewAnchor) return;
+    if (!isPlacementMode() || !game.placement.previewAnchor) return;
     const preview = placementPreview();
+    const sample = placementSample();
+    const lineColor = preview.valid ? sample?.lineColor ?? 0x7ccf83 : 0xe77764;
+    const fillColor = preview.valid ? sample?.fillColor ?? 0x7ccf83 : 0xe77764;
     const graphics = this.add.graphics().setDepth(1350);
-    graphics.lineStyle(2, preview.valid ? 0x7ccf83 : 0xe77764, 0.95);
-    graphics.fillStyle(preview.valid ? 0x7ccf83 : 0xe77764, 0.16);
+    graphics.lineStyle(2, lineColor, 0.95);
+    graphics.fillStyle(fillColor, preview.valid ? 0.2 : 0.16);
     preview.cells.forEach(cell => {
       const center = tileCenter(world, cell.x, cell.y);
-      graphics.fillEllipse(center.x, center.y, 38, 22);
-      graphics.strokeEllipse(center.x, center.y, 38, 22);
+      const diamond = this.tileDiamond(center, 0.9);
+      graphics.fillPoints(diamond, true);
+      graphics.strokePoints(diamond, true);
     });
+    if (sample && game.placement.previewAnchor) {
+      if (preview.valid) this.drawSamplePlacementTexture(world, sample, preview.cells, game.placement.rotation, 0.72, 1351);
+      const anchor = tileCenter(world, game.placement.previewAnchor.x, game.placement.previewAnchor.y);
+      this.add.text(anchor.x, anchor.y - TILE_STEP_Y * 1.7, sample.label, {
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '10px',
+        color: `#${lineColor.toString(16).padStart(6, '0')}`,
+        fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(1352);
+    }
   }
 
   setupCamera() {
@@ -1162,7 +2334,7 @@ class OfficeMapScene extends Phaser.Scene {
     // Dynamic cursor based on cell type
     if (canAct()) {
       const info = cellInfo(cell.x, cell.y);
-      if (game.placement.departmentId) {
+      if (isPlacementMode()) {
         const preview = placementPreview({ x: cell.x, y: cell.y });
         this.game.canvas.style.cursor = preview.valid ? 'copy' : 'not-allowed';
       } else if (info.blackhole || info.danger) {
@@ -1178,7 +2350,7 @@ class OfficeMapScene extends Phaser.Scene {
       this.game.canvas.style.cursor = 'default';
     }
 
-    if (game.placement.departmentId) {
+    if (isPlacementMode()) {
       game.placement.previewAnchor = cell;
       this.renderMap();
     }
@@ -1187,8 +2359,8 @@ class OfficeMapScene extends Phaser.Scene {
   async handleClick(pointer) {
     const cell = mapCellFromWorldPoint(worldState(), pointer.worldX, pointer.worldY);
     if (!cell || !canAct()) return;
-    if (game.placement.departmentId) {
-      await placeDepartment(cell.x, cell.y);
+    if (isPlacementMode()) {
+      await placeActivePlacement(cell.x, cell.y);
       return;
     }
     if (!pathSet().has(coordKey(cell.x, cell.y))) {
@@ -1202,7 +2374,21 @@ class OfficeMapScene extends Phaser.Scene {
   }
 
   fitToContent() {
-    this.setupCamera();
+    const bounds = fullscreenContentBounds();
+    const cam = this.cameras.main;
+    const usableWidth = Math.max(320, cam.width - (this.mode === 'fullscreen' ? 40 : 24));
+    const usableHeight = Math.max(260, cam.height - (this.mode === 'fullscreen' ? 156 : 24));
+    const fitZoom = Phaser.Math.Clamp(
+      Math.min(usableWidth / bounds.width, usableHeight / bounds.height) * 0.92,
+      MIN_MAP_ZOOM,
+      MAX_MAP_ZOOM
+    );
+    cam.setZoom(fitZoom);
+    cam.centerOn((bounds.minLeft + bounds.maxLeft) / 2, (bounds.minTop + bounds.maxTop) / 2 + 16);
+    if (this.mode === 'fullscreen') {
+      game.fullscreen.zoom = fitZoom;
+      this.updateZoomLabel();
+    }
   }
 
   centerOnContent() {
@@ -1210,13 +2396,38 @@ class OfficeMapScene extends Phaser.Scene {
     this.cameras.main.centerOn((bounds.minLeft + bounds.maxLeft) / 2, (bounds.minTop + bounds.maxTop) / 2 + 16);
   }
 
+  centerOnPlayer() {
+    const cell = playerCell();
+    const c = tileCenter(worldState(), cell.x, cell.y);
+    this.cameras.main.centerOn(c.x, c.y);
+  }
+
   setZoomFromUi(nextZoom) {
-    this.cameras.main.setZoom(clampZoom(nextZoom));
+    const cam = this.cameras.main;
+    // Zoom about the current view center instead of the world origin so the
+    // content the player is looking at stays put.
+    const cx = cam.midPoint.x;
+    const cy = cam.midPoint.y;
+    cam.setZoom(clampZoom(nextZoom));
+    cam.centerOn(cx, cy);
     if (this.mode === 'fullscreen') {
-      game.fullscreen.zoom = this.cameras.main.zoom;
+      game.fullscreen.zoom = cam.zoom;
       this.updateZoomLabel();
     }
   }
+}
+
+// Persistent parent node for the Phaser canvas. Keeping a single host element
+// alive across full re-renders lets us move the live WebGL context to the new
+// placeholder instead of destroying and recreating it on every state change.
+let mapHost = null;
+
+function ensureMapHost() {
+  if (!mapHost) {
+    mapHost = document.createElement('div');
+    mapHost.className = 'phaser-host';
+  }
+  return mapHost;
 }
 
 function destroyPhaserMap() {
@@ -1226,22 +2437,35 @@ function destroyPhaserMap() {
 }
 
 function mountPhaserMap() {
-  const mapEl = document.querySelector('[data-phaser-map]');
-  if (!mapEl) {
-    destroyPhaserMap();
+  const placeholder = document.querySelector('[data-phaser-map]');
+  if (!placeholder) {
+    // No map on this screen (start/report). Park the host off-DOM; keep the
+    // game alive so returning to the board is instant.
+    if (mapHost?.parentNode) mapHost.parentNode.removeChild(mapHost);
     return;
   }
 
-  destroyPhaserMap();
+  const mode = placeholder.dataset.mapMode || 'dashboard';
+  const host = ensureMapHost();
+  if (host.parentNode !== placeholder) placeholder.appendChild(host);
 
-  const mode = mapEl.dataset.mapMode || 'dashboard';
-  const rect = mapEl.getBoundingClientRect();
-  activeOfficeMap = { game: null, element: mapEl, mode, scene: null };
+  // Reuse the existing game when the mode is unchanged: just resize to the new
+  // container and redraw the scene, preserving camera zoom/pan.
+  if (activeOfficeMap?.game && activeOfficeMap.mode === mode) {
+    activeOfficeMap.game.scale.refresh();
+    activeOfficeMap.scene?.renderMap();
+    return;
+  }
+
+  // First mount, or the map mode changed (dashboard <-> fullscreen): recreate.
+  destroyPhaserMap();
+  const rect = host.getBoundingClientRect();
+  activeOfficeMap = { game: null, element: host, mode, scene: null };
   const phaserGame = new Phaser.Game({
     type: Phaser.AUTO,
-    parent: mapEl,
-    width: Math.max(320, Math.floor(rect.width || mapEl.clientWidth || 800)),
-    height: Math.max(260, Math.floor(rect.height || mapEl.clientHeight || 520)),
+    parent: host,
+    width: Math.max(320, Math.floor(rect.width || host.clientWidth || 800)),
+    height: Math.max(260, Math.floor(rect.height || host.clientHeight || 520)),
     backgroundColor: '#02030a',
     pixelArt: true,
     antialias: false,
@@ -1257,8 +2481,19 @@ function mountPhaserMap() {
 }
 
 function commitRender(html) {
+  // Detach BOTH live map hosts before wiping the DOM so canvas/WebGL contexts
+  // survive the innerHTML replace, then re-attach the appropriate one.
+  if (mapHost?.parentNode) mapHost.parentNode.removeChild(mapHost);
+  if (builderMapHost?.parentNode) builderMapHost.parentNode.removeChild(builderMapHost);
   appEl.innerHTML = html;
-  requestAnimationFrame(() => mountPhaserMap());
+  requestAnimationFrame(() => {
+    if (isBuilderRoute()) {
+      mountBuilderMap();
+    } else {
+      if (activeBuilderMap) destroyBuilderMap();
+      mountPhaserMap();
+    }
+  });
 }
 
 function lightProgress() {
@@ -1273,9 +2508,15 @@ function lightProgress() {
 
 function render() {
   document.body.classList.toggle('fullscreen-active', Boolean(game.session && isFullscreenRoute()));
+  document.body.classList.toggle('builder-active', isBuilderRoute());
 
   if (game.screen === 'loading') {
     commitRender('<main class="loading-view">Loading Void Office Tycoon...</main>');
+    return;
+  }
+
+  if (isBuilderRoute()) {
+    commitRender(renderBuilder());
     return;
   }
 
@@ -1316,21 +2557,21 @@ function renderTutorial() {
             <div class="tutorial-step-icon">🎮</div>
             <div class="tutorial-step-content">
               <h3>Step 1 — Play Minigames</h3>
-              <p>Complete <strong>Scope Fog</strong>, <strong>Bug Rain</strong>, and <strong>Budget Rift</strong> minigames to earn points. Each minigame can be played up to <strong>2 times</strong>.</p>
+              <p>Play <strong>Scope Fog</strong>, <strong>Bug Rain</strong>, <strong>Budget Rift</strong>, <strong>Risk Vault</strong>, and <strong>Stakeholder Booth</strong> to earn points. Each minigame can be played up to <strong>2 times</strong>.</p>
             </div>
           </div>
           <div class="tutorial-step">
             <div class="tutorial-step-icon">🛤️</div>
             <div class="tutorial-step-content">
               <h3>Step 2 — Build Paths</h3>
-              <p>Click on cells <strong>adjacent to existing paths</strong> to extend your office corridor. Each tile costs <strong>2 points</strong>. Start from position (1,16).</p>
+              <p>Click on the <strong>glowing green cells</strong> next to your path to extend your office corridor. Each tile costs <strong>1 point</strong>. Start from position (1,16).</p>
             </div>
           </div>
           <div class="tutorial-step">
             <div class="tutorial-step-icon">🏢</div>
             <div class="tutorial-step-content">
-              <h3>Step 3 — Buy Departments</h3>
-              <p>Use points to buy <strong>Scope Desk</strong>, <strong>Bug Lab</strong>, <strong>Sprint Floor</strong>, <strong>Risk Vault</strong>, and <strong>Stakeholder Booth</strong>. Place them next to your path.</p>
+              <h3>Step 3 — Build Office Wings</h3>
+              <p>Buy <strong>Budget</strong>, <strong>Team</strong> and <strong>Quality</strong> offices. Each has its own shape — <strong>rotate</strong> it, then place it next to your office, corridor, or a map border. Buy as many as you like to expand.</p>
             </div>
           </div>
           <div class="tutorial-step">
@@ -1344,7 +2585,7 @@ function renderTutorial() {
             <div class="tutorial-step-icon">🌀</div>
             <div class="tutorial-step-content">
               <h3>Step 5 — Escape the Void</h3>
-              <p>Build all departments, connect the path to the <strong>nebula light</strong> at (30,16), and open the <strong>Portal Room</strong> to win!</p>
+              <p>Build at least one of each office type, connect the corridor to the <strong>nebula light</strong>, and open the <strong>Portal Room</strong> to win!</p>
             </div>
           </div>
         </div>
@@ -1404,10 +2645,11 @@ function renderDashboard() {
     <main class="game-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">${escapeHtml(state.courseCode || 'COM0463')}</p>
+          <p class="eyebrow">${escapeHtml(state.courseCode || 'COM0463')} <span class="timer-separator">•</span> Time: <span id="live-timer">${formatPlayTime(currentPlayTimeMs())}</span></p>
           <h1>${escapeHtml(state.projectTitle || 'Void Office Tycoon')}</h1>
         </div>
         <div class="topbar-actions">
+          ${game.voidOfficeDebugEnabled ? '<button class="secondary-button" data-action="open-builder">Builder</button>' : ''}
           <button class="secondary-button" data-action="toggle-pause">
             ${session.paused ? 'Resume' : 'Pause'}
           </button>
@@ -1425,7 +2667,7 @@ function renderDashboard() {
       <section class="resource-strip">
         ${Object.entries(session.resources).map(([key, value]) => renderResource(key, value)).join('')}
         <div class="points-box">
-          <span>Main Points</span>
+          <span><img class="ui-icon" src="${POINTS_ICON}" alt="" />Main Points</span>
           <strong>${session.points}</strong>
         </div>
       </section>
@@ -1496,10 +2738,11 @@ function renderFullscreenMap() {
 
 function renderResource(key, value) {
   const status = value < 35 ? 'danger' : value < 50 ? 'warn' : 'good';
+  const icon = RESOURCE_ICONS[key];
   return `
     <div class="resource ${status}">
       <div class="resource-line">
-        <span>${resourceLabel(key)}</span>
+        <span>${icon ? `<img class="ui-icon" src="${icon}" alt="" />` : ''}${resourceLabel(key)}</span>
         <strong>${value}</strong>
       </div>
       <div class="meter"><span style="width: ${value}%"></span></div>
@@ -1507,10 +2750,133 @@ function renderResource(key, value) {
   `;
 }
 
-function builtCount() {
-  return sortedDepartments()
-    .filter(department => department.id !== 'portal_room' && department.built)
-    .length;
+function builtBuildings() {
+  return sortedDepartments().filter(d => d.built && d.typeId !== 'portal_room');
+}
+
+// How many of the 3 resource building types have at least one instance built.
+function builtTypeCount() {
+  const types = new Set(builtBuildings().map(d => d.typeId));
+  return BUILDING_TYPES.filter(t => types.has(t.id)).length;
+}
+
+function renderWorldTuningPanel() {
+  if (!isVoidOfficeDebugEnabled()) return '';
+  return `
+    <div class="world-tuning">
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Scale</strong>
+          <span data-furniture-scale-readout>${furnitureScaleLabel()}</span>
+        </div>
+        <input
+          id="furniture-scale-slider"
+          type="range"
+          min="${MIN_FURNITURE_SCALE_MULTIPLIER}"
+          max="${MAX_FURNITURE_SCALE_MULTIPLIER}"
+          step="${FURNITURE_SCALE_STEP}"
+          value="${clampFurnitureScaleMultiplier(game.furnitureScaleMultiplier)}"
+          data-input-action="set-furniture-scale"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_SCALE_MULTIPLIER.toFixed(2)}x</span>
+          <strong data-furniture-scale-percent>${Math.round(clampFurnitureScaleMultiplier(game.furnitureScaleMultiplier) * 100)}%</strong>
+          <span>${MAX_FURNITURE_SCALE_MULTIPLIER.toFixed(2)}x</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Offset X</strong>
+          <span data-furniture-offset-x-readout>${furnitureOffsetAxisLabel('x')}</span>
+        </div>
+        <input
+          id="furniture-offset-x-slider"
+          type="range"
+          min="${MIN_FURNITURE_OFFSET_AXIS}"
+          max="${MAX_FURNITURE_OFFSET_AXIS}"
+          step="${FURNITURE_OFFSET_STEP}"
+          value="${clampFurnitureOffsetAxis(game.furnitureOffsetAxes.x)}"
+          data-input-action="set-furniture-offset-x"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+          <strong data-furniture-offset-x-center>${furnitureOffsetAxisLabel('x')}</strong>
+          <span>${MAX_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Offset Y</strong>
+          <span data-furniture-offset-y-readout>${furnitureOffsetAxisLabel('y')}</span>
+        </div>
+        <input
+          id="furniture-offset-y-slider"
+          type="range"
+          min="${MIN_FURNITURE_OFFSET_AXIS}"
+          max="${MAX_FURNITURE_OFFSET_AXIS}"
+          step="${FURNITURE_OFFSET_STEP}"
+          value="${clampFurnitureOffsetAxis(game.furnitureOffsetAxes.y)}"
+          data-input-action="set-furniture-offset-y"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+          <strong data-furniture-offset-y-center>${furnitureOffsetAxisLabel('y')}</strong>
+          <span>${MAX_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Furniture Offset Z</strong>
+          <span data-furniture-offset-z-readout>${furnitureOffsetAxisLabel('z')}</span>
+        </div>
+        <input
+          id="furniture-offset-z-slider"
+          type="range"
+          min="${MIN_FURNITURE_OFFSET_AXIS}"
+          max="${MAX_FURNITURE_OFFSET_AXIS}"
+          step="${FURNITURE_OFFSET_STEP}"
+          value="${clampFurnitureOffsetAxis(game.furnitureOffsetAxes.z)}"
+          data-input-action="set-furniture-offset-z"
+        />
+        <div class="world-tuning-meta">
+          <span>${MIN_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+          <strong data-furniture-offset-z-center>${furnitureOffsetAxisLabel('z')}</strong>
+          <span>${MAX_FURNITURE_OFFSET_AXIS.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="world-tuning-group">
+        <div class="world-tuning-heading">
+          <strong>Footprint Samples</strong>
+          <span>${game.samplePlacements.length} placed</span>
+        </div>
+        <div class="texture-sample-strip">
+          ${FOOTPRINT_SAMPLES.map(sample => `
+            <figure class="texture-sample-card ${game.placement.kind === 'sample' && game.placement.sampleId === sample.id ? 'selected' : ''}">
+              <img src="${sample.image}" alt="${sample.label} footprint sample texture" />
+              <figcaption>
+                <strong>${sample.label}</strong>
+                <span>${sample.detail}</span>
+              </figcaption>
+              <button
+                class="secondary-button"
+                data-action="start-sample-placement"
+                data-sample-id="${sample.id}"
+                ${!game.session || !canAct() ? 'disabled' : ''}
+              >${game.placement.kind === 'sample' && game.placement.sampleId === sample.id ? 'Placing...' : 'Place sample'}</button>
+            </figure>
+          `).join('')}
+        </div>
+        <div class="button-row">
+          <button
+            class="secondary-button"
+            data-action="clear-sample-placements"
+            ${!game.samplePlacements.length ? 'disabled' : ''}
+          >Clear Samples</button>
+        </div>
+        <p class="world-tuning-note">Sample cards now render through the same furni scale and X/Y/Z offset slider path as room props, while corner-tagged props still bias toward room edges instead of sitting dead-center in their cells.</p>
+      </div>
+    </div>
+  `;
 }
 
 function renderWorldPanel() {
@@ -1521,7 +2887,7 @@ function renderWorldPanel() {
     <div class="panel-heading">
       <div>
         <h2>Isometric Void Office</h2>
-        <span>${builtCount()} / 5 departments</span>
+        <span>${builtTypeCount()} / 3 office types · ${builtBuildings().length} buildings</span>
       </div>
       <span>${lightProgress()}% to nebula</span>
     </div>
@@ -1531,15 +2897,16 @@ function renderWorldPanel() {
       <div><strong>${(world.builtPath || []).length}</strong><span>path cells</span></div>
       <div><strong>${world.blackholes.length}</strong><span>blackholes</span></div>
     </div>
+    ${renderWorldTuningPanel()}
     ${renderPlacementBanner()}
     <div class="phaser-map-shell dashboard-phaser-map" aria-label="Interactive ${tileSize} by ${tileSize} office map">
       <div class="phaser-map" data-phaser-map data-map-mode="dashboard"></div>
     </div>
     <div class="world-legend">
       <span><i class="legend-chip path"></i>built path</span>
-      <span><i class="legend-chip danger"></i>gravity danger</span>
-      <span><i class="legend-chip light"></i>nebula edge</span>
-      <span><i class="legend-chip wall"></i>office wall</span>
+      <span><i class="legend-chip buildable"></i>buildable here</span>
+      <span><i class="legend-chip danger"></i>blackhole danger</span>
+      <span><i class="legend-chip nebula"></i>nebula gate</span>
       <span><img src="${sprites.player}" alt="" /> player marker</span>
     </div>
   `;
@@ -1547,13 +2914,21 @@ function renderWorldPanel() {
 
 function renderPlacementBanner() {
   const department = placementModeDepartment();
-  if (!department) return '';
+  const sample = placementSample();
+  if (!department && !sample) return '';
   const preview = placementPreview();
+  const rooms = placementChunkCount();
+  const title = sample
+    ? `Placing ${sample.label} Footprint Sample - ${rooms} cells ${escapeHtml(sample.shapeLabel || '')} (0 pts)`
+    : `Placing ${escapeHtml(department.name)} - ${rooms}-room ${escapeHtml(department.shapeLabel || '')} (${placementCost()} pts)`;
+  const help = sample
+    ? `${preview.reason || 'Stamp anywhere safe on the grid to compare footprint size'} · Rotation ${game.placement.rotation}°`
+    : `${preview.reason || 'Choose a spot next to your office, corridor or a map border'} · Rotation ${game.placement.rotation}°`;
   return `
     <div class="placement-banner ${preview.valid ? 'valid' : 'invalid'}">
       <div>
-        <strong>Placing ${escapeHtml(department.name)}</strong>
-        <span>${preview.reason || 'Choose an anchor cell next to your path'} - Rotation ${game.placement.rotation}deg</span>
+        <strong>${title}</strong>
+        <span>${help}</span>
       </div>
       <div class="button-row">
         <button class="secondary-button" data-action="rotate-placement">Rotate</button>
@@ -1584,16 +2959,19 @@ function addRenderableCell(keys, world, x, y) {
 
 function collectRenderableCellKeys(world, path, player) {
   const keys = new Set();
-  const bounds = SAMPLE_OFFICE.bounds;
   const preview = placementPreview();
 
-  for (let y = bounds.minY; y <= bounds.maxY; y += 1) {
-    for (let x = bounds.minX; x <= bounds.maxX; x += 1) {
-      addRenderableCell(keys, world, x, y);
-    }
+  for (const key of path) {
+    const [x, y] = key.split(',').map(Number);
+    addRenderableCell(keys, world, x, y);
+    addRenderableCell(keys, world, x + 1, y);
+    addRenderableCell(keys, world, x - 1, y);
+    addRenderableCell(keys, world, x, y + 1);
+    addRenderableCell(keys, world, x, y - 1);
   }
 
-  for (const key of path) {
+  // Office floors (spawn + departments) and the buildable ring around them.
+  for (const key of officeCellKeys()) {
     const [x, y] = key.split(',').map(Number);
     addRenderableCell(keys, world, x, y);
     addRenderableCell(keys, world, x + 1, y);
@@ -1618,6 +2996,12 @@ function collectRenderableCellKeys(world, path, player) {
   for (const department of sortedDepartments()) {
     const cells = department.placement?.occupiedCells || (department.worldCell ? [department.worldCell] : []);
     for (const cell of cells) {
+      addRenderableCell(keys, world, Number(cell.x), Number(cell.y));
+    }
+  }
+
+  for (const placement of game.samplePlacements) {
+    for (const cell of placement.cells || []) {
       addRenderableCell(keys, world, Number(cell.x), Number(cell.y));
     }
   }
@@ -1667,7 +3051,7 @@ function renderWorldCell(world, x, y, path, player, options = {}) {
   const tag = readOnly ? 'span' : 'button';
   const actionAttrs = readOnly
     ? 'aria-hidden="true"'
-    : `data-action="build-world-cell" data-x="${x}" data-y="${y}" ${!canAct() || (!game.placement.departmentId && isPath) ? 'disabled' : ''}`;
+    : `data-action="build-world-cell" data-x="${x}" data-y="${y}" ${!canAct() || (!isPlacementMode() && isPath) ? 'disabled' : ''}`;
 
   return `
     <${tag}
@@ -1710,7 +3094,7 @@ function renderSubcellLayers(department, x, y) {
 
 function getWorldObjectSprite({ isStart, isEnd, blackhole, department }) {
   if (blackhole) return sprites.blackhole;
-  if (department) return sprites[department.id];
+  if (department) return sprites[department.typeId] || sprites.officeCore;
   if (isStart) return sprites.officeCore;
   if (isEnd) return game.session?.departments?.portal_room?.built ? sprites.portal_room : sprites.nebulaGate;
   return '';
@@ -1810,7 +3194,9 @@ function renderMinigame(scenario) {
     return '<p class="game-copy">Use the backlog panel, then submit the current order.</p>';
   }
   if (scenario.id === 'bug_rain') return renderBugRain();
-  return renderBudgetRift();
+  if (scenario.id === 'budget_rift') return renderBudgetRift();
+  if (scenario.id === 'risk_vault') return renderRiskVault();
+  return renderStakeholderBooth();
 }
 
 function renderBugRain() {
@@ -1819,13 +3205,14 @@ function renderBugRain() {
     <div class="bug-grid">
       ${bugCards.map(card => `
         <button
-          class="bug-card ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
+          class="bug-card sev-${card.severity} ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
           data-action="toggle-bug"
           data-bug-id="${card.id}"
           ${!canAct() ? 'disabled' : ''}
         >
+          <span class="severity-tag sev-${card.severity}">${card.severity === 'serious' ? '🔴 Serious' : '🟡 Minor'}</span>
           <strong>${escapeHtml(card.title)}</strong>
-          <span>${selected.has(card.id) ? 'Selected' : 'Not selected'}</span>
+          <span class="bug-state">${selected.has(card.id) ? '✓ Marked to block' : 'Tap to triage'}</span>
           ${game.debugOpen && game.showCorrectAnswers ? `<em>${card.severity === 'serious' ? 'Correct: block release' : 'Correct: minor'}</em>` : ''}
         </button>
       `).join('')}
@@ -1850,13 +3237,56 @@ function renderBudgetRift() {
           >
             <strong>${escapeHtml(choice.title)}</strong>
             <span>${escapeHtml(choice.text)}</span>
-            <em>${formatDelta(choice.delta)}</em>
+            ${renderDeltaChips(choice.delta)}
             ${game.debugOpen && game.showCorrectAnswers ? `<em>${passes ? 'Passes' : 'Fails'} after choice: ${formatProjected(projected)}</em>` : ''}
           </button>
         `;
       }).join('')}
     </div>
     <button data-action="submit-minigame" data-minigame-id="budget_rift" ${!canAct() || minigamePlaysRemaining('budget_rift') <= 0 ? 'disabled' : ''}>Commit Trade-off</button>
+  `;
+}
+
+function renderRiskVault() {
+  const selected = new Set(game.minigameState.selected || []);
+  return `
+    <div class="bug-grid">
+      ${riskCards.map(card => `
+        <button
+          class="bug-card sev-${card.severity} ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
+          data-action="toggle-risk"
+          data-risk-id="${card.id}"
+          ${!canAct() ? 'disabled' : ''}
+        >
+          <span class="severity-tag sev-${card.severity}">${card.severity === 'serious' ? 'Mitigate now' : 'Monitor'}</span>
+          <strong>${escapeHtml(card.title)}</strong>
+          <span class="bug-state">${selected.has(card.id) ? '✓ Added to register' : 'Tap to evaluate'}</span>
+          <em>${escapeHtml(card.note)}</em>
+        </button>
+      `).join('')}
+    </div>
+    <button data-action="submit-minigame" data-minigame-id="risk_vault" ${!canAct() || minigamePlaysRemaining('risk_vault') <= 0 ? 'disabled' : ''}>Lock Risk Register</button>
+  `;
+}
+
+function renderStakeholderBooth() {
+  const choiceId = game.minigameState.choiceId;
+  return `
+    <div class="choice-list">
+      ${stakeholderChoices.map(choice => `
+        <button
+          class="choice-card ${choiceId === choice.id ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && choice.id === 'reply_with_decision' ? 'correct' : ''}"
+          data-action="stakeholder-choice"
+          data-choice-id="${choice.id}"
+          ${!canAct() ? 'disabled' : ''}
+        >
+          <strong>${escapeHtml(choice.title)}</strong>
+          <span>${escapeHtml(choice.text)}</span>
+          <em>${escapeHtml(choice.note)}</em>
+        </button>
+      `).join('')}
+    </div>
+    <button data-action="submit-minigame" data-minigame-id="stakeholder_booth" ${!canAct() || minigamePlaysRemaining('stakeholder_booth') <= 0 ? 'disabled' : ''}>Send Update</button>
   `;
 }
 
@@ -1876,8 +3306,11 @@ function formatProjected(projected) {
     .join(', ');
 }
 
+function builtCountForType(typeId) {
+  return sortedDepartments().filter(d => d.built && d.typeId === typeId).length;
+}
+
 function renderShopPanel() {
-  const departments = sortedDepartments().filter(department => department.id !== 'portal_room');
   return `
     <section class="sandbox-panel">
       <div class="panel-heading">
@@ -1885,24 +3318,23 @@ function renderShopPanel() {
         <span>${game.session.points} points</span>
       </div>
       <div class="shop-list">
-        ${departments.map(department => {
-          const built = department.built;
-          const complete = built && department.level >= 2;
-          const price = built ? department.upgradePrice : department.price;
-          const placing = game.placement.departmentId === department.id;
-          const label = complete ? 'Complete' : built ? `Upgrade ${price}` : placing ? 'Placing...' : `Place ${price}`;
+        ${BUILDING_TYPES.map(type => {
+          const placing = game.placement.departmentId === type.id;
+          const owned = builtCountForType(type.id);
+          const rooms = type.shape.length;
+          const label = placing ? 'Placing...' : `Place (${type.cost})`;
           return `
-            <article class="shop-item ${placing ? 'selected' : ''}">
+            <article class="shop-item ${placing ? 'selected' : ''} shop-${type.id}">
               <div>
-                <h3>${escapeHtml(department.name)}</h3>
-                <p>${escapeHtml(department.meaning)}</p>
-                <span>${formatDelta(built ? department.upgradeEffect : department.resourceEffect)}</span>
-                <em>${escapeHtml(department.footprint?.label || '#')} footprint</em>
+                <h3>${escapeHtml(type.name)}${owned ? ` ×${owned}` : ''}</h3>
+                <p>${escapeHtml(type.meaning)}</p>
+                ${renderDeltaChips(type.resourceEffect)}
+                <em>${escapeHtml(type.shapeLabel)} · ${rooms} rooms · rotatable</em>
               </div>
               <button
-                data-action="${built ? 'buy-department' : 'start-placement'}"
-                data-department-id="${department.id}"
-                ${!canAct() || complete || game.session.points < price ? 'disabled' : ''}
+                data-action="start-placement"
+                data-department-id="${type.id}"
+                ${!canAct() || game.session.points < type.cost ? 'disabled' : ''}
               >${label}</button>
             </article>
           `;
@@ -1959,7 +3391,7 @@ function renderDebugDrawer() {
           <label>Budget <input id="debug-budget" type="number" min="0" max="100" value="${game.session.resources.budget}" /></label>
           <label>Team <input id="debug-team" type="number" min="0" max="100" value="${game.session.resources.team}" /></label>
           <label>Quality <input id="debug-quality" type="number" min="0" max="100" value="${game.session.resources.quality}" /></label>
-          <label>Scenario <input id="debug-scenario" type="number" min="0" max="2" value="${game.session.currentScenarioIndex}" /></label>
+          <label>Scenario <input id="debug-scenario" type="number" min="0" max="${Math.max(0, minigames.length - 1)}" value="${game.session.currentScenarioIndex}" /></label>
         </div>
         <div class="button-row">
           <button data-action="debug-apply-vars">Apply Variables</button>
@@ -2036,6 +3468,522 @@ function renderDebugDrawer() {
   `;
 }
 
+// --- Builder: Furniture palette keys (real furni only, no samples) ---
+const BUILDER_FURNI_PALETTE = [
+  'desk', 'woodDesk', 'monitor', 'imac', 'laptop',
+  'officeChair', 'officeChairBack', 'chair',
+  'table', 'coffeeTable',
+  'plant', 'plantTall', 'lamp', 'shelf', 'books',
+  'sofa', 'rug'
+];
+
+const BUILDER_ANCHOR_OPTIONS = ['', 'north', 'south', 'east', 'west', 'nw', 'ne', 'sw', 'se'];
+
+function renderBuilder() {
+  const b = game.builder;
+  const selectedFurni = b.selectedFurnitureIdx >= 0 ? b.furniture[b.selectedFurnitureIdx] : null;
+
+  return `
+    <main class="builder-screen">
+      <header class="builder-toolbar">
+        <div class="builder-toolbar-left">
+          <button class="secondary-button" data-action="builder-back">← Dashboard</button>
+          <div>
+            <p class="eyebrow">Builder</p>
+            <h1>Office Structure Builder</h1>
+          </div>
+        </div>
+        <div class="builder-toolbar-right">
+          <button class="secondary-button" data-action="builder-export">Export JSON</button>
+          <button class="secondary-button" data-action="builder-import">Import JSON</button>
+        </div>
+      </header>
+
+      <section class="builder-layout">
+        <aside class="builder-left-panel">
+          <div class="builder-section">
+            <h3>Office Type</h3>
+            <div class="builder-type-cards">
+              ${BUILDING_TYPES.map(type => `
+                <button
+                  class="builder-type-card ${b.selectedTypeId === type.id ? 'active' : ''}"
+                  data-action="builder-select-type"
+                  data-type-id="${type.id}"
+                >
+                  <strong>${escapeHtml(type.name)}</strong>
+                  <span class="builder-type-shape">${escapeHtml(type.shapeLabel)}</span>
+                  <span class="builder-type-meta">${escapeHtml(type.meaning)}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <h3>Rotation</h3>
+            <div class="builder-rotation-buttons">
+              ${[0, 90, 180, 270].map(deg => `
+                <button
+                  class="${b.rotation === deg ? 'active' : ''} secondary-button"
+                  data-action="builder-set-rotation"
+                  data-rotation="${deg}"
+                >${deg}°</button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <h3>Mode</h3>
+            <div class="builder-mode-toggle">
+              <button class="${b.mode === 'place' ? 'active' : ''} secondary-button" data-action="builder-set-mode" data-mode="place">Place</button>
+              <button class="${b.mode === 'select' ? 'active' : ''} secondary-button" data-action="builder-set-mode" data-mode="select">Select</button>
+            </div>
+          </div>
+
+          ${b.mode === 'place' ? `
+            <div class="builder-section">
+              <h3>Furniture Palette</h3>
+              <div class="builder-palette">
+                ${BUILDER_FURNI_PALETTE.map(spriteId => `
+                  <button
+                    class="builder-palette-item ${b.selectedSpriteId === spriteId ? 'active' : ''}"
+                    data-action="builder-select-sprite"
+                    data-sprite-id="${spriteId}"
+                    title="${spriteId}"
+                  >
+                    <img src="${FURNI[spriteId]}" alt="${spriteId}" />
+                    <span>${spriteId}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="builder-section">
+            <button data-action="builder-auto-fill">Auto-fill Preset</button>
+            <button class="danger-button" data-action="builder-clear-furniture" style="margin-top:8px">Clear All Furniture</button>
+          </div>
+        </aside>
+
+        <div class="builder-canvas-panel">
+          <div class="phaser-map-shell builder-phaser-map" data-phaser-map data-map-mode="builder"></div>
+        </div>
+
+        <aside class="builder-right-panel">
+          ${selectedFurni ? `
+            <div class="builder-section">
+              <h3>Inspector</h3>
+              <div class="builder-inspector">
+                <div class="builder-inspector-row">
+                  <label>Sprite</label>
+                  <strong>${escapeHtml(selectedFurni.spriteId)}</strong>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>Cell</label>
+                  <span>${selectedFurni.cell.x}, ${selectedFurni.cell.y}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>offsetX</label>
+                  <input type="range" min="-0.5" max="0.5" step="0.05" value="${selectedFurni.offsetX}"
+                    data-input-action="builder-set-offset-x" />
+                  <span class="builder-readout">${selectedFurni.offsetX.toFixed(2)}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>offsetY</label>
+                  <input type="range" min="-0.5" max="0.5" step="0.05" value="${selectedFurni.offsetY}"
+                    data-input-action="builder-set-offset-y" />
+                  <span class="builder-readout">${selectedFurni.offsetY.toFixed(2)}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>lift</label>
+                  <input type="range" min="0" max="3" step="0.05" value="${selectedFurni.lift}"
+                    data-input-action="builder-set-lift" />
+                  <span class="builder-readout">${selectedFurni.lift.toFixed(2)}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>anchor</label>
+                  <select data-input-action="builder-set-anchor">
+                    ${BUILDER_ANCHOR_OPTIONS.map(a => `
+                      <option value="${a}" ${selectedFurni.anchor === a ? 'selected' : ''}>${a || '(none)'}</option>
+                    `).join('')}
+                  </select>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>flipX</label>
+                  <input type="checkbox" ${selectedFurni.flipX ? 'checked' : ''}
+                    data-input-action="builder-set-flip" />
+                </div>
+                <button class="danger-button" data-action="builder-delete-furniture" style="margin-top:12px">Delete</button>
+              </div>
+            </div>
+          ` : `
+            <div class="builder-section">
+              <h3>Inspector</h3>
+              <p class="builder-hint">${b.mode === 'select' ? 'Click a furniture item on the canvas to select it.' : 'Click a cell on the canvas to place furniture.'}</p>
+              <p class="builder-hint builder-count">Furniture: ${b.furniture.length} items</p>
+            </div>
+          `}
+        </aside>
+      </section>
+
+      ${b.exportText ? `
+        <section class="builder-export-panel">
+          <h3>Export / Import</h3>
+          <textarea id="builder-export-text" rows="8" readonly>${escapeHtml(b.exportText)}</textarea>
+          <div class="builder-export-actions">
+            <button class="secondary-button" data-action="builder-copy-export">Copy</button>
+            <button class="secondary-button" data-action="builder-close-export">Close</button>
+          </div>
+        </section>
+      ` : ''}
+    </main>
+  `;
+}
+
+// --- Builder Phaser Scene ---
+
+let activeBuilderMap = null;
+let builderMapHost = null;
+
+function ensureBuilderMapHost() {
+  if (!builderMapHost) {
+    builderMapHost = document.createElement('div');
+    builderMapHost.className = 'phaser-host';
+  }
+  return builderMapHost;
+}
+
+function destroyBuilderMap() {
+  if (!activeBuilderMap) return;
+  activeBuilderMap.game?.destroy(true);
+  activeBuilderMap = null;
+}
+
+function builderWorld() {
+  // A minimal "world" object for the builder's coordinate math.
+  // Size 24 gives plenty of room for the largest shape (team L = 4 rooms).
+  return {
+    size: 24,
+    subcellsPerCell: SUBCELLS_PER_CELL,
+    start: { x: 0, y: 0 },
+    end: { x: 23, y: 23 },
+    builtPath: [],
+    blackholes: [],
+    spawnOffice: null,
+    connectedToLight: false
+  };
+}
+
+class BuilderScene extends Phaser.Scene {
+  constructor() {
+    super('BuilderScene');
+    this.dragStart = null;
+    this.didDrag = false;
+  }
+
+  preload() {
+    Object.entries(sprites).forEach(([key, url]) => {
+      this.load.image(key, url);
+    });
+    Object.entries(FURNI).forEach(([key, url]) => {
+      this.load.image(`furni_${key}`, url);
+    });
+  }
+
+  create() {
+    if (activeBuilderMap) activeBuilderMap.scene = this;
+    this.cameras.main.setBackgroundColor('#02030a');
+    this.renderMap();
+    this.setupCamera();
+    this.setupInput();
+  }
+
+  renderMap() {
+    this.children.removeAll(true);
+    const world = builderWorld();
+    const b = game.builder;
+    const anchor = { x: 2, y: 2 };
+    const rotation = normalizeRotation(b.rotation);
+    const cells = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+    const type = BUILDING_TYPES_BY_ID[b.selectedTypeId];
+    const theme = DEPARTMENT_THEME[b.selectedTypeId] || DEPARTMENT_THEME.default;
+    const dims = boardDimensions(world);
+
+    this.cameras.main.setBounds(0, 0, dims.width, dims.height);
+
+    // Background
+    const bg = this.add.graphics().setDepth(0);
+    bg.fillGradientStyle(0x02030a, 0x0a1020, 0x111827, 0x2b3150, 1);
+    bg.fillRect(0, 0, dims.width, dims.height);
+
+    // Draw office floor
+    const floor = this.add.graphics().setDepth(120);
+    const cellKeys = new Set(cells.map(c => coordKey(c.x, c.y)));
+
+    cells.forEach(cell => {
+      const center = tileCenter(world, cell.x, cell.y);
+      const diamond = this.tileDiamond(center, 1);
+      floor.fillStyle(theme.floor ?? 0x4a4f63, 0.96);
+      floor.fillPoints(diamond, true);
+      floor.lineStyle(1, theme.top ?? 0x9fc0ec, 0.35);
+      floor.strokePoints(diamond, true);
+    });
+
+    // Draw walls
+    const walls = this.add.graphics().setDepth(500);
+    cells.forEach(cell => {
+      const c = tileCenter(world, cell.x, cell.y);
+      const H = Math.round(TILE_STEP_Y * 2.4);
+      if (!cellKeys.has(coordKey(cell.x, cell.y - 1))) {
+        walls.fillStyle(0x5a6b86, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y - H),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H)
+        ], true);
+      }
+      if (!cellKeys.has(coordKey(cell.x - 1, cell.y))) {
+        walls.fillStyle(0x44546b, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H),
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y - H)
+        ], true);
+      }
+    });
+
+    // Label
+    if (cells.length > 0) {
+      const labelCell = cells[0];
+      const lc = tileCenter(world, labelCell.x, labelCell.y);
+      this.add.text(lc.x, lc.y - (Math.round(TILE_STEP_Y * 2.4) + 14), theme.label || type?.name || '', {
+        fontFamily: 'Inter, sans-serif', fontSize: '10px', color: '#f4efe2', fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(1600);
+    }
+
+    // Draw furniture
+    const selectedIdx = b.selectedFurnitureIdx;
+    (b.furniture || []).forEach((item, idx) => {
+      const texKey = `furni_${item.spriteId}`;
+      if (!this.textures.exists(texKey)) return;
+      const cx = Number(item.cell?.x);
+      const cy = Number(item.cell?.y);
+      const center = tileCenter(world, cx, cy);
+      const src = this.textures.get(texKey).getSourceImage();
+      const transform = furnitureSpriteTransform({
+        spriteId: item.spriteId,
+        sourceImage: src,
+        baseX: center.x,
+        baseY: center.y,
+        flipX: item.flipX,
+        offsetX: item.offsetX,
+        offsetY: item.offsetY,
+        lift: item.lift,
+        anchor: item.anchor,
+        depth: 1000 + (cx + cy) * 4
+      });
+      const sprite = this.add.image(transform.x, transform.y, texKey)
+        .setOrigin(0.5, transform.metrics.originY)
+        .setDisplaySize(src.width * transform.metrics.scale, src.height * transform.metrics.scale)
+        .setFlipX(transform.flipX)
+        .setDepth(transform.depth);
+
+      // Highlight selected
+      if (idx === selectedIdx) {
+        sprite.setTint(0x88ccff);
+        // Draw selection outline on the cell
+        const selGfx = this.add.graphics().setDepth(transform.depth - 1);
+        const selDiamond = this.tileDiamond(center, 0.9);
+        selGfx.lineStyle(2, 0x88ccff, 0.8);
+        selGfx.strokePoints(selDiamond, true);
+      }
+    });
+  }
+
+  setupCamera() {
+    const world = builderWorld();
+    const b = game.builder;
+    const anchor = { x: 2, y: 2 };
+    const rotation = normalizeRotation(b.rotation);
+    const cells = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+
+    if (cells.length === 0) return;
+
+    let minLeft = Infinity, maxLeft = -Infinity, minTop = Infinity, maxTop = -Infinity;
+    cells.forEach(cell => {
+      const pos = isoCellPosition(world, cell.x, cell.y);
+      minLeft = Math.min(minLeft, pos.left - 60);
+      maxLeft = Math.max(maxLeft, pos.left + 60);
+      minTop = Math.min(minTop, pos.top - 100);
+      maxTop = Math.max(maxTop, pos.top + 80);
+    });
+
+    const cam = this.cameras.main;
+    const usableWidth = Math.max(320, cam.width - 40);
+    const usableHeight = Math.max(260, cam.height - 40);
+    const contentWidth = Math.max(1, maxLeft - minLeft);
+    const contentHeight = Math.max(1, maxTop - minTop);
+    const fitZoom = Phaser.Math.Clamp(
+      Math.min(usableWidth / contentWidth, usableHeight / contentHeight) * 0.88,
+      MIN_MAP_ZOOM, MAX_MAP_ZOOM
+    );
+    cam.setZoom(fitZoom);
+    cam.centerOn((minLeft + maxLeft) / 2, (minTop + maxTop) / 2 + CHUNK_OFFSET_Y);
+  }
+
+  setupInput() {
+    const cam = this.cameras.main;
+
+    this.input.on('pointerdown', pointer => {
+      this.dragStart = { x: pointer.x, y: pointer.y, scrollX: cam.scrollX, scrollY: cam.scrollY };
+      this.didDrag = false;
+    });
+
+    this.input.on('pointermove', pointer => {
+      if (this.dragStart && pointer.isDown) {
+        const dx = pointer.x - this.dragStart.x;
+        const dy = pointer.y - this.dragStart.y;
+        if (Math.abs(dx) + Math.abs(dy) > 4) this.didDrag = true;
+        if (this.didDrag) {
+          cam.scrollX = this.dragStart.scrollX - dx / cam.zoom;
+          cam.scrollY = this.dragStart.scrollY - dy / cam.zoom;
+          return;
+        }
+      }
+      // Update cursor
+      const world = builderWorld();
+      const cell = mapCellFromWorldPoint(world, pointer.worldX, pointer.worldY);
+      if (cell) {
+        const anchor = { x: 2, y: 2 };
+        const rotation = normalizeRotation(game.builder.rotation);
+        const occupied = builderOccupiedCells(game.builder.selectedTypeId, anchor, rotation);
+        const isInOffice = occupied.some(c => c.x === cell.x && c.y === cell.y);
+        this.game.canvas.style.cursor = isInOffice
+          ? (game.builder.mode === 'place' ? 'cell' : 'pointer')
+          : 'default';
+      }
+    });
+
+    this.input.on('pointerup', pointer => {
+      const wasDrag = this.didDrag;
+      this.dragStart = null;
+      this.didDrag = false;
+      if (!wasDrag) this.handleBuilderClick(pointer);
+    });
+
+    this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
+      const nextZoom = Phaser.Math.Clamp(cam.zoom * (deltaY > 0 ? 0.88 : 1.12), MIN_MAP_ZOOM, MAX_MAP_ZOOM);
+      const before = cam.getWorldPoint(pointer.x, pointer.y);
+      cam.setZoom(nextZoom);
+      const after = cam.getWorldPoint(pointer.x, pointer.y);
+      cam.scrollX += before.x - after.x;
+      cam.scrollY += before.y - after.y;
+    });
+  }
+
+  handleBuilderClick(pointer) {
+    const world = builderWorld();
+    const cell = mapCellFromWorldPoint(world, pointer.worldX, pointer.worldY);
+    if (!cell) return;
+
+    const b = game.builder;
+    const anchor = { x: 2, y: 2 };
+    const rotation = normalizeRotation(b.rotation);
+    const occupied = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+    const isInOffice = occupied.some(c => c.x === cell.x && c.y === cell.y);
+
+    if (b.mode === 'place' && isInOffice) {
+      // Place furniture
+      const newItem = {
+        id: `furni-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        spriteId: b.selectedSpriteId,
+        cell: { x: cell.x, y: cell.y },
+        offsetX: 0, offsetY: 0, lift: 0, anchor: '', flipX: false
+      };
+      b.furniture.push(newItem);
+      b.selectedFurnitureIdx = b.furniture.length - 1;
+      b.mode = 'select';
+      saveBuilderState();
+      render();
+      return;
+    }
+
+    if (b.mode === 'select') {
+      // Try to find a furniture item at this cell
+      const idx = b.furniture.findIndex(f => f.cell.x === cell.x && f.cell.y === cell.y);
+      if (idx >= 0) {
+        // If multiple items on same cell, cycle through them
+        if (b.selectedFurnitureIdx >= 0 && b.furniture[b.selectedFurnitureIdx]?.cell.x === cell.x && b.furniture[b.selectedFurnitureIdx]?.cell.y === cell.y) {
+          // Find next item on same cell
+          const sameCell = b.furniture
+            .map((f, i) => ({ f, i }))
+            .filter(({ f }) => f.cell.x === cell.x && f.cell.y === cell.y);
+          const currentInList = sameCell.findIndex(({ i }) => i === b.selectedFurnitureIdx);
+          const nextInList = (currentInList + 1) % sameCell.length;
+          b.selectedFurnitureIdx = sameCell[nextInList].i;
+        } else {
+          b.selectedFurnitureIdx = idx;
+        }
+      } else {
+        b.selectedFurnitureIdx = -1;
+      }
+      render();
+      return;
+    }
+  }
+
+  tileDiamond(center, scale = 1) {
+    const hw = TILE_STEP_X * scale;
+    const hh = TILE_STEP_Y * scale;
+    return [
+      new Phaser.Math.Vector2(center.x, center.y - hh),
+      new Phaser.Math.Vector2(center.x + hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x - hw, center.y)
+    ];
+  }
+}
+
+function mountBuilderMap() {
+  const placeholder = document.querySelector('[data-phaser-map][data-map-mode="builder"]');
+  if (!placeholder) {
+    if (builderMapHost?.parentNode) builderMapHost.parentNode.removeChild(builderMapHost);
+    return;
+  }
+
+  const host = ensureBuilderMapHost();
+  if (host.parentNode !== placeholder) placeholder.appendChild(host);
+
+  if (activeBuilderMap?.game) {
+    activeBuilderMap.game.scale.refresh();
+    activeBuilderMap.scene?.renderMap();
+    return;
+  }
+
+  destroyBuilderMap();
+  const rect = host.getBoundingClientRect();
+  activeBuilderMap = { game: null, element: host, scene: null };
+  const phaserGame = new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: host,
+    width: Math.max(320, Math.floor(rect.width || host.clientWidth || 800)),
+    height: Math.max(260, Math.floor(rect.height || host.clientHeight || 600)),
+    backgroundColor: '#02030a',
+    pixelArt: true,
+    antialias: false,
+    roundPixels: true,
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      autoCenter: Phaser.Scale.NO_CENTER
+    },
+    scene: new BuilderScene()
+  });
+  activeBuilderMap.game = phaserGame;
+}
+
+
+
 function renderReport() {
   const report = game.report;
   if (!report) {
@@ -2064,6 +4012,10 @@ function renderReport() {
           <h2>Final Result</h2>
           <p>${escapeHtml(report.finalResult.reason)}</p>
           <strong>${report.finalResult.escaped ? 'Escaped' : report.finalResult.status}</strong>
+        </div>
+        <div class="report-block">
+          <h2>Time Played</h2>
+          <strong>${formatPlayTime(report.playTimeMs)}</strong>
         </div>
         <div class="report-block">
           <h2>Resources</h2>
@@ -2118,6 +4070,7 @@ async function handleStart(event) {
     game.notice = '';
     game.backlogOrder = [...START_BACKLOG_ORDER];
     game.activeMinigame = 'scope_fog';
+    game.samplePlacements = [];
     game.fullscreen.hasAutoSnapped = false;
     clearPlacement();
     resetMinigameState();
@@ -2136,11 +4089,21 @@ async function handleClick(event) {
     return;
   }
   if (action === 'toggle-bug') {
-    toggleBug(actionEl.dataset.bugId);
+    toggleMinigameSelection(actionEl.dataset.bugId);
+    render();
+    return;
+  }
+  if (action === 'toggle-risk') {
+    toggleMinigameSelection(actionEl.dataset.riskId);
     render();
     return;
   }
   if (action === 'budget-choice') {
+    game.minigameState.choiceId = actionEl.dataset.choiceId;
+    render();
+    return;
+  }
+  if (action === 'stakeholder-choice') {
     game.minigameState.choiceId = actionEl.dataset.choiceId;
     render();
     return;
@@ -2174,18 +4137,144 @@ async function handleClick(event) {
     navigateTo('/');
     return;
   }
+  if (action === 'open-builder') {
+    navigateTo(BUILDER_PATH);
+    return;
+  }
+  // --- Builder actions ---
+  if (action === 'builder-back') {
+    navigateTo('/');
+    return;
+  }
+  if (action === 'builder-select-type') {
+    game.builder.selectedTypeId = actionEl.dataset.typeId;
+    game.builder.furniture = [];
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-set-rotation') {
+    game.builder.rotation = Number(actionEl.dataset.rotation);
+    game.builder.furniture = [];
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-set-mode') {
+    game.builder.mode = actionEl.dataset.mode;
+    if (game.builder.mode === 'place') game.builder.selectedFurnitureIdx = -1;
+    render();
+    return;
+  }
+  if (action === 'builder-select-sprite') {
+    game.builder.selectedSpriteId = actionEl.dataset.spriteId;
+    render();
+    return;
+  }
+  if (action === 'builder-auto-fill') {
+    game.builder.furniture = builderAutoFillFurniture();
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-clear-furniture') {
+    game.builder.furniture = [];
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-delete-furniture') {
+    if (game.builder.selectedFurnitureIdx >= 0) {
+      game.builder.furniture.splice(game.builder.selectedFurnitureIdx, 1);
+      game.builder.selectedFurnitureIdx = -1;
+      saveBuilderState();
+      destroyBuilderMap();
+      render();
+    }
+    return;
+  }
+  if (action === 'builder-export') {
+    const placement = builderCreatePlacement();
+    game.builder.exportText = JSON.stringify(placement, null, 2);
+    render();
+    return;
+  }
+  if (action === 'builder-import') {
+    const input = prompt('Paste builder JSON:');
+    if (!input) return;
+    try {
+      const data = JSON.parse(input);
+      if (data.typeId && BUILDING_TYPES_BY_ID[data.typeId]) {
+        game.builder.selectedTypeId = data.typeId;
+      }
+      if (typeof data.rotation === 'number') {
+        game.builder.rotation = normalizeRotation(data.rotation);
+      }
+      if (Array.isArray(data.furniture)) {
+        game.builder.furniture = data.furniture.map(f => ({
+          id: f.id || `furni-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          spriteId: f.spriteId || 'desk',
+          cell: f.cell || { x: 0, y: 0 },
+          offsetX: Number(f.offsetX) || 0,
+          offsetY: Number(f.offsetY) || 0,
+          lift: Number(f.lift) || 0,
+          anchor: f.anchor || '',
+          flipX: Boolean(f.flipX)
+        }));
+      }
+      game.builder.selectedFurnitureIdx = -1;
+      saveBuilderState();
+      destroyBuilderMap();
+      render();
+    } catch (err) {
+      alert('Invalid JSON: ' + err.message);
+    }
+    return;
+  }
+  if (action === 'builder-copy-export') {
+    const ta = document.getElementById('builder-export-text');
+    if (ta) {
+      navigator.clipboard?.writeText(ta.value).catch(() => {
+        ta.select();
+        document.execCommand('copy');
+      });
+    }
+    return;
+  }
+  if (action === 'builder-close-export') {
+    game.builder.exportText = '';
+    render();
+    return;
+  }
   if (action === 'fullscreen-zoom') {
     const zoomAction = actionEl.dataset.zoomAction;
     if (zoomAction === 'out') setFullscreenZoom(game.fullscreen.zoom - ZOOM_STEP, true);
     if (zoomAction === 'in') setFullscreenZoom(game.fullscreen.zoom + ZOOM_STEP, true);
     if (zoomAction === 'reset') setFullscreenZoom(1, true);
     if (zoomAction === 'fit') fitFullscreenMap('smooth');
-    if (zoomAction === 'player') queueSnapMapToPlayer(true);
+    if (zoomAction === 'player') {
+      if (activeOfficeMap?.scene?.mode === 'fullscreen') activeOfficeMap.scene.centerOnPlayer();
+      else queueSnapMapToPlayer(true);
+    }
     return;
   }
   if (action === 'start-placement') {
     if (isFullscreenRoute()) return;
     startPlacement(actionEl.dataset.departmentId);
+    render();
+    return;
+  }
+  if (action === 'start-sample-placement') {
+    if (isFullscreenRoute()) return;
+    startSamplePlacement(actionEl.dataset.sampleId);
     render();
     return;
   }
@@ -2199,23 +4288,27 @@ async function handleClick(event) {
     render();
     return;
   }
+  if (action === 'clear-sample-placements') {
+    clearSamplePlacements();
+    render();
+    return;
+  }
 
   if (action === 'world-board-hit') {
     if (isFullscreenRoute()) return;
     const cell = cellFromBoardEvent(event, actionEl);
     if (!cell) return;
-    if (game.placement.departmentId) await placeDepartment(cell.x, cell.y);
+    if (isPlacementMode()) await placeActivePlacement(cell.x, cell.y);
     else if (!pathSet().has(coordKey(cell.x, cell.y))) await buildWorldCell(cell.x, cell.y);
     return;
   }
 
   if (action === 'build-world-cell') {
     if (isFullscreenRoute()) return;
-    if (game.placement.departmentId) await placeDepartment(Number(actionEl.dataset.x), Number(actionEl.dataset.y));
+    if (isPlacementMode()) await placeActivePlacement(Number(actionEl.dataset.x), Number(actionEl.dataset.y));
     else await buildWorldCell(Number(actionEl.dataset.x), Number(actionEl.dataset.y));
   }
   if (action === 'submit-minigame') await submitMinigame(actionEl.dataset.minigameId || game.activeMinigame);
-  if (action === 'buy-department') await buyDepartment(actionEl.dataset.departmentId);
   if (action === 'escape-check') await runEscapeCheck();
   if (action === 'toggle-pause') await togglePause();
   if (action === 'open-report') await openReport();
@@ -2276,10 +4369,10 @@ function parseDebugValue(value) {
   return value;
 }
 
-function toggleBug(bugId) {
+function toggleMinigameSelection(itemId) {
   const selected = new Set(game.minigameState.selected || []);
-  if (selected.has(bugId)) selected.delete(bugId);
-  else selected.add(bugId);
+  if (selected.has(itemId)) selected.delete(itemId);
+  else selected.add(itemId);
   game.minigameState.selected = [...selected];
 }
 
@@ -2341,6 +4434,31 @@ function buildMinigamePayload(minigameId) {
     };
   }
 
+  if (minigameId === 'risk_vault') {
+    const selected = [...(game.minigameState.selected || [])].sort();
+    const serious = riskCards
+      .filter(card => card.severity === 'serious')
+      .map(card => card.id)
+      .sort();
+    if (selected.length === 0) return null;
+    return {
+      minigameId: 'risk_vault',
+      success: JSON.stringify(selected) === JSON.stringify(serious),
+      score: selected.filter(id => serious.includes(id)).length,
+      details: { selected }
+    };
+  }
+
+  if (minigameId === 'stakeholder_booth') {
+    if (!game.minigameState.choiceId) return null;
+    return {
+      minigameId: 'stakeholder_booth',
+      success: game.minigameState.choiceId === 'reply_with_decision',
+      score: game.minigameState.choiceId === 'reply_with_decision' ? 1 : 0,
+      details: { choiceId: game.minigameState.choiceId }
+    };
+  }
+
   if (!game.minigameState.choiceId) return null;
   return {
     minigameId: 'budget_rift',
@@ -2351,21 +4469,76 @@ function buildMinigamePayload(minigameId) {
 }
 
 function startPlacement(departmentId) {
+  // Each building type has a fixed, rotatable shape.
+  const type = BUILDING_TYPES_BY_ID[departmentId];
+  if (!type) return;
   game.placement = {
+    kind: 'department',
     departmentId,
+    sampleId: '',
+    presetId: departmentId,
     rotation: 0,
     previewAnchor: null
   };
-  game.notice = 'Choose a map cell next to your built path.';
+  game.notice = `Placing ${type.name} (${type.cost} pts). Rotate it, then click a spot next to your office, corridor or a map border.`;
+}
+
+function startSamplePlacement(sampleId) {
+  const sample = FOOTPRINT_SAMPLES_BY_ID[sampleId];
+  if (!sample) return;
+  game.placement = {
+    kind: 'sample',
+    departmentId: '',
+    sampleId,
+    presetId: sampleId,
+    rotation: 0,
+    previewAnchor: null
+  };
+  game.notice = `Placing ${sample.label} footprint sample. Click any safe grid cells to stamp the size reference.`;
 }
 
 function rotatePlacement() {
-  if (!game.placement.departmentId) return;
+  if (!isPlacementMode()) return;
   game.placement.rotation = (normalizeRotation(game.placement.rotation) + 90) % 360;
 }
 
 function clearPlacement() {
-  game.placement = { departmentId: '', rotation: 0, previewAnchor: null };
+  game.placement = { kind: '', departmentId: '', sampleId: '', presetId: '', rotation: 0, previewAnchor: null };
+}
+
+function clearSamplePlacements() {
+  game.samplePlacements = [];
+  game.notice = 'Footprint samples cleared.';
+}
+
+async function placeActivePlacement(x, y) {
+  if (game.placement.kind === 'sample') {
+    placeSamplePlacement(x, y);
+    return;
+  }
+  await placeDepartment(x, y);
+}
+
+function placeSamplePlacement(x, y) {
+  const sample = placementSample();
+  if (!sample || !Number.isInteger(x) || !Number.isInteger(y)) return;
+  const preview = placementPreview({ x, y });
+  if (!preview.valid) {
+    game.error = preview.reason || 'That footprint sample cannot be placed there.';
+    game.placement.previewAnchor = { x, y };
+    render();
+    return;
+  }
+  game.samplePlacements.push({
+    id: `${sample.id}:${x},${y}:${game.placement.rotation}:${Date.now()}`,
+    sampleId: sample.id,
+    anchorCell: { x, y },
+    rotation: normalizeRotation(game.placement.rotation),
+    cells: preview.cells.map(cell => ({ x: Number(cell.x), y: Number(cell.y) }))
+  });
+  clearPlacement();
+  game.notice = `${sample.label} footprint sample placed.`;
+  render();
 }
 
 async function placeDepartment(x, y) {
@@ -2537,6 +4710,7 @@ function resetSession() {
   game.notice = '';
   game.error = '';
   game.backlogOrder = [...START_BACKLOG_ORDER];
+  game.samplePlacements = [];
   clearPlacement();
   render();
 }
@@ -2569,6 +4743,30 @@ async function withAction(callback) {
   render();
 }
 
+function applyFurnitureScaleMultiplier(value) {
+  const next = clampFurnitureScaleMultiplier(value);
+  if (next === game.furnitureScaleMultiplier) return;
+  game.furnitureScaleMultiplier = next;
+  saveFurnitureScaleMultiplier(next);
+  const readout = document.querySelector('[data-furniture-scale-readout]');
+  if (readout) readout.textContent = furnitureScaleLabel(next);
+  const percent = document.querySelector('[data-furniture-scale-percent]');
+  if (percent) percent.textContent = `${Math.round(next * 100)}%`;
+  activeOfficeMap?.scene?.renderMap?.();
+}
+
+function applyFurnitureOffsetAxis(axis, value) {
+  const next = clampFurnitureOffsetAxis(value);
+  if (next === game.furnitureOffsetAxes[axis]) return;
+  game.furnitureOffsetAxes[axis] = next;
+  saveFurnitureOffsetAxis(axis, next);
+  const readout = document.querySelector(`[data-furniture-offset-${axis}-readout]`);
+  if (readout) readout.textContent = furnitureOffsetAxisLabel(axis, next);
+  const center = document.querySelector(`[data-furniture-offset-${axis}-center]`);
+  if (center) center.textContent = furnitureOffsetAxisLabel(axis, next);
+  activeOfficeMap?.scene?.renderMap?.();
+}
+
 document.addEventListener('submit', event => {
   if (event.target.matches('[data-form="start"]')) {
     handleStart(event);
@@ -2579,8 +4777,78 @@ document.addEventListener('click', event => {
   handleClick(event);
 });
 
+document.addEventListener('input', event => {
+  const slider = event.target.closest('[data-input-action="set-furniture-scale"]');
+  if (slider) {
+    applyFurnitureScaleMultiplier(slider.value);
+    return;
+  }
+  const offsetXAxisSlider = event.target.closest('[data-input-action="set-furniture-offset-x"]');
+  if (offsetXAxisSlider) {
+    applyFurnitureOffsetAxis('x', offsetXAxisSlider.value);
+    return;
+  }
+  const offsetYAxisSlider = event.target.closest('[data-input-action="set-furniture-offset-y"]');
+  if (offsetYAxisSlider) {
+    applyFurnitureOffsetAxis('y', offsetYAxisSlider.value);
+    return;
+  }
+  const offsetZAxisSlider = event.target.closest('[data-input-action="set-furniture-offset-z"]');
+  if (offsetZAxisSlider) {
+    applyFurnitureOffsetAxis('z', offsetZAxisSlider.value);
+    return;
+  }
+
+  // --- Builder inspector inputs ---
+  const bIdx = game.builder.selectedFurnitureIdx;
+  const bFurni = bIdx >= 0 ? game.builder.furniture[bIdx] : null;
+  if (!bFurni) return;
+
+  const bOffsetX = event.target.closest('[data-input-action="builder-set-offset-x"]');
+  if (bOffsetX) {
+    bFurni.offsetX = Number(bOffsetX.value);
+    const readout = bOffsetX.parentElement?.querySelector('.builder-readout');
+    if (readout) readout.textContent = bFurni.offsetX.toFixed(2);
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bOffsetY = event.target.closest('[data-input-action="builder-set-offset-y"]');
+  if (bOffsetY) {
+    bFurni.offsetY = Number(bOffsetY.value);
+    const readout = bOffsetY.parentElement?.querySelector('.builder-readout');
+    if (readout) readout.textContent = bFurni.offsetY.toFixed(2);
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bLift = event.target.closest('[data-input-action="builder-set-lift"]');
+  if (bLift) {
+    bFurni.lift = Number(bLift.value);
+    const readout = bLift.parentElement?.querySelector('.builder-readout');
+    if (readout) readout.textContent = bFurni.lift.toFixed(2);
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bAnchor = event.target.closest('[data-input-action="builder-set-anchor"]');
+  if (bAnchor) {
+    bFurni.anchor = bAnchor.value;
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bFlip = event.target.closest('[data-input-action="builder-set-flip"]');
+  if (bFlip) {
+    bFurni.flipX = bFlip.checked;
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+});
+
 function updatePlacementPreview(nextAnchor) {
-  if (!game.placement.departmentId || !nextAnchor) return;
+  if (!isPlacementMode() || !nextAnchor) return;
   const current = game.placement.previewAnchor;
   if (current && current.x === nextAnchor.x && current.y === nextAnchor.y) return;
   game.placement.previewAnchor = nextAnchor;
@@ -2608,7 +4876,7 @@ document.addEventListener('mousemove', event => {
 });
 
 document.addEventListener('mouseover', event => {
-  if (!game.placement.departmentId) return;
+  if (!isPlacementMode()) return;
   const cell = event.target.closest('[data-action="build-world-cell"]');
   if (!cell) return;
   updatePlacementPreview({ x: Number(cell.dataset.x), y: Number(cell.dataset.y) });
@@ -2648,6 +4916,14 @@ document.addEventListener('dragend', () => {
 
 document.addEventListener('keydown', event => {
   const editingText = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName);
+  if (!editingText && isBuilderRoute()) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      navigateTo('/');
+      return;
+    }
+    return;
+  }
   if (!editingText && isFullscreenRoute()) {
     const key = event.key.toLowerCase();
     if (event.key === '+' || event.key === '=') {
@@ -2672,7 +4948,8 @@ document.addEventListener('keydown', event => {
     }
     if (key === 'p') {
       event.preventDefault();
-      queueSnapMapToPlayer(true);
+      if (activeOfficeMap?.scene?.mode === 'fullscreen') activeOfficeMap.scene.centerOnPlayer();
+      else queueSnapMapToPlayer(true);
       return;
     }
     if (event.key === 'Escape') {
@@ -2683,7 +4960,7 @@ document.addEventListener('keydown', event => {
     return;
   }
 
-  if (!editingText && game.placement.departmentId && event.key.toLowerCase() === 'r') {
+  if (!editingText && isPlacementMode() && event.key.toLowerCase() === 'r') {
     event.preventDefault();
     rotatePlacement();
     render();
@@ -2703,7 +4980,11 @@ window.addEventListener('popstate', () => {
     clearPlacement();
     game.fullscreen.hasAutoSnapped = false;
   }
+  if (isBuilderRoute()) {
+    clearPlacement();
+  }
   render();
 });
 
+installVoidOfficeDebugFlag();
 boot();
