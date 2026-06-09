@@ -1,15 +1,15 @@
-<svg width="144" height="56" viewBox="0 0 144 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="108" height="74" viewBox="0 0 108 74" fill="none" xmlns="http://www.w3.org/2000/svg">
   <polygon points="72,1 107,19 72,37 37,19" fill="#5A3420" fill-opacity="0.74"/>
   <polygon points="36,19 71,37 36,55 1,37" fill="#5A3420" fill-opacity="0.74"/>
-  <polygon points="108,19 143,37 108,55 73,37" fill="#5A3420" fill-opacity="0.74"/>
+  <polygon points="72,37 107,55 72,73 37,55" fill="#5A3420" fill-opacity="0.74"/>
   <polygon points="72,6 96,19 72,32 48,19" fill="#8A5738" fill-opacity="0.9"/>
   <polygon points="36,24 60,37 36,50 12,37" fill="#8A5738" fill-opacity="0.9"/>
-  <polygon points="108,24 132,37 108,50 84,37" fill="#8A5738" fill-opacity="0.9"/>
+  <polygon points="72,42 96,55 72,68 48,55" fill="#8A5738" fill-opacity="0.9"/>
   <path d="M72 1L107 19L72 37L37 19L72 1Z" stroke="#F4C897" stroke-width="2"/>
   <path d="M36 19L71 37L36 55L1 37L36 19Z" stroke="#F4C897" stroke-width="2"/>
-  <path d="M108 19L143 37L108 55L73 37L108 19Z" stroke="#F4C897" stroke-width="2"/>
+  <path d="M72 37L107 55L72 73L37 55L72 37Z" stroke="#F4C897" stroke-width="2"/>
   <path d="M72 6L96 19L72 32L48 19L72 6Z" stroke="#FFE4C3" stroke-opacity="0.5" stroke-width="1"/>
   <path d="M36 24L60 37L36 50L12 37L36 24Z" stroke="#FFE4C3" stroke-opacity="0.5" stroke-width="1"/>
-  <path d="M108 24L132 37L108 50L84 37L108 24Z" stroke="#FFE4C3" stroke-opacity="0.5" stroke-width="1"/>
-  <path d="M36 37L72 19L108 37" stroke="#FFE4C3" stroke-opacity="0.45" stroke-width="1.5"/>
+  <path d="M72 42L96 55L72 68L48 55L72 42Z" stroke="#FFE4C3" stroke-opacity="0.5" stroke-width="1"/>
+  <path d="M72 19L36 37L72 55" stroke="#FFE4C3" stroke-opacity="0.45" stroke-width="1.5"/>
 </svg>

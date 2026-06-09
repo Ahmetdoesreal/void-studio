@@ -41,7 +41,11 @@ import furniSofa from './assets/sprites/furni/sofa.png';
 import furniRug from './assets/sprites/furni/rug.png';
 import footprint1x1Sprite from './assets/sprites/furni_samples/footprint_1x1_64x64.svg';
 import footprint2x1Sprite from './assets/sprites/furni_samples/footprint_2x1_128x64.svg';
+import footprint2x1VerticalSprite from './assets/sprites/furni_samples/footprint_2x1_vertical.svg';
 import footprintLCornerSprite from './assets/sprites/furni_samples/footprint_l_corner_128x128.svg';
+import footprintLCorner90Sprite from './assets/sprites/furni_samples/footprint_l_corner_90.svg';
+import footprintLCorner180Sprite from './assets/sprites/furni_samples/footprint_l_corner_180.svg';
+import footprintLCorner270Sprite from './assets/sprites/furni_samples/footprint_l_corner_270.svg';
 
 // Furniture sprite keys (match server OFFICE_FURNITURE palette). Loaded under a
 // "furni_" prefix in Phaser; drawn at native aspect ratio.
@@ -65,7 +69,11 @@ const FURNI = {
   rug: furniRug,
   sampleFootprint1x1: footprint1x1Sprite,
   sampleFootprint2x1: footprint2x1Sprite,
-  sampleFootprintLCorner: footprintLCornerSprite
+  sampleFootprint2x1Vertical: footprint2x1VerticalSprite,
+  sampleFootprintLCorner: footprintLCornerSprite,
+  sampleFootprintLCorner90: footprintLCorner90Sprite,
+  sampleFootprintLCorner180: footprintLCorner180Sprite,
+  sampleFootprintLCorner270: footprintLCorner270Sprite
 };
 
 // UI currency icons lifted from the retro-hotel nitro wallet assets.
@@ -97,7 +105,12 @@ const FOOTPRINT_SAMPLES = [
     label: '2x1',
     detail: 'desk or table span',
     image: footprint2x1Sprite,
-    spriteId: 'sampleFootprint2x1',
+    spriteIdsByRotation: {
+      0: 'sampleFootprint2x1',
+      90: 'sampleFootprint2x1Vertical',
+      180: 'sampleFootprint2x1',
+      270: 'sampleFootprint2x1Vertical'
+    },
     shapeLabel: 'bar',
     shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
     fillColor: 0x315877,
@@ -108,7 +121,12 @@ const FOOTPRINT_SAMPLES = [
     label: 'L-corner',
     detail: 'three-tile corner room',
     image: footprintLCornerSprite,
-    spriteId: 'sampleFootprintLCorner',
+    spriteIdsByRotation: {
+      0: 'sampleFootprintLCorner',
+      90: 'sampleFootprintLCorner90',
+      180: 'sampleFootprintLCorner180',
+      270: 'sampleFootprintLCorner270'
+    },
     shapeLabel: 'corner',
     shape: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
     fillColor: 0x6a442d,
@@ -151,6 +169,9 @@ const FURNITURE_OFFSET_STORAGE_KEYS = {
 };
 const LEGACY_FURNITURE_OFFSET_STORAGE_KEY = 'voidOfficeTycoon.furnitureOffsetAdjustment';
 const FULLSCREEN_PATH = '/fullscreen';
+const BUILDER_PATH = '/builder';
+const BUILDER_STORAGE_KEY = 'voidOfficeTycoon.builderState';
+const VOID_OFFICE_DEBUG_FLAG = 'DEBUG_VOID_OFFICE';
 const CHUNK_COUNT = 32;
 const SUBCELLS_PER_CELL = 4;
 const WORLD_TILE_SIZE = CHUNK_COUNT;
@@ -241,9 +262,13 @@ const FURNI_RENDER_CONFIG = {
   books: { fit: 'width', target: TILE_STEP_X * 0.58, groundOffset: TILE_STEP_Y * 0.75, originY: 1 },
   sofa: { fit: 'width', target: TILE_STEP_X * 2.1, groundOffset: TILE_STEP_Y * 0.76, originY: 1 },
   rug: { fit: 'width', target: TILE_STEP_X * 2.8, groundOffset: TILE_STEP_Y * 0.76, originY: 1 },
-  sampleFootprint1x1: { fit: 'width', target: TILE_STEP_X * 2, groundOffset: TILE_STEP_Y * 0.78, originY: 1 },
-  sampleFootprint2x1: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y * 0.78, originY: 1 },
-  sampleFootprintLCorner: { fit: 'width', target: TILE_STEP_X * 4, groundOffset: TILE_STEP_Y * 0.78, originY: 1 }
+  sampleFootprint1x1: { fit: 'width', target: TILE_STEP_X * 2, groundOffset: TILE_STEP_Y, originY: 37 / 38 },
+  sampleFootprint2x1: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprint2x1Vertical: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprintLCorner: { fit: 'width', target: TILE_STEP_X * 4, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprintLCorner90: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 73 / 74 },
+  sampleFootprintLCorner180: { fit: 'width', target: TILE_STEP_X * 4, groundOffset: TILE_STEP_Y, originY: 55 / 56 },
+  sampleFootprintLCorner270: { fit: 'width', target: TILE_STEP_X * 3, groundOffset: TILE_STEP_Y, originY: 73 / 74 }
 };
 
 const sprites = {
@@ -341,9 +366,7 @@ function rotateOffsets(cells, rotation) {
   });
   const minX = Math.min(...rotated.map(cell => cell.x));
   const minY = Math.min(...rotated.map(cell => cell.y));
-  return rotated
-    .map(cell => ({ x: cell.x - minX, y: cell.y - minY }))
-    .sort((a, b) => a.y - b.y || a.x - b.x);
+  return rotated.map(cell => ({ x: cell.x - minX, y: cell.y - minY }));
 }
 
 function isPlacementMode() {
@@ -353,6 +376,15 @@ function isPlacementMode() {
 
 function placementSample() {
   return FOOTPRINT_SAMPLES_BY_ID[game.placement.sampleId] || null;
+}
+
+function sampleSpriteIdForRotation(sample, rotation = 0) {
+  if (!sample) return '';
+  const normalized = normalizeRotation(rotation);
+  if (sample.spriteIdsByRotation) {
+    return sample.spriteIdsByRotation[normalized] || sample.spriteIdsByRotation[0] || '';
+  }
+  return sample.spriteId || '';
 }
 
 function activePlacementShape() {
@@ -460,6 +492,42 @@ function furnitureRenderMetrics(spriteId, sourceImage) {
     baseOffsetX: cfg.baseOffsetX ?? 0,
     baseOffsetY: cfg.baseOffsetY ?? 0,
     mirrorOffsetX: Boolean(cfg.mirrorOffsetX)
+  };
+}
+
+function furnitureSpriteTransform({
+  spriteId,
+  sourceImage,
+  baseX,
+  baseY,
+  flipX = false,
+  offsetX = 0,
+  offsetY = 0,
+  lift = 0,
+  anchor = '',
+  depth = 1000
+}) {
+  const metrics = furnitureRenderMetrics(spriteId, sourceImage);
+  const offsetAxes = game.furnitureOffsetAxes;
+  const anchorBias = furnitureAnchorBias(anchor);
+  const totalLift = (Number(lift || 0) + clampFurnitureOffsetAxis(offsetAxes.z)) * TILE_STEP_Y;
+  const resolvedBaseOffsetX = metrics.mirrorOffsetX && Boolean(flipX)
+    ? -metrics.baseOffsetX
+    : metrics.baseOffsetX;
+  const resolvedOffsetX = resolvedBaseOffsetX
+    + anchorBias.x * TILE_STEP_X
+    + clampFurnitureOffsetAxis(offsetAxes.x) * TILE_STEP_X
+    + Number(offsetX || 0) * TILE_STEP_X;
+  const resolvedOffsetY = metrics.baseOffsetY
+    + anchorBias.y * TILE_STEP_Y
+    + clampFurnitureOffsetAxis(offsetAxes.y) * TILE_STEP_Y
+    + Number(offsetY || 0) * TILE_STEP_Y;
+  return {
+    metrics,
+    x: Number(baseX) + resolvedOffsetX,
+    y: Number(baseY) + metrics.groundOffset + resolvedOffsetY - totalLift,
+    depth: Number(depth) + (totalLift > 0 ? 2 : 0),
+    flipX: Boolean(flipX)
   };
 }
 
@@ -594,10 +662,309 @@ const game = {
     y: loadFurnitureOffsetAxis('y'),
     z: loadFurnitureOffsetAxis('z')
   },
+  voidOfficeDebugEnabled: false,
   debugOpen: false,
   showCorrectAnswers: false,
-  showTutorial: false
+  showTutorial: false,
+  builder: loadBuilderState()
 };
+
+function defaultBuilderState() {
+  return {
+    selectedTypeId: 'budget',
+    rotation: 0,
+    furniture: [],
+    selectedFurnitureIdx: -1,
+    selectedSpriteId: 'desk',
+    mode: 'place',
+    exportText: ''
+  };
+}
+
+function loadBuilderState() {
+  try {
+    const raw = localStorage.getItem(BUILDER_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { ...defaultBuilderState(), ...parsed, selectedFurnitureIdx: -1, exportText: '' };
+    }
+  } catch { /* ignore */ }
+  return defaultBuilderState();
+}
+
+function saveBuilderState() {
+  try {
+    const { selectedFurnitureIdx, exportText, ...persist } = game.builder;
+    localStorage.setItem(BUILDER_STORAGE_KEY, JSON.stringify(persist));
+  } catch { /* ignore */ }
+}
+
+function isBuilderRoute() {
+  return window.location.pathname === BUILDER_PATH;
+}
+
+// --- Ported server furniture generation (mirrors game_rules.py) ---
+
+const BUILDER_ROOM_SIZE = 4;
+const BUILDER_FURNITURE_LAYOUT_VERSION = 4;
+const BUILDER_DESK_SURFACE = 'desk';
+const BUILDER_COMPUTER_LIFT = 1.65;
+const BUILDER_COMPUTER_OFFSET_X = -0.18;
+const BUILDER_COMPUTER_OFFSET_Y = -0.24;
+const BUILDER_WORKSTATION_CHAIR = 'officeChair';
+const BUILDER_WORKSTATION_CHAIR_OFFSET_X = 0.2;
+const BUILDER_WORKSTATION_CHAIR_OFFSET_Y = -0.16;
+const BUILDER_MEETING_CHAIR = 'chair';
+const BUILDER_MEETING_CHAIR_OFFSET_X = 0.14;
+const BUILDER_MEETING_CHAIR_OFFSET_Y = -0.12;
+
+const BUILDER_COMPUTER_CHOICES = {
+  budget: ['monitor', 'imac', 'monitor'],
+  team: ['laptop', 'monitor', 'laptop'],
+  quality: ['laptop', 'monitor', 'imac'],
+  spawn: ['monitor', 'laptop', 'imac']
+};
+
+function builderRoomPiece(x, y, spriteId, opts = {}) {
+  const piece = { x, y, spriteId, mirrorSprite: Boolean(opts.mirrorSprite) };
+  if (opts.lift) piece.lift = opts.lift;
+  if (opts.offsetX) piece.offsetX = opts.offsetX;
+  if (opts.offsetY) piece.offsetY = opts.offsetY;
+  if (opts.anchor) piece.anchor = opts.anchor;
+  return piece;
+}
+
+function builderMirrorAnchor(anchor) {
+  return { nw: 'ne', ne: 'nw', sw: 'se', se: 'sw', west: 'east', east: 'west' }[anchor] || anchor;
+}
+
+function builderMirrorRoomPieces(pieces) {
+  return pieces.map(piece => {
+    const item = { ...piece };
+    item.x = (BUILDER_ROOM_SIZE - 1) - item.x;
+    if (item.offsetX) item.offsetX = -item.offsetX;
+    if (item.anchor) item.anchor = builderMirrorAnchor(item.anchor);
+    if (item.mirrorSprite) {
+      delete item.mirrorSprite;
+      item.flipX = !item.flipX;
+    }
+    return item;
+  });
+}
+
+function builderSeededRandom(seed) {
+  // Simple seeded pseudo-random (xorshift32-like).
+  let s = 0;
+  for (let i = 0; i < seed.length; i++) s = ((s << 5) - s + seed.charCodeAt(i)) | 0;
+  return function() {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+    return ((s >>> 0) % 1000) / 1000;
+  };
+}
+
+function builderPickRandom(rng, arr) {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+function builderWorkstationLayout(rng, typeId, mirrored) {
+  const computer = builderPickRandom(rng, BUILDER_COMPUTER_CHOICES[typeId] || BUILDER_COMPUTER_CHOICES.spawn);
+  const pieces = [
+    builderRoomPiece(2, 1, BUILDER_DESK_SURFACE, { mirrorSprite: true }),
+    builderRoomPiece(2, 1, computer, { lift: BUILDER_COMPUTER_LIFT, offsetX: BUILDER_COMPUTER_OFFSET_X, offsetY: BUILDER_COMPUTER_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(1, 2, BUILDER_WORKSTATION_CHAIR, { offsetX: BUILDER_WORKSTATION_CHAIR_OFFSET_X, offsetY: BUILDER_WORKSTATION_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'plantTall', { offsetY: -0.08, anchor: 'nw' }),
+    builderRoomPiece(3, 1, 'books', { offsetY: -0.06, anchor: 'east' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderLabLayout(rng, typeId, mirrored) {
+  const computer = builderPickRandom(rng, BUILDER_COMPUTER_CHOICES[typeId] || BUILDER_COMPUTER_CHOICES.spawn);
+  const pieces = [
+    builderRoomPiece(2, 1, BUILDER_DESK_SURFACE, { mirrorSprite: true }),
+    builderRoomPiece(2, 1, computer, { lift: BUILDER_COMPUTER_LIFT, offsetX: BUILDER_COMPUTER_OFFSET_X, offsetY: BUILDER_COMPUTER_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(1, 2, BUILDER_WORKSTATION_CHAIR, { offsetX: BUILDER_WORKSTATION_CHAIR_OFFSET_X, offsetY: BUILDER_WORKSTATION_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'shelf', { anchor: 'nw', mirrorSprite: true }),
+    builderRoomPiece(0, 1, 'books', { offsetX: 0.06, offsetY: -0.06, anchor: 'west' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderArchiveLayout(mirrored) {
+  const pieces = [
+    builderRoomPiece(1, 0, 'shelf', { anchor: 'north', mirrorSprite: true }),
+    builderRoomPiece(2, 1, 'books', { offsetY: -0.06, anchor: 'east' }),
+    builderRoomPiece(0, 2, 'lamp', { offsetY: -0.08, anchor: 'sw' }),
+    builderRoomPiece(3, 2, 'plant', { offsetY: -0.06, anchor: 'se' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderMeetingLayout(mirrored) {
+  const pieces = [
+    builderRoomPiece(2, 1, 'table', { mirrorSprite: true }),
+    builderRoomPiece(1, 2, BUILDER_MEETING_CHAIR, { offsetX: BUILDER_MEETING_CHAIR_OFFSET_X, offsetY: BUILDER_MEETING_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(3, 2, BUILDER_MEETING_CHAIR, { offsetX: -BUILDER_MEETING_CHAIR_OFFSET_X, offsetY: BUILDER_MEETING_CHAIR_OFFSET_Y, mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'plant', { offsetY: -0.06, anchor: 'nw' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderLoungeLayout(mirrored) {
+  const pieces = [
+    builderRoomPiece(2, 1, 'sofa', { mirrorSprite: true }),
+    builderRoomPiece(1, 2, 'coffeeTable', { mirrorSprite: true }),
+    builderRoomPiece(0, 0, 'plantTall', { offsetY: -0.08, anchor: 'nw' }),
+    builderRoomPiece(3, 1, 'lamp', { offsetY: -0.08, anchor: 'east' })
+  ];
+  return mirrored ? builderMirrorRoomPieces(pieces) : pieces;
+}
+
+function builderRoomProgram(typeId, roomIndex) {
+  const programs = {
+    budget: ['workstation', 'archive', 'meeting'],
+    team: ['lounge', 'workstation', 'meeting', 'lounge'],
+    quality: ['lab', 'lab'],
+    spawn: ['workstation']
+  };
+  const list = programs[typeId] || ['workstation'];
+  return list[roomIndex % list.length];
+}
+
+function builderRoomShouldMirror(rotation, roomIndex) {
+  const norm = normalizeRotation(rotation);
+  const startMirrored = norm === 90 || norm === 270;
+  return Boolean((roomIndex + (startMirrored ? 1 : 0)) % 2);
+}
+
+function builderLayoutForProgram(program, rng, typeId, mirrored) {
+  if (program === 'archive') return builderArchiveLayout(mirrored);
+  if (program === 'meeting') return builderMeetingLayout(mirrored);
+  if (program === 'lounge') return builderLoungeLayout(mirrored);
+  if (program === 'lab') return builderLabLayout(rng, typeId, mirrored);
+  return builderWorkstationLayout(rng, typeId, mirrored);
+}
+
+function builderGenerateFurniture(roomBases, rng, typeId, rotation) {
+  const items = [];
+  roomBases.forEach((base, roomIndex) => {
+    const [bx, by] = base;
+    const program = builderRoomProgram(typeId, roomIndex);
+    const mirrored = builderRoomShouldMirror(rotation, roomIndex);
+    const layout = builderLayoutForProgram(program, rng, typeId, mirrored);
+    layout.forEach(piece => {
+      const cx = bx + piece.x;
+      const cy = by + piece.y;
+      const item = {
+        id: `furni-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        spriteId: piece.spriteId,
+        cell: { x: cx, y: cy },
+        offsetX: piece.offsetX || 0,
+        offsetY: piece.offsetY || 0,
+        lift: piece.lift || 0,
+        anchor: piece.anchor || '',
+        flipX: Boolean(piece.flipX)
+      };
+      items.push(item);
+    });
+  });
+  return items;
+}
+
+function builderOccupiedCells(typeId, anchorCell, rotation) {
+  const shape = BUILDING_SHAPES[typeId] || [{ x: 0, y: 0 }];
+  const rotated = rotateOffsets(shape, rotation);
+  const ax = anchorCell.x;
+  const ay = anchorCell.y;
+  const cells = [];
+  rotated.forEach(room => {
+    const baseX = ax + room.x * BUILDER_ROOM_SIZE;
+    const baseY = ay + room.y * BUILDER_ROOM_SIZE;
+    for (let dy = 0; dy < BUILDER_ROOM_SIZE; dy++) {
+      for (let dx = 0; dx < BUILDER_ROOM_SIZE; dx++) {
+        cells.push({ x: baseX + dx, y: baseY + dy });
+      }
+    }
+  });
+  return cells;
+}
+
+function builderRoomBases(typeId, anchorCell, rotation) {
+  const shape = BUILDING_SHAPES[typeId] || [{ x: 0, y: 0 }];
+  const rotated = rotateOffsets(shape, rotation);
+  const ax = anchorCell.x;
+  const ay = anchorCell.y;
+  return rotated.map(room => [ax + room.x * BUILDER_ROOM_SIZE, ay + room.y * BUILDER_ROOM_SIZE]);
+}
+
+function builderPerimeterWalls(occupiedCells) {
+  const occupied = new Set(occupiedCells.map(c => coordKey(c.x, c.y)));
+  const walls = [];
+  occupiedCells.forEach(cell => {
+    if (!occupied.has(coordKey(cell.x, cell.y - 1))) {
+      walls.push({ cell: { x: cell.x, y: cell.y }, edge: 'north' });
+    }
+    if (!occupied.has(coordKey(cell.x - 1, cell.y))) {
+      walls.push({ cell: { x: cell.x, y: cell.y }, edge: 'west' });
+    }
+  });
+  return walls;
+}
+
+function builderAutoFillFurniture() {
+  const b = game.builder;
+  const anchor = { x: 2, y: 2 };
+  const rotation = normalizeRotation(b.rotation);
+  const bases = builderRoomBases(b.selectedTypeId, anchor, rotation);
+  const seed = `builder:${b.selectedTypeId}:${rotation}`;
+  const rng = builderSeededRandom(seed);
+  return builderGenerateFurniture(bases, rng, b.selectedTypeId, rotation);
+}
+
+function builderCreatePlacement() {
+  const b = game.builder;
+  const anchor = { x: 2, y: 2 };
+  const rotation = normalizeRotation(b.rotation);
+  const cells = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+  const walls = builderPerimeterWalls(cells);
+  return { typeId: b.selectedTypeId, rotation, anchorCell: anchor, occupiedCells: cells, furniture: b.furniture, walls, subcellsPerCell: SUBCELLS_PER_CELL, furnitureVersion: BUILDER_FURNITURE_LAYOUT_VERSION };
+}
+
+let voidOfficeDebugFlagValue = false;
+
+function isVoidOfficeDebugEnabled() {
+  return game.voidOfficeDebugEnabled;
+}
+
+function setVoidOfficeDebugEnabled(value) {
+  const next = value === true;
+  voidOfficeDebugFlagValue = next;
+  if (game.voidOfficeDebugEnabled === next) return;
+  game.voidOfficeDebugEnabled = next;
+  if (!next && game.placement.kind === 'sample') clearPlacement();
+  render();
+}
+
+function installVoidOfficeDebugFlag() {
+  const existing = globalThis[VOID_OFFICE_DEBUG_FLAG];
+  voidOfficeDebugFlagValue = existing === true;
+  game.voidOfficeDebugEnabled = voidOfficeDebugFlagValue;
+  try {
+    Object.defineProperty(globalThis, VOID_OFFICE_DEBUG_FLAG, {
+      configurable: true,
+      enumerable: true,
+      get() {
+        return voidOfficeDebugFlagValue;
+      },
+      set(value) {
+        setVoidOfficeDebugEnabled(value);
+      }
+    });
+  } catch {
+    // If the global cannot be redefined, fall back to reading its current value.
+    game.voidOfficeDebugEnabled = globalThis[VOID_OFFICE_DEBUG_FLAG] === true;
+  }
+}
 
 const MAX_PLAYS_PER_MINIGAME = 2;
 
@@ -631,7 +998,9 @@ async function boot() {
     }
   } catch (error) {
     game.screen = 'start';
-    game.error = `API unavailable: ${error.message}`;
+    if (!isBuilderRoute()) {
+      game.error = `API unavailable: ${error.message}`;
+    }
   }
 
   resetMinigameState();
@@ -700,9 +1069,38 @@ function canAct() {
   return game.session && !game.session.paused && !game.session.finalResult;
 }
 
+function formatPlayTime(ms) {
+  const totalSeconds = Math.max(0, Math.floor((ms || 0) / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+function currentPlayTimeMs() {
+  const session = game.session;
+  if (!session) return 0;
+  let playTime = session.playTimeMs || 0;
+  if (!session.paused && !session.finalResult && session.lastResumedAt) {
+    const resumed = new Date(session.lastResumedAt).getTime();
+    if (!isNaN(resumed)) {
+      playTime += (Date.now() - resumed);
+    }
+  }
+  return playTime;
+}
+
+setInterval(() => {
+  const el = document.getElementById('live-timer');
+  if (el && game.session) {
+    el.textContent = formatPlayTime(currentPlayTimeMs());
+  }
+}, 1000);
+
 function isFullscreenRoute() {
   return window.location.pathname === FULLSCREEN_PATH;
 }
+
+
 
 function navigateTo(path) {
   if (window.location.pathname !== path) {
@@ -711,6 +1109,9 @@ function navigateTo(path) {
   if (path === FULLSCREEN_PATH) {
     clearPlacement();
     game.fullscreen.hasAutoSnapped = false;
+  }
+  if (path === BUILDER_PATH) {
+    clearPlacement();
   }
   render();
 }
@@ -1464,30 +1865,26 @@ class OfficeMapScene extends Phaser.Scene {
       const cy = Number(item.cell?.y);
       const center = tileCenter(world, cx, cy);
       const src = this.textures.get(texKey).getSourceImage();
-      const metrics = furnitureRenderMetrics(item.spriteId, src);
+      const transform = furnitureSpriteTransform({
+        spriteId: item.spriteId,
+        sourceImage: src,
+        baseX: center.x,
+        baseY: center.y,
+        flipX: item.flipX,
+        offsetX: item.offsetX,
+        offsetY: item.offsetY,
+        lift: item.lift,
+        anchor: item.anchor,
+        depth: 1000 + (cx + cy) * 4
+      });
       // Items with a lift (e.g. a computer) sit on top of the desk on the same
       // cell, so raise them and draw them above the desk. offsetX nudges them
       // horizontally so they sit centred on the desk surface.
-      const offsetAxes = game.furnitureOffsetAxes;
-      const anchorBias = furnitureAnchorBias(item.anchor);
-      const lift = (Number(item.lift || 0) + clampFurnitureOffsetAxis(offsetAxes.z)) * TILE_STEP_Y;
-      const baseOffsetX = metrics.mirrorOffsetX && Boolean(item.flipX)
-        ? -metrics.baseOffsetX
-        : metrics.baseOffsetX;
-      const offsetX = baseOffsetX
-        + anchorBias.x * TILE_STEP_X
-        + clampFurnitureOffsetAxis(offsetAxes.x) * TILE_STEP_X
-        + Number(item.offsetX || 0) * TILE_STEP_X;
-      const offsetY = metrics.baseOffsetY
-        + anchorBias.y * TILE_STEP_Y
-        + clampFurnitureOffsetAxis(offsetAxes.y) * TILE_STEP_Y
-        + Number(item.offsetY || 0) * TILE_STEP_Y;
-      const groundY = center.y + metrics.groundOffset;
-      this.add.image(center.x + offsetX, groundY + offsetY - lift, texKey)
-        .setOrigin(0.5, metrics.originY)
-        .setDisplaySize(src.width * metrics.scale, src.height * metrics.scale)
-        .setFlipX(Boolean(item.flipX))
-        .setDepth(1000 + (cx + cy) * 4 + (lift > 0 ? 2 : 0));
+      this.add.image(transform.x, transform.y, texKey)
+        .setOrigin(0.5, transform.metrics.originY)
+        .setDisplaySize(src.width * transform.metrics.scale, src.height * transform.metrics.scale)
+        .setFlipX(transform.flipX)
+        .setDepth(transform.depth);
     });
 
     if (options.label) {
@@ -1628,7 +2025,7 @@ class OfficeMapScene extends Phaser.Scene {
         graphics.fillPoints(diamond, true);
         graphics.strokePoints(diamond, true);
       }
-      this.drawSamplePlacementTexture(world, sample, placement.cells, 0.96, 132);
+      this.drawSamplePlacementTexture(world, sample, placement.cells, placement.rotation, 0.96, 132);
       const anchor = placement.anchorCell || placement.cells?.[0];
       if (!anchor) continue;
       const center = tileCenter(world, Number(anchor.x), Number(anchor.y));
@@ -1641,18 +2038,32 @@ class OfficeMapScene extends Phaser.Scene {
     }
   }
 
-  drawSamplePlacementTexture(world, sample, cells, alpha = 1, depth = 132) {
-    const texKey = `furni_${sample.spriteId}`;
+  drawSamplePlacementTexture(world, sample, cells, rotation = 0, alpha = 1, depth = 132) {
+    const spriteId = sampleSpriteIdForRotation(sample, rotation);
+    if (!spriteId) return;
+    const texKey = `furni_${spriteId}`;
     if (!this.textures.exists(texKey)) return;
     const anchor = placementSpriteAnchor(world, cells);
     if (!anchor) return;
     const src = this.textures.get(texKey).getSourceImage();
-    const metrics = furnitureRenderMetrics(sample.spriteId, src);
-    this.add.image(anchor.x, anchor.y + metrics.groundOffset, texKey)
-      .setOrigin(0.5, metrics.originY)
-      .setDisplaySize(src.width * metrics.scale, src.height * metrics.scale)
+    const transform = furnitureSpriteTransform({
+      spriteId,
+      sourceImage: src,
+      baseX: anchor.x,
+      baseY: anchor.y,
+      flipX: sample.flipX,
+      offsetX: sample.offsetX,
+      offsetY: sample.offsetY,
+      lift: sample.lift,
+      anchor: sample.anchor,
+      depth: Math.max(depth, anchor.depth)
+    });
+    this.add.image(transform.x, transform.y, texKey)
+      .setOrigin(0.5, transform.metrics.originY)
+      .setDisplaySize(src.width * transform.metrics.scale, src.height * transform.metrics.scale)
       .setAlpha(alpha)
-      .setDepth(Math.max(depth, anchor.depth));
+      .setFlipX(transform.flipX)
+      .setDepth(transform.depth);
   }
 
   tileDiamond(center, scale = 1) {
@@ -1821,7 +2232,7 @@ class OfficeMapScene extends Phaser.Scene {
       graphics.strokePoints(diamond, true);
     });
     if (sample && game.placement.previewAnchor) {
-      if (preview.valid) this.drawSamplePlacementTexture(world, sample, preview.cells, 0.72, 1351);
+      if (preview.valid) this.drawSamplePlacementTexture(world, sample, preview.cells, game.placement.rotation, 0.72, 1351);
       const anchor = tileCenter(world, game.placement.previewAnchor.x, game.placement.previewAnchor.y);
       this.add.text(anchor.x, anchor.y - TILE_STEP_Y * 1.7, sample.label, {
         fontFamily: 'Inter, sans-serif',
@@ -2070,11 +2481,19 @@ function mountPhaserMap() {
 }
 
 function commitRender(html) {
-  // Detach the live map host before wiping the DOM so its canvas/WebGL context
-  // survives the innerHTML replace, then re-attach it in mountPhaserMap().
+  // Detach BOTH live map hosts before wiping the DOM so canvas/WebGL contexts
+  // survive the innerHTML replace, then re-attach the appropriate one.
   if (mapHost?.parentNode) mapHost.parentNode.removeChild(mapHost);
+  if (builderMapHost?.parentNode) builderMapHost.parentNode.removeChild(builderMapHost);
   appEl.innerHTML = html;
-  requestAnimationFrame(() => mountPhaserMap());
+  requestAnimationFrame(() => {
+    if (isBuilderRoute()) {
+      mountBuilderMap();
+    } else {
+      if (activeBuilderMap) destroyBuilderMap();
+      mountPhaserMap();
+    }
+  });
 }
 
 function lightProgress() {
@@ -2089,9 +2508,15 @@ function lightProgress() {
 
 function render() {
   document.body.classList.toggle('fullscreen-active', Boolean(game.session && isFullscreenRoute()));
+  document.body.classList.toggle('builder-active', isBuilderRoute());
 
   if (game.screen === 'loading') {
     commitRender('<main class="loading-view">Loading Void Office Tycoon...</main>');
+    return;
+  }
+
+  if (isBuilderRoute()) {
+    commitRender(renderBuilder());
     return;
   }
 
@@ -2220,10 +2645,11 @@ function renderDashboard() {
     <main class="game-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">${escapeHtml(state.courseCode || 'COM0463')}</p>
+          <p class="eyebrow">${escapeHtml(state.courseCode || 'COM0463')} <span class="timer-separator">•</span> Time: <span id="live-timer">${formatPlayTime(currentPlayTimeMs())}</span></p>
           <h1>${escapeHtml(state.projectTitle || 'Void Office Tycoon')}</h1>
         </div>
         <div class="topbar-actions">
+          ${game.voidOfficeDebugEnabled ? '<button class="secondary-button" data-action="open-builder">Builder</button>' : ''}
           <button class="secondary-button" data-action="toggle-pause">
             ${session.paused ? 'Resume' : 'Pause'}
           </button>
@@ -2334,24 +2760,9 @@ function builtTypeCount() {
   return BUILDING_TYPES.filter(t => types.has(t.id)).length;
 }
 
-function renderWorldPanel() {
-  const world = worldState();
-  const tileSize = worldTileSize(world);
-  const subcellCount = subcellsPerCell(world);
+function renderWorldTuningPanel() {
+  if (!isVoidOfficeDebugEnabled()) return '';
   return `
-    <div class="panel-heading">
-      <div>
-        <h2>Isometric Void Office</h2>
-        <span>${builtTypeCount()} / 3 office types · ${builtBuildings().length} buildings</span>
-      </div>
-      <span>${lightProgress()}% to nebula</span>
-    </div>
-    <div class="world-status">
-      <div><strong>${tileSize}x${tileSize}</strong><span>normal cells</span></div>
-      <div><strong>${subcellCount}x${subcellCount}</strong><span>subcells per cell</span></div>
-      <div><strong>${(world.builtPath || []).length}</strong><span>path cells</span></div>
-      <div><strong>${world.blackholes.length}</strong><span>blackholes</span></div>
-    </div>
     <div class="world-tuning">
       <div class="world-tuning-group">
         <div class="world-tuning-heading">
@@ -2462,9 +2873,31 @@ function renderWorldPanel() {
             ${!game.samplePlacements.length ? 'disabled' : ''}
           >Clear Samples</button>
         </div>
-        <p class="world-tuning-note">Sample cards now place furni-style reference textures on the map, and corner-tagged props still bias toward room edges instead of sitting dead-center in their cells.</p>
+        <p class="world-tuning-note">Sample cards now render through the same furni scale and X/Y/Z offset slider path as room props, while corner-tagged props still bias toward room edges instead of sitting dead-center in their cells.</p>
       </div>
     </div>
+  `;
+}
+
+function renderWorldPanel() {
+  const world = worldState();
+  const tileSize = worldTileSize(world);
+  const subcellCount = subcellsPerCell(world);
+  return `
+    <div class="panel-heading">
+      <div>
+        <h2>Isometric Void Office</h2>
+        <span>${builtTypeCount()} / 3 office types · ${builtBuildings().length} buildings</span>
+      </div>
+      <span>${lightProgress()}% to nebula</span>
+    </div>
+    <div class="world-status">
+      <div><strong>${tileSize}x${tileSize}</strong><span>normal cells</span></div>
+      <div><strong>${subcellCount}x${subcellCount}</strong><span>subcells per cell</span></div>
+      <div><strong>${(world.builtPath || []).length}</strong><span>path cells</span></div>
+      <div><strong>${world.blackholes.length}</strong><span>blackholes</span></div>
+    </div>
+    ${renderWorldTuningPanel()}
     ${renderPlacementBanner()}
     <div class="phaser-map-shell dashboard-phaser-map" aria-label="Interactive ${tileSize} by ${tileSize} office map">
       <div class="phaser-map" data-phaser-map data-map-mode="dashboard"></div>
@@ -3035,6 +3468,522 @@ function renderDebugDrawer() {
   `;
 }
 
+// --- Builder: Furniture palette keys (real furni only, no samples) ---
+const BUILDER_FURNI_PALETTE = [
+  'desk', 'woodDesk', 'monitor', 'imac', 'laptop',
+  'officeChair', 'officeChairBack', 'chair',
+  'table', 'coffeeTable',
+  'plant', 'plantTall', 'lamp', 'shelf', 'books',
+  'sofa', 'rug'
+];
+
+const BUILDER_ANCHOR_OPTIONS = ['', 'north', 'south', 'east', 'west', 'nw', 'ne', 'sw', 'se'];
+
+function renderBuilder() {
+  const b = game.builder;
+  const selectedFurni = b.selectedFurnitureIdx >= 0 ? b.furniture[b.selectedFurnitureIdx] : null;
+
+  return `
+    <main class="builder-screen">
+      <header class="builder-toolbar">
+        <div class="builder-toolbar-left">
+          <button class="secondary-button" data-action="builder-back">← Dashboard</button>
+          <div>
+            <p class="eyebrow">Builder</p>
+            <h1>Office Structure Builder</h1>
+          </div>
+        </div>
+        <div class="builder-toolbar-right">
+          <button class="secondary-button" data-action="builder-export">Export JSON</button>
+          <button class="secondary-button" data-action="builder-import">Import JSON</button>
+        </div>
+      </header>
+
+      <section class="builder-layout">
+        <aside class="builder-left-panel">
+          <div class="builder-section">
+            <h3>Office Type</h3>
+            <div class="builder-type-cards">
+              ${BUILDING_TYPES.map(type => `
+                <button
+                  class="builder-type-card ${b.selectedTypeId === type.id ? 'active' : ''}"
+                  data-action="builder-select-type"
+                  data-type-id="${type.id}"
+                >
+                  <strong>${escapeHtml(type.name)}</strong>
+                  <span class="builder-type-shape">${escapeHtml(type.shapeLabel)}</span>
+                  <span class="builder-type-meta">${escapeHtml(type.meaning)}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <h3>Rotation</h3>
+            <div class="builder-rotation-buttons">
+              ${[0, 90, 180, 270].map(deg => `
+                <button
+                  class="${b.rotation === deg ? 'active' : ''} secondary-button"
+                  data-action="builder-set-rotation"
+                  data-rotation="${deg}"
+                >${deg}°</button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="builder-section">
+            <h3>Mode</h3>
+            <div class="builder-mode-toggle">
+              <button class="${b.mode === 'place' ? 'active' : ''} secondary-button" data-action="builder-set-mode" data-mode="place">Place</button>
+              <button class="${b.mode === 'select' ? 'active' : ''} secondary-button" data-action="builder-set-mode" data-mode="select">Select</button>
+            </div>
+          </div>
+
+          ${b.mode === 'place' ? `
+            <div class="builder-section">
+              <h3>Furniture Palette</h3>
+              <div class="builder-palette">
+                ${BUILDER_FURNI_PALETTE.map(spriteId => `
+                  <button
+                    class="builder-palette-item ${b.selectedSpriteId === spriteId ? 'active' : ''}"
+                    data-action="builder-select-sprite"
+                    data-sprite-id="${spriteId}"
+                    title="${spriteId}"
+                  >
+                    <img src="${FURNI[spriteId]}" alt="${spriteId}" />
+                    <span>${spriteId}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <div class="builder-section">
+            <button data-action="builder-auto-fill">Auto-fill Preset</button>
+            <button class="danger-button" data-action="builder-clear-furniture" style="margin-top:8px">Clear All Furniture</button>
+          </div>
+        </aside>
+
+        <div class="builder-canvas-panel">
+          <div class="phaser-map-shell builder-phaser-map" data-phaser-map data-map-mode="builder"></div>
+        </div>
+
+        <aside class="builder-right-panel">
+          ${selectedFurni ? `
+            <div class="builder-section">
+              <h3>Inspector</h3>
+              <div class="builder-inspector">
+                <div class="builder-inspector-row">
+                  <label>Sprite</label>
+                  <strong>${escapeHtml(selectedFurni.spriteId)}</strong>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>Cell</label>
+                  <span>${selectedFurni.cell.x}, ${selectedFurni.cell.y}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>offsetX</label>
+                  <input type="range" min="-0.5" max="0.5" step="0.05" value="${selectedFurni.offsetX}"
+                    data-input-action="builder-set-offset-x" />
+                  <span class="builder-readout">${selectedFurni.offsetX.toFixed(2)}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>offsetY</label>
+                  <input type="range" min="-0.5" max="0.5" step="0.05" value="${selectedFurni.offsetY}"
+                    data-input-action="builder-set-offset-y" />
+                  <span class="builder-readout">${selectedFurni.offsetY.toFixed(2)}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>lift</label>
+                  <input type="range" min="0" max="3" step="0.05" value="${selectedFurni.lift}"
+                    data-input-action="builder-set-lift" />
+                  <span class="builder-readout">${selectedFurni.lift.toFixed(2)}</span>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>anchor</label>
+                  <select data-input-action="builder-set-anchor">
+                    ${BUILDER_ANCHOR_OPTIONS.map(a => `
+                      <option value="${a}" ${selectedFurni.anchor === a ? 'selected' : ''}>${a || '(none)'}</option>
+                    `).join('')}
+                  </select>
+                </div>
+                <div class="builder-inspector-row">
+                  <label>flipX</label>
+                  <input type="checkbox" ${selectedFurni.flipX ? 'checked' : ''}
+                    data-input-action="builder-set-flip" />
+                </div>
+                <button class="danger-button" data-action="builder-delete-furniture" style="margin-top:12px">Delete</button>
+              </div>
+            </div>
+          ` : `
+            <div class="builder-section">
+              <h3>Inspector</h3>
+              <p class="builder-hint">${b.mode === 'select' ? 'Click a furniture item on the canvas to select it.' : 'Click a cell on the canvas to place furniture.'}</p>
+              <p class="builder-hint builder-count">Furniture: ${b.furniture.length} items</p>
+            </div>
+          `}
+        </aside>
+      </section>
+
+      ${b.exportText ? `
+        <section class="builder-export-panel">
+          <h3>Export / Import</h3>
+          <textarea id="builder-export-text" rows="8" readonly>${escapeHtml(b.exportText)}</textarea>
+          <div class="builder-export-actions">
+            <button class="secondary-button" data-action="builder-copy-export">Copy</button>
+            <button class="secondary-button" data-action="builder-close-export">Close</button>
+          </div>
+        </section>
+      ` : ''}
+    </main>
+  `;
+}
+
+// --- Builder Phaser Scene ---
+
+let activeBuilderMap = null;
+let builderMapHost = null;
+
+function ensureBuilderMapHost() {
+  if (!builderMapHost) {
+    builderMapHost = document.createElement('div');
+    builderMapHost.className = 'phaser-host';
+  }
+  return builderMapHost;
+}
+
+function destroyBuilderMap() {
+  if (!activeBuilderMap) return;
+  activeBuilderMap.game?.destroy(true);
+  activeBuilderMap = null;
+}
+
+function builderWorld() {
+  // A minimal "world" object for the builder's coordinate math.
+  // Size 24 gives plenty of room for the largest shape (team L = 4 rooms).
+  return {
+    size: 24,
+    subcellsPerCell: SUBCELLS_PER_CELL,
+    start: { x: 0, y: 0 },
+    end: { x: 23, y: 23 },
+    builtPath: [],
+    blackholes: [],
+    spawnOffice: null,
+    connectedToLight: false
+  };
+}
+
+class BuilderScene extends Phaser.Scene {
+  constructor() {
+    super('BuilderScene');
+    this.dragStart = null;
+    this.didDrag = false;
+  }
+
+  preload() {
+    Object.entries(sprites).forEach(([key, url]) => {
+      this.load.image(key, url);
+    });
+    Object.entries(FURNI).forEach(([key, url]) => {
+      this.load.image(`furni_${key}`, url);
+    });
+  }
+
+  create() {
+    if (activeBuilderMap) activeBuilderMap.scene = this;
+    this.cameras.main.setBackgroundColor('#02030a');
+    this.renderMap();
+    this.setupCamera();
+    this.setupInput();
+  }
+
+  renderMap() {
+    this.children.removeAll(true);
+    const world = builderWorld();
+    const b = game.builder;
+    const anchor = { x: 2, y: 2 };
+    const rotation = normalizeRotation(b.rotation);
+    const cells = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+    const type = BUILDING_TYPES_BY_ID[b.selectedTypeId];
+    const theme = DEPARTMENT_THEME[b.selectedTypeId] || DEPARTMENT_THEME.default;
+    const dims = boardDimensions(world);
+
+    this.cameras.main.setBounds(0, 0, dims.width, dims.height);
+
+    // Background
+    const bg = this.add.graphics().setDepth(0);
+    bg.fillGradientStyle(0x02030a, 0x0a1020, 0x111827, 0x2b3150, 1);
+    bg.fillRect(0, 0, dims.width, dims.height);
+
+    // Draw office floor
+    const floor = this.add.graphics().setDepth(120);
+    const cellKeys = new Set(cells.map(c => coordKey(c.x, c.y)));
+
+    cells.forEach(cell => {
+      const center = tileCenter(world, cell.x, cell.y);
+      const diamond = this.tileDiamond(center, 1);
+      floor.fillStyle(theme.floor ?? 0x4a4f63, 0.96);
+      floor.fillPoints(diamond, true);
+      floor.lineStyle(1, theme.top ?? 0x9fc0ec, 0.35);
+      floor.strokePoints(diamond, true);
+    });
+
+    // Draw walls
+    const walls = this.add.graphics().setDepth(500);
+    cells.forEach(cell => {
+      const c = tileCenter(world, cell.x, cell.y);
+      const H = Math.round(TILE_STEP_Y * 2.4);
+      if (!cellKeys.has(coordKey(cell.x, cell.y - 1))) {
+        walls.fillStyle(0x5a6b86, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x + TILE_STEP_X, c.y - H),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H)
+        ], true);
+      }
+      if (!cellKeys.has(coordKey(cell.x - 1, cell.y))) {
+        walls.fillStyle(0x44546b, 0.96);
+        walls.fillPoints([
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y),
+          new Phaser.Math.Vector2(c.x, c.y - TILE_STEP_Y - H),
+          new Phaser.Math.Vector2(c.x - TILE_STEP_X, c.y - H)
+        ], true);
+      }
+    });
+
+    // Label
+    if (cells.length > 0) {
+      const labelCell = cells[0];
+      const lc = tileCenter(world, labelCell.x, labelCell.y);
+      this.add.text(lc.x, lc.y - (Math.round(TILE_STEP_Y * 2.4) + 14), theme.label || type?.name || '', {
+        fontFamily: 'Inter, sans-serif', fontSize: '10px', color: '#f4efe2', fontStyle: 'bold'
+      }).setOrigin(0.5, 1).setDepth(1600);
+    }
+
+    // Draw furniture
+    const selectedIdx = b.selectedFurnitureIdx;
+    (b.furniture || []).forEach((item, idx) => {
+      const texKey = `furni_${item.spriteId}`;
+      if (!this.textures.exists(texKey)) return;
+      const cx = Number(item.cell?.x);
+      const cy = Number(item.cell?.y);
+      const center = tileCenter(world, cx, cy);
+      const src = this.textures.get(texKey).getSourceImage();
+      const transform = furnitureSpriteTransform({
+        spriteId: item.spriteId,
+        sourceImage: src,
+        baseX: center.x,
+        baseY: center.y,
+        flipX: item.flipX,
+        offsetX: item.offsetX,
+        offsetY: item.offsetY,
+        lift: item.lift,
+        anchor: item.anchor,
+        depth: 1000 + (cx + cy) * 4
+      });
+      const sprite = this.add.image(transform.x, transform.y, texKey)
+        .setOrigin(0.5, transform.metrics.originY)
+        .setDisplaySize(src.width * transform.metrics.scale, src.height * transform.metrics.scale)
+        .setFlipX(transform.flipX)
+        .setDepth(transform.depth);
+
+      // Highlight selected
+      if (idx === selectedIdx) {
+        sprite.setTint(0x88ccff);
+        // Draw selection outline on the cell
+        const selGfx = this.add.graphics().setDepth(transform.depth - 1);
+        const selDiamond = this.tileDiamond(center, 0.9);
+        selGfx.lineStyle(2, 0x88ccff, 0.8);
+        selGfx.strokePoints(selDiamond, true);
+      }
+    });
+  }
+
+  setupCamera() {
+    const world = builderWorld();
+    const b = game.builder;
+    const anchor = { x: 2, y: 2 };
+    const rotation = normalizeRotation(b.rotation);
+    const cells = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+
+    if (cells.length === 0) return;
+
+    let minLeft = Infinity, maxLeft = -Infinity, minTop = Infinity, maxTop = -Infinity;
+    cells.forEach(cell => {
+      const pos = isoCellPosition(world, cell.x, cell.y);
+      minLeft = Math.min(minLeft, pos.left - 60);
+      maxLeft = Math.max(maxLeft, pos.left + 60);
+      minTop = Math.min(minTop, pos.top - 100);
+      maxTop = Math.max(maxTop, pos.top + 80);
+    });
+
+    const cam = this.cameras.main;
+    const usableWidth = Math.max(320, cam.width - 40);
+    const usableHeight = Math.max(260, cam.height - 40);
+    const contentWidth = Math.max(1, maxLeft - minLeft);
+    const contentHeight = Math.max(1, maxTop - minTop);
+    const fitZoom = Phaser.Math.Clamp(
+      Math.min(usableWidth / contentWidth, usableHeight / contentHeight) * 0.88,
+      MIN_MAP_ZOOM, MAX_MAP_ZOOM
+    );
+    cam.setZoom(fitZoom);
+    cam.centerOn((minLeft + maxLeft) / 2, (minTop + maxTop) / 2 + CHUNK_OFFSET_Y);
+  }
+
+  setupInput() {
+    const cam = this.cameras.main;
+
+    this.input.on('pointerdown', pointer => {
+      this.dragStart = { x: pointer.x, y: pointer.y, scrollX: cam.scrollX, scrollY: cam.scrollY };
+      this.didDrag = false;
+    });
+
+    this.input.on('pointermove', pointer => {
+      if (this.dragStart && pointer.isDown) {
+        const dx = pointer.x - this.dragStart.x;
+        const dy = pointer.y - this.dragStart.y;
+        if (Math.abs(dx) + Math.abs(dy) > 4) this.didDrag = true;
+        if (this.didDrag) {
+          cam.scrollX = this.dragStart.scrollX - dx / cam.zoom;
+          cam.scrollY = this.dragStart.scrollY - dy / cam.zoom;
+          return;
+        }
+      }
+      // Update cursor
+      const world = builderWorld();
+      const cell = mapCellFromWorldPoint(world, pointer.worldX, pointer.worldY);
+      if (cell) {
+        const anchor = { x: 2, y: 2 };
+        const rotation = normalizeRotation(game.builder.rotation);
+        const occupied = builderOccupiedCells(game.builder.selectedTypeId, anchor, rotation);
+        const isInOffice = occupied.some(c => c.x === cell.x && c.y === cell.y);
+        this.game.canvas.style.cursor = isInOffice
+          ? (game.builder.mode === 'place' ? 'cell' : 'pointer')
+          : 'default';
+      }
+    });
+
+    this.input.on('pointerup', pointer => {
+      const wasDrag = this.didDrag;
+      this.dragStart = null;
+      this.didDrag = false;
+      if (!wasDrag) this.handleBuilderClick(pointer);
+    });
+
+    this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
+      const nextZoom = Phaser.Math.Clamp(cam.zoom * (deltaY > 0 ? 0.88 : 1.12), MIN_MAP_ZOOM, MAX_MAP_ZOOM);
+      const before = cam.getWorldPoint(pointer.x, pointer.y);
+      cam.setZoom(nextZoom);
+      const after = cam.getWorldPoint(pointer.x, pointer.y);
+      cam.scrollX += before.x - after.x;
+      cam.scrollY += before.y - after.y;
+    });
+  }
+
+  handleBuilderClick(pointer) {
+    const world = builderWorld();
+    const cell = mapCellFromWorldPoint(world, pointer.worldX, pointer.worldY);
+    if (!cell) return;
+
+    const b = game.builder;
+    const anchor = { x: 2, y: 2 };
+    const rotation = normalizeRotation(b.rotation);
+    const occupied = builderOccupiedCells(b.selectedTypeId, anchor, rotation);
+    const isInOffice = occupied.some(c => c.x === cell.x && c.y === cell.y);
+
+    if (b.mode === 'place' && isInOffice) {
+      // Place furniture
+      const newItem = {
+        id: `furni-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        spriteId: b.selectedSpriteId,
+        cell: { x: cell.x, y: cell.y },
+        offsetX: 0, offsetY: 0, lift: 0, anchor: '', flipX: false
+      };
+      b.furniture.push(newItem);
+      b.selectedFurnitureIdx = b.furniture.length - 1;
+      b.mode = 'select';
+      saveBuilderState();
+      render();
+      return;
+    }
+
+    if (b.mode === 'select') {
+      // Try to find a furniture item at this cell
+      const idx = b.furniture.findIndex(f => f.cell.x === cell.x && f.cell.y === cell.y);
+      if (idx >= 0) {
+        // If multiple items on same cell, cycle through them
+        if (b.selectedFurnitureIdx >= 0 && b.furniture[b.selectedFurnitureIdx]?.cell.x === cell.x && b.furniture[b.selectedFurnitureIdx]?.cell.y === cell.y) {
+          // Find next item on same cell
+          const sameCell = b.furniture
+            .map((f, i) => ({ f, i }))
+            .filter(({ f }) => f.cell.x === cell.x && f.cell.y === cell.y);
+          const currentInList = sameCell.findIndex(({ i }) => i === b.selectedFurnitureIdx);
+          const nextInList = (currentInList + 1) % sameCell.length;
+          b.selectedFurnitureIdx = sameCell[nextInList].i;
+        } else {
+          b.selectedFurnitureIdx = idx;
+        }
+      } else {
+        b.selectedFurnitureIdx = -1;
+      }
+      render();
+      return;
+    }
+  }
+
+  tileDiamond(center, scale = 1) {
+    const hw = TILE_STEP_X * scale;
+    const hh = TILE_STEP_Y * scale;
+    return [
+      new Phaser.Math.Vector2(center.x, center.y - hh),
+      new Phaser.Math.Vector2(center.x + hw, center.y),
+      new Phaser.Math.Vector2(center.x, center.y + hh),
+      new Phaser.Math.Vector2(center.x - hw, center.y)
+    ];
+  }
+}
+
+function mountBuilderMap() {
+  const placeholder = document.querySelector('[data-phaser-map][data-map-mode="builder"]');
+  if (!placeholder) {
+    if (builderMapHost?.parentNode) builderMapHost.parentNode.removeChild(builderMapHost);
+    return;
+  }
+
+  const host = ensureBuilderMapHost();
+  if (host.parentNode !== placeholder) placeholder.appendChild(host);
+
+  if (activeBuilderMap?.game) {
+    activeBuilderMap.game.scale.refresh();
+    activeBuilderMap.scene?.renderMap();
+    return;
+  }
+
+  destroyBuilderMap();
+  const rect = host.getBoundingClientRect();
+  activeBuilderMap = { game: null, element: host, scene: null };
+  const phaserGame = new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: host,
+    width: Math.max(320, Math.floor(rect.width || host.clientWidth || 800)),
+    height: Math.max(260, Math.floor(rect.height || host.clientHeight || 600)),
+    backgroundColor: '#02030a',
+    pixelArt: true,
+    antialias: false,
+    roundPixels: true,
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      autoCenter: Phaser.Scale.NO_CENTER
+    },
+    scene: new BuilderScene()
+  });
+  activeBuilderMap.game = phaserGame;
+}
+
+
+
 function renderReport() {
   const report = game.report;
   if (!report) {
@@ -3063,6 +4012,10 @@ function renderReport() {
           <h2>Final Result</h2>
           <p>${escapeHtml(report.finalResult.reason)}</p>
           <strong>${report.finalResult.escaped ? 'Escaped' : report.finalResult.status}</strong>
+        </div>
+        <div class="report-block">
+          <h2>Time Played</h2>
+          <strong>${formatPlayTime(report.playTimeMs)}</strong>
         </div>
         <div class="report-block">
           <h2>Resources</h2>
@@ -3182,6 +4135,123 @@ async function handleClick(event) {
   }
   if (action === 'open-dashboard') {
     navigateTo('/');
+    return;
+  }
+  if (action === 'open-builder') {
+    navigateTo(BUILDER_PATH);
+    return;
+  }
+  // --- Builder actions ---
+  if (action === 'builder-back') {
+    navigateTo('/');
+    return;
+  }
+  if (action === 'builder-select-type') {
+    game.builder.selectedTypeId = actionEl.dataset.typeId;
+    game.builder.furniture = [];
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-set-rotation') {
+    game.builder.rotation = Number(actionEl.dataset.rotation);
+    game.builder.furniture = [];
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-set-mode') {
+    game.builder.mode = actionEl.dataset.mode;
+    if (game.builder.mode === 'place') game.builder.selectedFurnitureIdx = -1;
+    render();
+    return;
+  }
+  if (action === 'builder-select-sprite') {
+    game.builder.selectedSpriteId = actionEl.dataset.spriteId;
+    render();
+    return;
+  }
+  if (action === 'builder-auto-fill') {
+    game.builder.furniture = builderAutoFillFurniture();
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-clear-furniture') {
+    game.builder.furniture = [];
+    game.builder.selectedFurnitureIdx = -1;
+    saveBuilderState();
+    destroyBuilderMap();
+    render();
+    return;
+  }
+  if (action === 'builder-delete-furniture') {
+    if (game.builder.selectedFurnitureIdx >= 0) {
+      game.builder.furniture.splice(game.builder.selectedFurnitureIdx, 1);
+      game.builder.selectedFurnitureIdx = -1;
+      saveBuilderState();
+      destroyBuilderMap();
+      render();
+    }
+    return;
+  }
+  if (action === 'builder-export') {
+    const placement = builderCreatePlacement();
+    game.builder.exportText = JSON.stringify(placement, null, 2);
+    render();
+    return;
+  }
+  if (action === 'builder-import') {
+    const input = prompt('Paste builder JSON:');
+    if (!input) return;
+    try {
+      const data = JSON.parse(input);
+      if (data.typeId && BUILDING_TYPES_BY_ID[data.typeId]) {
+        game.builder.selectedTypeId = data.typeId;
+      }
+      if (typeof data.rotation === 'number') {
+        game.builder.rotation = normalizeRotation(data.rotation);
+      }
+      if (Array.isArray(data.furniture)) {
+        game.builder.furniture = data.furniture.map(f => ({
+          id: f.id || `furni-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          spriteId: f.spriteId || 'desk',
+          cell: f.cell || { x: 0, y: 0 },
+          offsetX: Number(f.offsetX) || 0,
+          offsetY: Number(f.offsetY) || 0,
+          lift: Number(f.lift) || 0,
+          anchor: f.anchor || '',
+          flipX: Boolean(f.flipX)
+        }));
+      }
+      game.builder.selectedFurnitureIdx = -1;
+      saveBuilderState();
+      destroyBuilderMap();
+      render();
+    } catch (err) {
+      alert('Invalid JSON: ' + err.message);
+    }
+    return;
+  }
+  if (action === 'builder-copy-export') {
+    const ta = document.getElementById('builder-export-text');
+    if (ta) {
+      navigator.clipboard?.writeText(ta.value).catch(() => {
+        ta.select();
+        document.execCommand('copy');
+      });
+    }
+    return;
+  }
+  if (action === 'builder-close-export') {
+    game.builder.exportText = '';
+    render();
     return;
   }
   if (action === 'fullscreen-zoom') {
@@ -3724,8 +4794,57 @@ document.addEventListener('input', event => {
     return;
   }
   const offsetZAxisSlider = event.target.closest('[data-input-action="set-furniture-offset-z"]');
-  if (!offsetZAxisSlider) return;
-  applyFurnitureOffsetAxis('z', offsetZAxisSlider.value);
+  if (offsetZAxisSlider) {
+    applyFurnitureOffsetAxis('z', offsetZAxisSlider.value);
+    return;
+  }
+
+  // --- Builder inspector inputs ---
+  const bIdx = game.builder.selectedFurnitureIdx;
+  const bFurni = bIdx >= 0 ? game.builder.furniture[bIdx] : null;
+  if (!bFurni) return;
+
+  const bOffsetX = event.target.closest('[data-input-action="builder-set-offset-x"]');
+  if (bOffsetX) {
+    bFurni.offsetX = Number(bOffsetX.value);
+    const readout = bOffsetX.parentElement?.querySelector('.builder-readout');
+    if (readout) readout.textContent = bFurni.offsetX.toFixed(2);
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bOffsetY = event.target.closest('[data-input-action="builder-set-offset-y"]');
+  if (bOffsetY) {
+    bFurni.offsetY = Number(bOffsetY.value);
+    const readout = bOffsetY.parentElement?.querySelector('.builder-readout');
+    if (readout) readout.textContent = bFurni.offsetY.toFixed(2);
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bLift = event.target.closest('[data-input-action="builder-set-lift"]');
+  if (bLift) {
+    bFurni.lift = Number(bLift.value);
+    const readout = bLift.parentElement?.querySelector('.builder-readout');
+    if (readout) readout.textContent = bFurni.lift.toFixed(2);
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bAnchor = event.target.closest('[data-input-action="builder-set-anchor"]');
+  if (bAnchor) {
+    bFurni.anchor = bAnchor.value;
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
+  const bFlip = event.target.closest('[data-input-action="builder-set-flip"]');
+  if (bFlip) {
+    bFurni.flipX = bFlip.checked;
+    saveBuilderState();
+    activeBuilderMap?.scene?.renderMap?.();
+    return;
+  }
 });
 
 function updatePlacementPreview(nextAnchor) {
@@ -3797,6 +4916,14 @@ document.addEventListener('dragend', () => {
 
 document.addEventListener('keydown', event => {
   const editingText = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target?.tagName);
+  if (!editingText && isBuilderRoute()) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      navigateTo('/');
+      return;
+    }
+    return;
+  }
   if (!editingText && isFullscreenRoute()) {
     const key = event.key.toLowerCase();
     if (event.key === '+' || event.key === '=') {
@@ -3853,7 +4980,11 @@ window.addEventListener('popstate', () => {
     clearPlacement();
     game.fullscreen.hasAutoSnapped = false;
   }
+  if (isBuilderRoute()) {
+    clearPlacement();
+  }
   render();
 });
 
+installVoidOfficeDebugFlag();
 boot();

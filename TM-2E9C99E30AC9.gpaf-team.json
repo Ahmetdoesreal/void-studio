@@ -1,0 +1,1353 @@
+{
+  "gpaf_team_export": "0.5.0",
+  "proposalLink": {
+    "gpptVersion": "2.0.10",
+    "successCriteria": [
+      {
+        "id": "C1",
+        "type": "learning_gain_min",
+        "target": 0.3
+      },
+      {
+        "id": "C2",
+        "type": "players_reached_min",
+        "target": 10
+      },
+      {
+        "id": "C3",
+        "type": "completion_rate_min",
+        "target": 0.5
+      }
+    ],
+    "proposalState": {
+      "ideaBrief": {
+        "title": "Void Office Tycoon",
+        "domain": "IT project management game",
+        "audience": "COM0463 students",
+        "coreMetaphor": "A small office grows inside an empty void.",
+        "successVision": "Students learn project management by building departments and escaping the void."
+      },
+      "projectTitle": "Void Office Tycoon",
+      "organisation": "Istanbul Kultur University",
+      "courseCode": "COM0463",
+      "domain": "IT project management",
+      "deliverableArea": "Simple web tycoon game for learning IT project management",
+      "proposalDate": "2026-03-28",
+      "startDate": "2026-04-15",
+      "problemStatement": "In COM0463, some students know project terms but do not see how they connect. Scope, budget, team work, and quality can feel separate. This game makes them visible as office parts inside a void and targets about 15% better post-quiz results.",
+      "targetPopulation": "Around 40 COM0463 IT Project Management students.",
+      "successCriteria": [
+        "At least 75% of students explain one good department choice.",
+        "At least 30 students play one full office run.",
+        "Each student finishes one minigame and buys one department.",
+        "Post-quiz results improve by about 15%."
+      ],
+      "teamMembers": [
+        {
+          "name": "Ahmet Deniz",
+          "surname": "Sezgin",
+          "email": "2300005633@stu.iku.edu.tr",
+          "role": "Project lead"
+        },
+        {
+          "name": "Kerem",
+          "surname": "Yılmaz",
+          "email": "2100003979@stu.iku.edu.tr",
+          "role": "Risk content"
+        },
+        {
+          "name": "Okay",
+          "surname": "Aşcı",
+          "email": "1900004115@stu.iku.edu.tr",
+          "role": "Developer and tester"
+        }
+      ],
+      "userStories": [
+        {
+          "id": "US-01",
+          "role": "Student",
+          "want": "to play short project minigames",
+          "soThat": "I can earn points for my office.",
+          "acc": "Given a minigame starts, When I finish it, Then I receive main points and one resource result."
+        },
+        {
+          "id": "US-02",
+          "role": "Student",
+          "want": "to buy strange office departments",
+          "soThat": "my office can grow in the void.",
+          "acc": "Given I have enough points, When I buy a department, Then it appears on the office map."
+        },
+        {
+          "id": "US-03",
+          "role": "Student",
+          "want": "to choose between Budget, Team, and Quality upgrades",
+          "soThat": "I can plan my project strategy.",
+          "acc": "Given I choose a department, When it is built, Then one resource increases more than the others."
+        },
+        {
+          "id": "US-04",
+          "role": "Instructor",
+          "want": "to see the final office report",
+          "soThat": "I can discuss student decisions in class.",
+          "acc": "Given the game is finished, When I open the report, Then I can see departments, resources, and key choices."
+        },
+        {
+          "id": "US-05",
+          "role": "Facilitator",
+          "want": "to pause the game for explanation",
+          "soThat": "confused students can follow the activity.",
+          "acc": "Given students are confused, When I pause the session, Then the current office state stays visible."
+        }
+      ],
+      "frs": [
+        {
+          "id": "FR-01",
+          "description": "System shall show a void office map with locked and built departments."
+        },
+        {
+          "id": "FR-02",
+          "description": "System shall run short timed minigames and give points."
+        },
+        {
+          "id": "FR-03",
+          "description": "System shall keep a simple log with studentId, minigameId, departmentBuilt, resourceChange, timestamp, and final result."
+        }
+      ],
+      "nfrs": [
+        {
+          "id": "NFR-01",
+          "attr": "Performance",
+          "desc": "The game should not feel slow.",
+          "target": "Most actions under 1 second"
+        },
+        {
+          "id": "NFR-02",
+          "attr": "Usability",
+          "desc": "Students should understand the office screen easily.",
+          "target": "Short tutorial before play"
+        },
+        {
+          "id": "NFR-03",
+          "attr": "Privacy",
+          "desc": "Student data should not be shared publicly.",
+          "target": "Use simple class IDs instead of public names"
+        },
+        {
+          "id": "NFR-04",
+          "attr": "Accessibility",
+          "desc": "Text, timers, and buttons should be easy to read.",
+          "target": "Clear labels and readable contrast"
+        },
+        {
+          "id": "NFR-05",
+          "attr": "Reliability",
+          "desc": "The game should keep progress during the class.",
+          "target": "Save choices after each minigame"
+        }
+      ],
+      "logPrivacy": "The game keeps a simple log of choices, scores, and built departments. The log is only for class feedback.",
+      "dataCollectionPlan": "I will use quiz results, game logs, and a short reflection about the final office.",
+      "bloomOutcomes": [
+        {
+          "level": "L1 Remember",
+          "bloom_k": 1,
+          "outcome": "Remember basic project terms like scope, budget, team, and quality.",
+          "activity": "Short quiz",
+          "assessment": "Quiz answers"
+        },
+        {
+          "level": "L2 Understand",
+          "bloom_k": 2,
+          "outcome": "Explain why Budget, Team, and Quality matter in a project.",
+          "activity": "Class discussion",
+          "assessment": "Short answer"
+        },
+        {
+          "level": "L3 Apply",
+          "bloom_k": 3,
+          "outcome": "Use points to buy a useful department in the office.",
+          "activity": "Office upgrade",
+          "assessment": "Game result"
+        },
+        {
+          "level": "L4 Analyse",
+          "bloom_k": 4,
+          "outcome": "Compare two department choices and explain the better one.",
+          "activity": "Game debrief",
+          "assessment": "Reflection"
+        },
+        {
+          "level": "L5 Evaluate",
+          "bloom_k": 5,
+          "outcome": "Judge if the office plan was balanced enough to escape.",
+          "activity": "Final discussion",
+          "assessment": "Decision explanation"
+        },
+        {
+          "level": "L6 Create",
+          "bloom_k": 6,
+          "outcome": "Create a short improved office expansion plan.",
+          "activity": "Final report",
+          "assessment": "Expansion plan draft"
+        }
+      ],
+      "theories": [
+        "sdt",
+        "mda",
+        "bloom",
+        "kirkpatrick"
+      ],
+      "mdaAnalysis": {
+        "mechanics": "Timed minigames, main points, Budget, Team, Quality, and department unlocks.",
+        "dynamics": "Students balance quick minigame results with slower office planning.",
+        "aesthetics": "The game should feel like a strange office slowly appearing in empty space."
+      },
+      "hexad": {
+        "Achiever": 30,
+        "Socialiser": 25,
+        "Player": 20,
+        "FreeSpirit": 15,
+        "Philanthropist": 10,
+        "Disruptor": 0
+      },
+      "mechanics": [
+        "main points",
+        "Budget resource",
+        "Team resource",
+        "Quality resource",
+        "timed minigames",
+        "department buying"
+      ],
+      "sdtAutonomy": "Students choose which department to build and which resource to improve.",
+      "sdtCompetence": "Students get quick feedback after each minigame, so they can improve the next office choice.",
+      "sdtRelatedness": "Students compare office layouts and explain why their department order worked or failed.",
+      "octalysis": {
+        "epicMeaning": 0.6,
+        "development": 0.7,
+        "accomplishment": 0.7,
+        "empowerment": 0.6,
+        "ownership": 0.6,
+        "social": 0.5,
+        "scarcity": 0.4,
+        "unpredictability": 0.5,
+        "avoidance": 0.2
+      },
+      "narrativeTheme": "The player starts with one desk floating in a dark void. Fast project minigames create main points, Budget, Team, and Quality. Departments like Scope Desk, Bug Lab, Sprint Floor, Risk Vault, and Stakeholder Booth appear when the player spends points. The final Portal Room opens when the office is strong enough. Self-Determination Theory is used because students choose upgrades. Mechanics-Dynamics-Aesthetics connects minigames with the feeling of building the office. Bloom Taxonomy moves students from terms to planning. Kirkpatrick four-level evaluation is used with reaction, quiz, transfer, and result checks.",
+      "gameOverview": "The player builds an IT project office inside a void. Each round has a short arcade-style project minigame. Points buy departments. Budget, Team, and Quality change based on the player's department choices. When enough departments are built, the Portal Room opens and the office escapes.",
+      "conceptMappings": [
+        {
+          "concept": "Scope management",
+          "mechanic": "Scope Desk requirement sorting"
+        },
+        {
+          "concept": "Resource allocation",
+          "mechanic": "Budget, Team, and Quality choices"
+        },
+        {
+          "concept": "Quality management",
+          "mechanic": "Bug Lab triage minigame"
+        },
+        {
+          "concept": "Risk management",
+          "mechanic": "Risk Vault warning events"
+        },
+        {
+          "concept": "Stakeholder communication",
+          "mechanic": "Stakeholder Booth reply choices"
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "SC-01",
+          "title": "Scope Fog",
+          "setup": "Requirement notes float across the void and the timer starts.",
+          "winCondition": "The student sorts must-have and nice-to-have items correctly.",
+          "loseCondition": "If items are mixed badly, losePoints=0 and office growth slows for debrief.",
+          "outcome": "Students see why scope control protects Budget and Team."
+        },
+        {
+          "id": "SC-02",
+          "title": "Bug Rain",
+          "setup": "Bugs fall onto the office floor during a release sprint.",
+          "winCondition": "The student catches serious bugs before minor bugs.",
+          "loseCondition": "If serious bugs are missed, losePoints=0 and Quality drops for discussion.",
+          "outcome": "Students see why testing and quality choices matter."
+        },
+        {
+          "id": "SC-03",
+          "title": "Budget Rift",
+          "setup": "A rift opens and offers three department upgrades with different costs.",
+          "winCondition": "The student chooses an upgrade that keeps Budget, Team, and Quality balanced.",
+          "loseCondition": "If one resource becomes too weak, losePoints=0 and the class reviews the choice.",
+          "outcome": "Students see how project trade-offs affect the final goal."
+        }
+      ],
+      "gameDuration": "About 60 to 75 minutes including explanation, play, and debrief.",
+      "sessionSteps": [
+        {
+          "seq": 1,
+          "name": "Introduction",
+          "description": "Instructor explains the office goal, resources, and minigames.",
+          "duration": "10 min"
+        },
+        {
+          "seq": 2,
+          "name": "Play",
+          "description": "Students play minigames and build departments.",
+          "duration": "40 min"
+        },
+        {
+          "seq": 3,
+          "name": "Debrief",
+          "description": "Class discusses office choices and project trade-offs.",
+          "duration": "15 min"
+        },
+        {
+          "seq": 4,
+          "name": "Report",
+          "description": "Students write a short improved office expansion plan.",
+          "duration": "10 min"
+        }
+      ],
+      "gamePhases": [
+        {
+          "seq": 1,
+          "name": "Play",
+          "description": "Finish a short project minigame.",
+          "duration": "3 min"
+        },
+        {
+          "seq": 2,
+          "name": "Earn",
+          "description": "Receive main points and resource changes.",
+          "duration": "1 min"
+        },
+        {
+          "seq": 3,
+          "name": "Build",
+          "description": "Buy or upgrade one office department.",
+          "duration": "2 min"
+        },
+        {
+          "seq": 4,
+          "name": "Escape Check",
+          "description": "Check if the Portal Room can open.",
+          "duration": "1 min"
+        }
+      ],
+      "rewardStructure": {
+        "elite": "Students who open the Portal Room get an Escape Architect badge.",
+        "professional": "Students who build three departments get a Department Builder badge.",
+        "access": "All students get the final office report and debrief notes."
+      },
+      "kpis": [
+        {
+          "level": "L1",
+          "metric": "Student reaction",
+          "method": "Short survey",
+          "target": "Mostly positive answers"
+        },
+        {
+          "level": "L2",
+          "metric": "Project management knowledge",
+          "method": "Pre and post quiz",
+          "target": "Better post-quiz score"
+        },
+        {
+          "level": "L3",
+          "metric": "Use in project work",
+          "method": "Check next project plan",
+          "target": "More balanced scope, resource, and quality notes"
+        },
+        {
+          "level": "L4",
+          "metric": "Course project result",
+          "method": "Compare final project management section",
+          "target": "Better planning section than the first draft"
+        }
+      ],
+      "tuslerRisks": [
+        {
+          "id": "R-01",
+          "category": "Tiger",
+          "prob": "High",
+          "impact": "High",
+          "mitigation": "Make timers adjustable for the class.",
+          "preventive": "Test minigame speed before the lesson.",
+          "responsive": "Slow the timer and give one example round."
+        },
+        {
+          "id": "R-02",
+          "category": "Puppy",
+          "prob": "High",
+          "impact": "Low",
+          "mitigation": "Use clear labels for points and resources.",
+          "preventive": "Show the resource meanings before play.",
+          "responsive": "Explain Budget, Team, and Quality again during pause."
+        },
+        {
+          "id": "R-03",
+          "category": "Alligator",
+          "prob": "Low",
+          "impact": "High",
+          "mitigation": "Prepare a backup activity if the game does not load.",
+          "preventive": "Test the browser and projector before class.",
+          "responsive": "Use paper department cards and discuss choices."
+        },
+        {
+          "id": "R-04",
+          "category": "Kitten",
+          "prob": "Low",
+          "impact": "Low",
+          "mitigation": "Collect small spelling and balance issues after the session.",
+          "preventive": "Do a quick peer review before submission.",
+          "responsive": "Fix small issues in the next version."
+        }
+      ],
+      "supportTeam": [
+        {
+          "name": "Ahmet Deniz",
+          "role": "Designer"
+        },
+        {
+          "name": "Instructor",
+          "role": "Facilitator"
+        },
+        {
+          "name": "Lab assistant",
+          "role": "Technical support"
+        }
+      ],
+      "facilitatorRole": "The facilitator explains the rules, helps confused students, pauses if needed, and leads the final discussion.",
+      "wf_dash": "The dashboard shows the void office map, main points, Budget, Team, Quality, the current minigame, and the next department price.",
+      "wf_asset": "Each department tile shows its name, price, resource effect, locked or built state, and a short project management meaning.",
+      "wf_portfolio": "The report page shows built departments, resource levels, minigame results, the escape result, and a short reflection.",
+      "inScope": "The project includes a void office map, fast minigames, main points, Budget, Team, Quality, department buying, and losePoints=0 for failed cases.",
+      "outScope": "The project does not include real company data, VR, real money, online multiplayer, or advanced simulation.",
+      "whyMotivation": "Students may care more when their project choices make the office grow and move them closer to escaping the void.",
+      "howEthics": "The game should use simple student IDs and avoid public ranking by real names."
+    }
+  },
+  "realizations": [
+    {
+      "ref": "problemStatement",
+      "category": "problemStatement",
+      "sec": 2,
+      "label": "Problem Statement",
+      "hint": "≥80 chars + a percentage for full credit",
+      "promised": "In COM0463, some students know project terms but do not see how they connect. Scope, budget, team work, and quality can feel separate. This game makes them visible as office parts inside a void and targets about 15% better post-quiz results.",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "targetPopulation",
+      "category": "targetPopulation",
+      "sec": 2,
+      "label": "Target Population",
+      "hint": "≥30 chars + numeric size",
+      "promised": "Around 40 COM0463 IT Project Management students.",
+      "fulfilled": "no",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "successCriteria",
+      "category": "successCriteria",
+      "sec": 2,
+      "label": "Success Criteria",
+      "hint": "≥4 measurable criteria",
+      "promised": "At least 75% of students explain one good department choice. · At least 30 students play one full office run. · Each student finishes one minigame and buys one department. · Post-quiz results improve by about 15%.",
+      "fulfilled": "no",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "userStories",
+      "category": "userStories",
+      "sec": 3,
+      "label": "User Stories",
+      "hint": "≥5 stories",
+      "promised": "id: US-01, role: Student, want: to play short project minigames, soThat: I can earn points for my office., acc: Given a minigame starts, When I finish it, Then I receive main points and one resource result. · id: US-02, role: Student, want: to buy strange office departments, soThat: my office can grow in the void., acc: Given I have enough points, When I buy a department, Then it appears on the office map. · id: US-03, role: Student, want: to choose between Budget, Team, and Quality upgrades, soThat: I can plan my project strategy., acc: Given I choose a department, When it is built, Then one resource increases more than the others. · id: US-04, role: Instructor, want: to see the final office report, soThat: I can discuss student decisions in class., acc: Given the game is finished, When I open the report, Then I can see departments, resources, and key choices. · id: US-05, role: Facilitator, want: to pause the game for explanation, soThat: confused students can follow the activity., acc: Given students are confused, When I pause the session, Then the current office state stays visible.",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "frs",
+      "category": "frs",
+      "sec": 3,
+      "label": "Functional Requirements",
+      "hint": "≥1 FR mentioning logs/events/audit/recording",
+      "promised": "id: FR-01, description: System shall show a void office map with locked and built departments. · id: FR-02, description: System shall run short timed minigames and give points. · id: FR-03, description: System shall keep a simple log with studentId, minigameId, departmentBuilt, resourceChange, timestamp, and final result.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "nfrs",
+      "category": "nfrs",
+      "sec": 3,
+      "label": "Non-Functional Requirements",
+      "hint": "≥5 NFRs incl. privacy/GDPR/KVKK",
+      "promised": "id: NFR-01, attr: Performance, desc: The game should not feel slow., target: Most actions under 1 second · id: NFR-02, attr: Usability, desc: Students should understand the office screen easily., target: Short tutorial before play · id: NFR-03, attr: Privacy, desc: Student data should not be shared publicly., target: Use simple class IDs instead of public names · id: NFR-04, attr: Accessibility, desc: Text, timers, and buttons should be easy to read., target: Clear labels and readable contrast · id: NFR-05, attr: Reliability, desc: The game should keep progress during the class., target: Save choices after each minigame",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "logPrivacy",
+      "category": "logPrivacy",
+      "sec": 3,
+      "label": "Log Privacy Statement",
+      "hint": "Auxiliary for keyword detection",
+      "promised": "The game keeps a simple log of choices, scores, and built departments. The log is only for class feedback.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "dataCollectionPlan",
+      "category": "dataCollectionPlan",
+      "sec": 3,
+      "label": "Data Collection Plan",
+      "hint": "Auxiliary for keyword detection",
+      "promised": "I will use quiz results, game logs, and a short reflection about the final office.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "bloomOutcomes",
+      "category": "bloomOutcomes",
+      "sec": 4,
+      "label": "Bloom Outcomes",
+      "hint": "All 6 levels (L1-L6), outcome ≥20 chars",
+      "promised": "level: L1 Remember, bloom_k: 1, outcome: Remember basic project terms like scope, budget, team, and quality., activity: Short quiz, assessment: Quiz answers · level: L2 Understand, bloom_k: 2, outcome: Explain why Budget, Team, and Quality matter in a project., activity: Class discussion, assessment: Short answer · level: L3 Apply, bloom_k: 3, outcome: Use points to buy a useful department in the office., activity: Office upgrade, assessment: Game result · level: L4 Analyse, bloom_k: 4, outcome: Compare two department choices and explain the better one., activity: Game debrief, assessment: Reflection · level: L5 Evaluate, bloom_k: 5, outcome: Judge if the office plan was balanced enough to escape., activity: Final discussion, assessment: Decision explanation · level: L6 Create, bloom_k: 6, outcome: Create a short improved office expansion plan., activity: Final report, assessment: Expansion plan draft",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "theories",
+      "category": "theories",
+      "sec": 4,
+      "label": "Theories used",
+      "hint": "≥4 theories woven into the narrative by full name",
+      "promised": "sdt · mda · bloom · kirkpatrick",
+      "fulfilled": "no",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "mdaAnalysis",
+      "category": "mdaAnalysis",
+      "sec": 4,
+      "label": "MDA Analysis",
+      "hint": "Mechanics/Dynamics/Aesthetics each ≥50 chars",
+      "promised": "mechanics: Timed minigames, main points, Budget, Team, Quality, and department unlocks. · dynamics: Students balance quick minigame results with slower office planning. · aesthetics: The game should feel like a strange office slowly appearing in empty space.",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "hexad",
+      "category": "hexad",
+      "sec": 4,
+      "label": "HEXAD distribution",
+      "hint": "Percentages summing to 100±5",
+      "promised": "Achiever: 30 · Socialiser: 25 · Player: 20 · FreeSpirit: 15 · Philanthropist: 10 · Disruptor: 0",
+      "fulfilled": "no",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "mechanics",
+      "category": "mechanics",
+      "sec": 4,
+      "label": "Mechanics",
+      "hint": "≥5 NON-PBL items",
+      "promised": "main points · Budget resource · Team resource · Quality resource · timed minigames · department buying",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "sdtAutonomy",
+      "category": "sdtAutonomy",
+      "sec": 5,
+      "label": "SDT — Autonomy support",
+      "hint": "≥50 chars",
+      "promised": "Students choose which department to build and which resource to improve.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "sdtCompetence",
+      "category": "sdtCompetence",
+      "sec": 5,
+      "label": "SDT — Competence support",
+      "hint": "≥50 chars",
+      "promised": "Students get quick feedback after each minigame, so they can improve the next office choice.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "sdtRelatedness",
+      "category": "sdtRelatedness",
+      "sec": 5,
+      "label": "SDT — Relatedness support",
+      "hint": "≥50 chars",
+      "promised": "Students compare office layouts and explain why their department order worked or failed.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "octalysis",
+      "category": "octalysis",
+      "sec": 5,
+      "label": "Octalysis (0.0-1.0 per drive)",
+      "hint": "≥2 white-hat drives ≥0.5; whiteTotal ≥ blackTotal",
+      "promised": "epicMeaning: 0.6 · development: 0.7 · accomplishment: 0.7 · empowerment: 0.6 · ownership: 0.6 · social: 0.5 · scarcity: 0.4 · unpredictability: 0.5 · avoidance: 0.2",
+      "fulfilled": "no",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "narrativeTheme",
+      "category": "narrativeTheme",
+      "sec": 6,
+      "label": "Narrative Theme",
+      "hint": "Rich at ≥400 chars; weave all 5 theories by full name",
+      "promised": "The player starts with one desk floating in a dark void. Fast project minigames create main points, Budget, Team, and Quality. Departments like Scope Desk, Bug Lab, Sprint Floor, Risk Vault, and Stakeholder Booth appear when the player spends points. The final Portal Room opens when the office is strong enough. Self-Determination Theory is used because students choose upgrades. Mechanics-Dynamics-Aesthetics connects minigames with the feeling of building the office. Bloom Taxonomy moves students from terms to planning. Kirkpatrick four-level evaluation is used with reaction, quiz, transfer, and result checks.",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "gameOverview",
+      "category": "gameOverview",
+      "sec": 6,
+      "label": "Game Overview",
+      "hint": "Auxiliary for narrative weaving",
+      "promised": "The player builds an IT project office inside a void. Each round has a short arcade-style project minigame. Points buy departments. Budget, Team, and Quality change based on the player's department choices. When enough departments are built, the Portal Room opens and the office escapes.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "conceptMappings",
+      "category": "conceptMappings",
+      "sec": 6,
+      "label": "Concept-Game Mappings",
+      "hint": "≥5 mappings",
+      "promised": "concept: Scope management, mechanic: Scope Desk requirement sorting · concept: Resource allocation, mechanic: Budget, Team, and Quality choices · concept: Quality management, mechanic: Bug Lab triage minigame · concept: Risk management, mechanic: Risk Vault warning events · concept: Stakeholder communication, mechanic: Stakeholder Booth reply choices",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "scenarios",
+      "category": "scenarios",
+      "sec": 7,
+      "label": "Scenarios",
+      "hint": "≥3 scenarios",
+      "promised": "id: SC-01, title: Scope Fog, setup: Requirement notes float across the void and the timer starts., winCondition: The student sorts must-have and nice-to-have items correctly., loseCondition: If items are mixed badly, losePoints=0 and office growth slows for debrief., outcome: Students see why scope control protects Budget and Team. · id: SC-02, title: Bug Rain, setup: Bugs fall onto the office floor during a release sprint., winCondition: The student catches serious bugs before minor bugs., loseCondition: If serious bugs are missed, losePoints=0 and Quality drops for discussion., outcome: Students see why testing and quality choices matter. · id: SC-03, title: Budget Rift, setup: A rift opens and offers three department upgrades with different costs., winCondition: The student chooses an upgrade that keeps Budget, Team, and Quality balanced., loseCondition: If one resource becomes too weak, losePoints=0 and the class reviews the choice., outcome: Students see how project trade-offs affect the final goal.",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "gameDuration",
+      "category": "gameDuration",
+      "sec": 7,
+      "label": "Game Duration",
+      "hint": "Descriptive ≥30 chars (not a bare number)",
+      "promised": "About 60 to 75 minutes including explanation, play, and debrief.",
+      "fulfilled": "no",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "sessionSteps",
+      "category": "sessionSteps",
+      "sec": 7,
+      "label": "Session Steps",
+      "hint": "≥4 steps",
+      "promised": "seq: 1, name: Introduction, description: Instructor explains the office goal, resources, and minigames., duration: 10 min · seq: 2, name: Play, description: Students play minigames and build departments., duration: 40 min · seq: 3, name: Debrief, description: Class discusses office choices and project trade-offs., duration: 15 min · seq: 4, name: Report, description: Students write a short improved office expansion plan., duration: 10 min",
+      "fulfilled": "no",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "rewardStructure",
+      "category": "rewardStructure",
+      "sec": 8,
+      "label": "Reward Structure",
+      "hint": "All 3 tiers (elite / professional / access) required",
+      "promised": "elite: Students who open the Portal Room get an Escape Architect badge. · professional: Students who build three departments get a Department Builder badge. · access: All students get the final office report and debrief notes.",
+      "fulfilled": "dropped",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "kpis",
+      "category": "kpis",
+      "sec": 9,
+      "label": "KPIs",
+      "hint": "≥1 KPI at each of L1, L2, L3, L4",
+      "promised": "level: L1, metric: Student reaction, method: Short survey, target: Mostly positive answers · level: L2, metric: Project management knowledge, method: Pre and post quiz, target: Better post-quiz score · level: L3, metric: Use in project work, method: Check next project plan, target: More balanced scope, resource, and quality notes · level: L4, metric: Course project result, method: Compare final project management section, target: Better planning section than the first draft",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "tuslerRisks",
+      "category": "tuslerRisks",
+      "sec": 10,
+      "label": "Tusler Risks",
+      "hint": "≥4 risks across all 4 categories; ≥25-char mitigation each",
+      "promised": "id: R-01, category: Tiger, prob: High, impact: High, mitigation: Make timers adjustable for the class., preventive: Test minigame speed before the lesson., responsive: Slow the timer and give one example round. · id: R-02, category: Puppy, prob: High, impact: Low, mitigation: Use clear labels for points and resources., preventive: Show the resource meanings before play., responsive: Explain Budget, Team, and Quality again during pause. · id: R-03, category: Alligator, prob: Low, impact: High, mitigation: Prepare a backup activity if the game does not load., preventive: Test the browser and projector before class., responsive: Use paper department cards and discuss choices. · id: R-04, category: Kitten, prob: Low, impact: Low, mitigation: Collect small spelling and balance issues after the session., preventive: Do a quick peer review before submission., responsive: Fix small issues in the next version.",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "supportTeam",
+      "category": "supportTeam",
+      "sec": 10,
+      "label": "Support Team",
+      "hint": "≥3 members",
+      "promised": "name: Ahmet Deniz, role: Designer · name: Instructor, role: Facilitator · name: Lab assistant, role: Technical support",
+      "fulfilled": "dropped",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "facilitatorRole",
+      "category": "facilitatorRole",
+      "sec": 10,
+      "label": "Facilitator Role",
+      "hint": "≥30 chars",
+      "promised": "The facilitator explains the rules, helps confused students, pauses if needed, and leads the final discussion.",
+      "fulfilled": "dropped",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "wf_dash",
+      "category": "wf_dash",
+      "sec": 11,
+      "label": "Dashboard Wireframe",
+      "hint": "≥80 chars layout description",
+      "promised": "The dashboard shows the void office map, main points, Budget, Team, Quality, the current minigame, and the next department price.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "wf_asset",
+      "category": "wf_asset",
+      "sec": 11,
+      "label": "Asset Wireframe",
+      "hint": "≥80 chars",
+      "promised": "Each department tile shows its name, price, resource effect, locked or built state, and a short project management meaning.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "wf_portfolio",
+      "category": "wf_portfolio",
+      "sec": 11,
+      "label": "Portfolio Wireframe",
+      "hint": "≥80 chars",
+      "promised": "The report page shows built departments, resource levels, minigame results, the escape result, and a short reflection.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "inScope",
+      "category": "inScope",
+      "sec": 12,
+      "label": "In Scope",
+      "hint": "For compassion model: include \"losePoints=0\" / \"no punitive\"",
+      "promised": "The project includes a void office map, fast minigames, main points, Budget, Team, Quality, department buying, and losePoints=0 for failed cases.",
+      "fulfilled": "partial",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "outScope",
+      "category": "outScope",
+      "sec": 12,
+      "label": "Out of Scope",
+      "hint": "",
+      "promised": "The project does not include real company data, VR, real money, online multiplayer, or advanced simulation.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "whyMotivation",
+      "category": "whyMotivation",
+      "sec": 12,
+      "label": "Why (Motivation)",
+      "hint": "",
+      "promised": "Students may care more when their project choices make the office grow and move them closer to escaping the void.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    },
+    {
+      "ref": "howEthics",
+      "category": "howEthics",
+      "sec": 12,
+      "label": "How (Ethics)",
+      "hint": "",
+      "promised": "The game should use simple student IDs and avoid public ranking by real names.",
+      "fulfilled": "yes",
+      "proof": "",
+      "evidenceRefs": "",
+      "reason": ""
+    }
+  ],
+  "projectEvidence": {
+    "repoUrl": "https://github.com/Ahmetdoesreal/void-studio",
+    "deployUrl": "",
+    "demoUrl": "",
+    "buildSha": "",
+    "notes": ""
+  },
+  "deployment": {
+    "gameId": "GM-9F51EF0C0810",
+    "title": "Void Office Tycoon",
+    "projectStatus": "download_link",
+    "coordinatorName": "Yusuf Altunel",
+    "evidenceMode": "synthetic",
+    "claimsDeployed": true,
+    "courseCode": "COM0463",
+    "maxGameScore": null,
+    "platform": "Modern OS, Python 3.12+,NPM,Modern Browser",
+    "githubUrl": "https://github.com/Ahmetdoesreal/void-studio",
+    "contactForAccess": "2300005633@stu.iku.edu.tr",
+    "availableDate": "2026-06-09",
+    "description": "The player builds an IT project office inside a void. Each round has a short arcade-style project minigame. Points buy departments. Budget, Team, and Quality change based on the player's department ch",
+    "whatYouCanEarn": "main points, Budget resource, Team resource, Quality resource, timed minigames, department buying",
+    "estPlayTime": "About 60 to 75 minutes including explanation, play, and debrief.",
+    "audience": "Around 40 COM0463 IT Project Management students.",
+    "howToPlay": "",
+    "accessUrl": "",
+    "downloadUrl": "https://github.com/Ahmetdoesreal/void-studio",
+    "accessRights": "open to all , input some form of identifier in the first page",
+    "logFiles": []
+  },
+  "embeddedLogs": [],
+  "teamMembers": [
+    {
+      "legalStudentId": "2300005633",
+      "name": "Ahmet Deniz",
+      "surname": "Sezgin",
+      "role": "Project lead"
+    },
+    {
+      "legalStudentId": "2100003979",
+      "name": "Kerem",
+      "surname": "Yılmaz",
+      "role": "Risk content"
+    },
+    {
+      "legalStudentId": "1900004115",
+      "name": "Okay",
+      "surname": "Aşcı",
+      "role": "Developer and tester"
+    }
+  ],
+  "players": [],
+  "subjectiveRatings": [],
+  "idBasis": {
+    "memberLegalIds": [
+      "1900004115",
+      "2100003979",
+      "2300005633"
+    ],
+    "courseCode": "COM0463",
+    "title": "Void Office Tycoon",
+    "proposalHash": "9c93fdcb0068"
+  },
+  "proposal": {
+    "gppt_version": "2.0.10",
+    "exported_at": "2026-05-13T13:05:00+03:00",
+    "state": {
+      "ideaBrief": {
+        "title": "Void Office Tycoon",
+        "domain": "IT project management game",
+        "audience": "COM0463 students",
+        "coreMetaphor": "A small office grows inside an empty void.",
+        "successVision": "Students learn project management by building departments and escaping the void."
+      },
+      "projectTitle": "Void Office Tycoon",
+      "organisation": "Istanbul Kultur University",
+      "courseCode": "COM0463",
+      "domain": "IT project management",
+      "deliverableArea": "Simple web tycoon game for learning IT project management",
+      "proposalDate": "2026-03-28",
+      "startDate": "2026-04-15",
+      "problemStatement": "In COM0463, some students know project terms but do not see how they connect. Scope, budget, team work, and quality can feel separate. This game makes them visible as office parts inside a void and targets about 15% better post-quiz results.",
+      "targetPopulation": "Around 40 COM0463 IT Project Management students.",
+      "successCriteria": [
+        "At least 75% of students explain one good department choice.",
+        "At least 30 students play one full office run.",
+        "Each student finishes one minigame and buys one department.",
+        "Post-quiz results improve by about 15%."
+      ],
+      "teamMembers": [
+        {
+          "name": "Ahmet Deniz",
+          "surname": "Sezgin",
+          "email": "2300005633@stu.iku.edu.tr",
+          "role": "Project lead"
+        },
+        {
+          "name": "Kerem",
+          "surname": "Yılmaz",
+          "email": "2100003979@stu.iku.edu.tr",
+          "role": "Risk content"
+        },
+        {
+          "name": "Okay",
+          "surname": "Aşcı",
+          "email": "1900004115@stu.iku.edu.tr",
+          "role": "Developer and tester"
+        }
+      ],
+      "userStories": [
+        {
+          "id": "US-01",
+          "role": "Student",
+          "want": "to play short project minigames",
+          "soThat": "I can earn points for my office.",
+          "acc": "Given a minigame starts, When I finish it, Then I receive main points and one resource result."
+        },
+        {
+          "id": "US-02",
+          "role": "Student",
+          "want": "to buy strange office departments",
+          "soThat": "my office can grow in the void.",
+          "acc": "Given I have enough points, When I buy a department, Then it appears on the office map."
+        },
+        {
+          "id": "US-03",
+          "role": "Student",
+          "want": "to choose between Budget, Team, and Quality upgrades",
+          "soThat": "I can plan my project strategy.",
+          "acc": "Given I choose a department, When it is built, Then one resource increases more than the others."
+        },
+        {
+          "id": "US-04",
+          "role": "Instructor",
+          "want": "to see the final office report",
+          "soThat": "I can discuss student decisions in class.",
+          "acc": "Given the game is finished, When I open the report, Then I can see departments, resources, and key choices."
+        },
+        {
+          "id": "US-05",
+          "role": "Facilitator",
+          "want": "to pause the game for explanation",
+          "soThat": "confused students can follow the activity.",
+          "acc": "Given students are confused, When I pause the session, Then the current office state stays visible."
+        }
+      ],
+      "frs": [
+        {
+          "id": "FR-01",
+          "description": "System shall show a void office map with locked and built departments."
+        },
+        {
+          "id": "FR-02",
+          "description": "System shall run short timed minigames and give points."
+        },
+        {
+          "id": "FR-03",
+          "description": "System shall keep a simple log with studentId, minigameId, departmentBuilt, resourceChange, timestamp, and final result."
+        }
+      ],
+      "nfrs": [
+        {
+          "id": "NFR-01",
+          "attr": "Performance",
+          "desc": "The game should not feel slow.",
+          "target": "Most actions under 1 second"
+        },
+        {
+          "id": "NFR-02",
+          "attr": "Usability",
+          "desc": "Students should understand the office screen easily.",
+          "target": "Short tutorial before play"
+        },
+        {
+          "id": "NFR-03",
+          "attr": "Privacy",
+          "desc": "Student data should not be shared publicly.",
+          "target": "Use simple class IDs instead of public names"
+        },
+        {
+          "id": "NFR-04",
+          "attr": "Accessibility",
+          "desc": "Text, timers, and buttons should be easy to read.",
+          "target": "Clear labels and readable contrast"
+        },
+        {
+          "id": "NFR-05",
+          "attr": "Reliability",
+          "desc": "The game should keep progress during the class.",
+          "target": "Save choices after each minigame"
+        }
+      ],
+      "logPrivacy": "The game keeps a simple log of choices, scores, and built departments. The log is only for class feedback.",
+      "dataCollectionPlan": "I will use quiz results, game logs, and a short reflection about the final office.",
+      "bloomOutcomes": [
+        {
+          "level": "L1 Remember",
+          "bloom_k": 1,
+          "outcome": "Remember basic project terms like scope, budget, team, and quality.",
+          "activity": "Short quiz",
+          "assessment": "Quiz answers"
+        },
+        {
+          "level": "L2 Understand",
+          "bloom_k": 2,
+          "outcome": "Explain why Budget, Team, and Quality matter in a project.",
+          "activity": "Class discussion",
+          "assessment": "Short answer"
+        },
+        {
+          "level": "L3 Apply",
+          "bloom_k": 3,
+          "outcome": "Use points to buy a useful department in the office.",
+          "activity": "Office upgrade",
+          "assessment": "Game result"
+        },
+        {
+          "level": "L4 Analyse",
+          "bloom_k": 4,
+          "outcome": "Compare two department choices and explain the better one.",
+          "activity": "Game debrief",
+          "assessment": "Reflection"
+        },
+        {
+          "level": "L5 Evaluate",
+          "bloom_k": 5,
+          "outcome": "Judge if the office plan was balanced enough to escape.",
+          "activity": "Final discussion",
+          "assessment": "Decision explanation"
+        },
+        {
+          "level": "L6 Create",
+          "bloom_k": 6,
+          "outcome": "Create a short improved office expansion plan.",
+          "activity": "Final report",
+          "assessment": "Expansion plan draft"
+        }
+      ],
+      "theories": [
+        "sdt",
+        "mda",
+        "bloom",
+        "kirkpatrick"
+      ],
+      "mdaAnalysis": {
+        "mechanics": "Timed minigames, main points, Budget, Team, Quality, and department unlocks.",
+        "dynamics": "Students balance quick minigame results with slower office planning.",
+        "aesthetics": "The game should feel like a strange office slowly appearing in empty space."
+      },
+      "hexad": {
+        "Achiever": 30,
+        "Socialiser": 25,
+        "Player": 20,
+        "FreeSpirit": 15,
+        "Philanthropist": 10,
+        "Disruptor": 0
+      },
+      "mechanics": [
+        "main points",
+        "Budget resource",
+        "Team resource",
+        "Quality resource",
+        "timed minigames",
+        "department buying"
+      ],
+      "sdtAutonomy": "Students choose which department to build and which resource to improve.",
+      "sdtCompetence": "Students get quick feedback after each minigame, so they can improve the next office choice.",
+      "sdtRelatedness": "Students compare office layouts and explain why their department order worked or failed.",
+      "octalysis": {
+        "epicMeaning": 0.6,
+        "development": 0.7,
+        "accomplishment": 0.7,
+        "empowerment": 0.6,
+        "ownership": 0.6,
+        "social": 0.5,
+        "scarcity": 0.4,
+        "unpredictability": 0.5,
+        "avoidance": 0.2
+      },
+      "narrativeTheme": "The player starts with one desk floating in a dark void. Fast project minigames create main points, Budget, Team, and Quality. Departments like Scope Desk, Bug Lab, Sprint Floor, Risk Vault, and Stakeholder Booth appear when the player spends points. The final Portal Room opens when the office is strong enough. Self-Determination Theory is used because students choose upgrades. Mechanics-Dynamics-Aesthetics connects minigames with the feeling of building the office. Bloom Taxonomy moves students from terms to planning. Kirkpatrick four-level evaluation is used with reaction, quiz, transfer, and result checks.",
+      "gameOverview": "The player builds an IT project office inside a void. Each round has a short arcade-style project minigame. Points buy departments. Budget, Team, and Quality change based on the player's department choices. When enough departments are built, the Portal Room opens and the office escapes.",
+      "conceptMappings": [
+        {
+          "concept": "Scope management",
+          "mechanic": "Scope Desk requirement sorting"
+        },
+        {
+          "concept": "Resource allocation",
+          "mechanic": "Budget, Team, and Quality choices"
+        },
+        {
+          "concept": "Quality management",
+          "mechanic": "Bug Lab triage minigame"
+        },
+        {
+          "concept": "Risk management",
+          "mechanic": "Risk Vault warning events"
+        },
+        {
+          "concept": "Stakeholder communication",
+          "mechanic": "Stakeholder Booth reply choices"
+        }
+      ],
+      "scenarios": [
+        {
+          "id": "SC-01",
+          "title": "Scope Fog",
+          "setup": "Requirement notes float across the void and the timer starts.",
+          "winCondition": "The student sorts must-have and nice-to-have items correctly.",
+          "loseCondition": "If items are mixed badly, losePoints=0 and office growth slows for debrief.",
+          "outcome": "Students see why scope control protects Budget and Team."
+        },
+        {
+          "id": "SC-02",
+          "title": "Bug Rain",
+          "setup": "Bugs fall onto the office floor during a release sprint.",
+          "winCondition": "The student catches serious bugs before minor bugs.",
+          "loseCondition": "If serious bugs are missed, losePoints=0 and Quality drops for discussion.",
+          "outcome": "Students see why testing and quality choices matter."
+        },
+        {
+          "id": "SC-03",
+          "title": "Budget Rift",
+          "setup": "A rift opens and offers three department upgrades with different costs.",
+          "winCondition": "The student chooses an upgrade that keeps Budget, Team, and Quality balanced.",
+          "loseCondition": "If one resource becomes too weak, losePoints=0 and the class reviews the choice.",
+          "outcome": "Students see how project trade-offs affect the final goal."
+        }
+      ],
+      "gameDuration": "About 60 to 75 minutes including explanation, play, and debrief.",
+      "sessionSteps": [
+        {
+          "seq": 1,
+          "name": "Introduction",
+          "description": "Instructor explains the office goal, resources, and minigames.",
+          "duration": "10 min"
+        },
+        {
+          "seq": 2,
+          "name": "Play",
+          "description": "Students play minigames and build departments.",
+          "duration": "40 min"
+        },
+        {
+          "seq": 3,
+          "name": "Debrief",
+          "description": "Class discusses office choices and project trade-offs.",
+          "duration": "15 min"
+        },
+        {
+          "seq": 4,
+          "name": "Report",
+          "description": "Students write a short improved office expansion plan.",
+          "duration": "10 min"
+        }
+      ],
+      "gamePhases": [
+        {
+          "seq": 1,
+          "name": "Play",
+          "description": "Finish a short project minigame.",
+          "duration": "3 min"
+        },
+        {
+          "seq": 2,
+          "name": "Earn",
+          "description": "Receive main points and resource changes.",
+          "duration": "1 min"
+        },
+        {
+          "seq": 3,
+          "name": "Build",
+          "description": "Buy or upgrade one office department.",
+          "duration": "2 min"
+        },
+        {
+          "seq": 4,
+          "name": "Escape Check",
+          "description": "Check if the Portal Room can open.",
+          "duration": "1 min"
+        }
+      ],
+      "rewardStructure": {
+        "elite": "Students who open the Portal Room get an Escape Architect badge.",
+        "professional": "Students who build three departments get a Department Builder badge.",
+        "access": "All students get the final office report and debrief notes."
+      },
+      "kpis": [
+        {
+          "level": "L1",
+          "metric": "Student reaction",
+          "method": "Short survey",
+          "target": "Mostly positive answers"
+        },
+        {
+          "level": "L2",
+          "metric": "Project management knowledge",
+          "method": "Pre and post quiz",
+          "target": "Better post-quiz score"
+        },
+        {
+          "level": "L3",
+          "metric": "Use in project work",
+          "method": "Check next project plan",
+          "target": "More balanced scope, resource, and quality notes"
+        },
+        {
+          "level": "L4",
+          "metric": "Course project result",
+          "method": "Compare final project management section",
+          "target": "Better planning section than the first draft"
+        }
+      ],
+      "tuslerRisks": [
+        {
+          "id": "R-01",
+          "category": "Tiger",
+          "prob": "High",
+          "impact": "High",
+          "mitigation": "Make timers adjustable for the class.",
+          "preventive": "Test minigame speed before the lesson.",
+          "responsive": "Slow the timer and give one example round."
+        },
+        {
+          "id": "R-02",
+          "category": "Puppy",
+          "prob": "High",
+          "impact": "Low",
+          "mitigation": "Use clear labels for points and resources.",
+          "preventive": "Show the resource meanings before play.",
+          "responsive": "Explain Budget, Team, and Quality again during pause."
+        },
+        {
+          "id": "R-03",
+          "category": "Alligator",
+          "prob": "Low",
+          "impact": "High",
+          "mitigation": "Prepare a backup activity if the game does not load.",
+          "preventive": "Test the browser and projector before class.",
+          "responsive": "Use paper department cards and discuss choices."
+        },
+        {
+          "id": "R-04",
+          "category": "Kitten",
+          "prob": "Low",
+          "impact": "Low",
+          "mitigation": "Collect small spelling and balance issues after the session.",
+          "preventive": "Do a quick peer review before submission.",
+          "responsive": "Fix small issues in the next version."
+        }
+      ],
+      "supportTeam": [
+        {
+          "name": "Ahmet Deniz",
+          "role": "Designer"
+        },
+        {
+          "name": "Instructor",
+          "role": "Facilitator"
+        },
+        {
+          "name": "Lab assistant",
+          "role": "Technical support"
+        }
+      ],
+      "facilitatorRole": "The facilitator explains the rules, helps confused students, pauses if needed, and leads the final discussion.",
+      "wf_dash": "The dashboard shows the void office map, main points, Budget, Team, Quality, the current minigame, and the next department price.",
+      "wf_asset": "Each department tile shows its name, price, resource effect, locked or built state, and a short project management meaning.",
+      "wf_portfolio": "The report page shows built departments, resource levels, minigame results, the escape result, and a short reflection.",
+      "inScope": "The project includes a void office map, fast minigames, main points, Budget, Team, Quality, department buying, and losePoints=0 for failed cases.",
+      "outScope": "The project does not include real company data, VR, real money, online multiplayer, or advanced simulation.",
+      "whyMotivation": "Students may care more when their project choices make the office grow and move them closer to escaping the void.",
+      "howEthics": "The game should use simple student IDs and avoid public ranking by real names."
+    }
+  },
+  "submissionPhase": "initial",
+  "playerCategories": {},
+  "structure": {
+    "teams": [
+      {
+        "teamId": "TM-2E9C99E30AC9",
+        "gameId": "GM-9F51EF0C0810",
+        "classId": "COM0463",
+        "members": [
+          "2300005633",
+          "2100003979",
+          "1900004115"
+        ]
+      }
+    ],
+    "classes": [
+      {
+        "classId": "COM0463",
+        "coordinator": "Yusuf Altunel",
+        "teams": [
+          "TM-2E9C99E30AC9"
+        ]
+      }
+    ]
+  }
+}

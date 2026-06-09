@@ -203,6 +203,19 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def update_play_time(session: dict[str, Any]) -> None:
+    if session.get("paused") or session.get("finalResult"):
+        return
+    last_resumed = session.get("lastResumedAt")
+    if last_resumed:
+        try:
+            delta = datetime.now(timezone.utc) - datetime.fromisoformat(last_resumed)
+            session["playTimeMs"] = int(session.get("playTimeMs", 0)) + int(delta.total_seconds() * 1000)
+        except Exception:
+            pass
+    session["lastResumedAt"] = now_iso()
+
+
 def clamp(value: int, low: int = 0, high: int = 100) -> int:
     return max(low, min(high, int(value)))
 
@@ -275,7 +288,7 @@ def rotate_offsets(cells: list[dict[str, int]], rotation: int) -> list[dict[str,
     min_x = min(cell["x"] for cell in rotated)
     min_y = min(cell["y"] for cell in rotated)
     normalized = [{"x": cell["x"] - min_x, "y": cell["y"] - min_y} for cell in rotated]
-    return sorted(normalized, key=lambda cell: (cell["y"], cell["x"]))
+    return normalized
 
 
 def room_program(type_id: str, room_index: int) -> str:
@@ -836,6 +849,8 @@ def new_session(student_id: str | None = None) -> dict[str, Any]:
         "studentId": clean_student_id[:80],
         "createdAt": timestamp,
         "updatedAt": timestamp,
+        "playTimeMs": 0,
+        "lastResumedAt": timestamp,
         "points": STARTING_POINTS,
         "resources": deepcopy(DEFAULT_RESOURCES),
         "departments": new_departments(),
@@ -930,6 +945,7 @@ def apply_resource_delta(session: dict[str, Any], delta: dict[str, int]) -> None
 
 
 def touch(session: dict[str, Any]) -> None:
+    update_play_time(session)
     session["updatedAt"] = now_iso()
 
 
@@ -973,6 +989,7 @@ def make_log_entry(
         "departmentBuilt": department_built,
         "resourceChange": deepcopy(resource_change),
         "timestamp": now_iso(),
+        "playTimeMs": session.get("playTimeMs", 0),
         "finalResult": deepcopy(session.get("finalResult")),
     }
     if debug_action:
@@ -1128,7 +1145,9 @@ def buy_department(
 
 def set_pause(session: dict[str, Any], paused: bool) -> dict[str, Any]:
     ensure_world(session)
+    update_play_time(session)
     session["paused"] = bool(paused)
+    session["lastResumedAt"] = now_iso()
     touch(session)
     return session
 
@@ -1330,6 +1349,7 @@ def build_report(session: dict[str, Any], proposal: dict[str, Any]) -> dict[str,
         "studentId": session["studentId"],
         "sessionId": session["sessionId"],
         "points": session["points"],
+        "playTimeMs": session.get("playTimeMs", 0),
         "resources": deepcopy(session["resources"]),
         "builtDepartments": built_departments(session),
         "world": deepcopy(session["world"]),
