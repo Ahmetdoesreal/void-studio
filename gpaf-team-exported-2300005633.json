@@ -914,8 +914,6 @@
     "proposalHash": "9c93fdcb0068"
   },
   "proposal": {
-    "gppt_version": "2.0.10",
-    "exported_at": "2026-05-13T13:05:00+03:00",
     "state": {
       "ideaBrief": {
         "title": "Void Office Tycoon",
@@ -1323,7 +1321,8 @@
       "outScope": "The project does not include real company data, VR, real money, online multiplayer, or advanced simulation.",
       "whyMotivation": "Students may care more when their project choices make the office grow and move them closer to escaping the void.",
       "howEthics": "The game should use simple student IDs and avoid public ranking by real names."
-    }
+    },
+    "gppt_version": "2.0.10"
   },
   "submissionPhase": "initial",
   "playerCategories": {},
