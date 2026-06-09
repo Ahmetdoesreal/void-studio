@@ -75,15 +75,15 @@ SCENARIOS_BY_ID = {item["id"]: item for item in SCENARIOS}
 
 BUDGET_RIFT_CHOICES = {
     "budget_patch": {
-        "label": "Stabilize procurement",
+        "label": "Lock down the supply chain",
         "resourceDelta": {"budget": 15, "team": -4, "quality": 0},
     },
     "team_sync": {
-        "label": "Protect the team",
+        "label": "Invest in crew resilience",
         "resourceDelta": {"budget": -6, "team": 14, "quality": 2},
     },
     "quality_gate": {
-        "label": "Fund quality gates",
+        "label": "Pre-pay for release safeguards",
         "resourceDelta": {"budget": -8, "team": 0, "quality": 16},
     },
 }
@@ -93,15 +93,15 @@ SERIOUS_BUG_IDS = {"b1", "b3", "b5"}
 CRITICAL_RISK_IDS = {"r1", "r3", "r5"}
 STAKEHOLDER_BOOTH_CHOICES = {
     "reply_with_decision": {
-        "label": "Request a decision with context",
+        "label": "Present the trade-off and ask for a ruling",
         "best": True,
     },
     "promise_later": {
-        "label": "Delay the update until after the sprint",
+        "label": "Defer the hard talk to the next cycle",
         "best": False,
     },
     "send_metrics_only": {
-        "label": "Reply with metrics only",
+        "label": "Broadcast raw dashboards without commentary",
         "best": False,
     },
 }
