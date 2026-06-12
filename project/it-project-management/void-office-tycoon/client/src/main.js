@@ -1,5 +1,6 @@
 import './styles.css';
 import Phaser from 'phaser';
+import { localApi as api } from './localApi.js';
 import actionTilesSprite from './assets/sprites/habbo_world/action_tiles.png';
 import blackholeSprite from './assets/sprites/habbo_world/blackhole_habbo.png';
 import coffeeTableSprite from './assets/sprites/habbo_world/coffee_table.png';
@@ -137,28 +138,6 @@ const FOOTPRINT_SAMPLES_BY_ID = Object.fromEntries(FOOTPRINT_SAMPLES.map(sample 
 
 const appEl = document.querySelector('#app');
 
-const api = {
-  async request(path, options = {}) {
-    const response = await fetch(path, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok || payload.ok === false) {
-      throw new Error(payload.error || `Request failed: ${response.status}`);
-    }
-    return payload;
-  },
-  get(path) {
-    return this.request(path);
-  },
-  post(path, body = {}) {
-    return this.request(path, {
-      method: 'POST',
-      body: JSON.stringify(body)
-    });
-  }
-};
 
 const STORAGE_KEY = 'voidOfficeTycoon.sessionId';
 const FURNITURE_SCALE_STORAGE_KEY = 'voidOfficeTycoon.furnitureScaleMultiplier';
@@ -4719,13 +4698,30 @@ async function downloadLog() {
   if (!game.session) return;
   await withAction(async () => {
     const response = await api.get(`/api/sessions/${game.session.sessionId}/log`);
-    const blob = new Blob([JSON.stringify(response.log, null, 2)], {
-      type: 'application/json'
+    const entries = response.log || [];
+    const lines = entries.map(entry => JSON.stringify({
+      eventType: entry.eventType || 'unknown',
+      studentId: entry.studentId || game.session.studentId,
+      minigameId: entry.minigameId || '',
+      departmentBuilt: entry.departmentBuilt || '',
+      resourceChange: entry.resourceChange || {},
+      score: entry.score ?? 0,
+      points: entry.points ?? 0,
+      pointsEarned: entry.pointsEarned ?? 0,
+      success: entry.success ?? false,
+      resources: entry.resources || {},
+      timestamp: entry.timestamp || '',
+      finalResult: entry.finalResult || ''
+    }));
+    const jsonlContent = lines.join('\n') + (lines.length ? '\n' : '');
+    const blob = new Blob([jsonlContent], {
+      type: 'application/x-ndjson'
     });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${game.session.sessionId}-log.json`;
+    const studentStr = (game.session.studentId || 'log').replace(/[^a-zA-Z0-9]/g, '_');
+    link.download = `${studentStr}-log.jsonl`;
     document.body.appendChild(link);
     link.click();
     link.remove();
