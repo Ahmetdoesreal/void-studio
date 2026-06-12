@@ -4698,14 +4698,24 @@ async function downloadLog() {
   if (!game.session) return;
   await withAction(async () => {
     const response = await api.get(`/api/sessions/${game.session.sessionId}/log`);
-    const blob = new Blob([JSON.stringify(response.log, null, 2)], {
-      type: 'application/json'
+    const entries = response.log || [];
+    const lines = entries.map(entry => JSON.stringify({
+      studentId: entry.studentId || game.session.studentId,
+      minigameId: entry.minigameId || null,
+      departmentBuilt: entry.departmentBuilt || null,
+      resourceChange: entry.resourceChange || {},
+      timestamp: entry.timestamp || null,
+      finalResult: entry.finalResult || null
+    }));
+    const jsonlContent = lines.join('\n') + (lines.length ? '\n' : '');
+    const blob = new Blob([jsonlContent], {
+      type: 'application/x-ndjson'
     });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     const studentStr = (game.session.studentId || 'log').replace(/[^a-zA-Z0-9]/g, '_');
-    link.download = `${studentStr}-log.json`;
+    link.download = `${studentStr}-log.jsonl`;
     document.body.appendChild(link);
     link.click();
     link.remove();
