@@ -1,5 +1,6 @@
 import './styles.css';
 import Phaser from 'phaser';
+import { localApi as api } from './localApi.js';
 import actionTilesSprite from './assets/sprites/habbo_world/action_tiles.png';
 import blackholeSprite from './assets/sprites/habbo_world/blackhole_habbo.png';
 import coffeeTableSprite from './assets/sprites/habbo_world/coffee_table.png';
@@ -137,28 +138,6 @@ const FOOTPRINT_SAMPLES_BY_ID = Object.fromEntries(FOOTPRINT_SAMPLES.map(sample 
 
 const appEl = document.querySelector('#app');
 
-const api = {
-  async request(path, options = {}) {
-    const response = await fetch(path, {
-      headers: { 'Content-Type': 'application/json' },
-      ...options
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok || payload.ok === false) {
-      throw new Error(payload.error || `Request failed: ${response.status}`);
-    }
-    return payload;
-  },
-  get(path) {
-    return this.request(path);
-  },
-  post(path, body = {}) {
-    return this.request(path, {
-      method: 'POST',
-      body: JSON.stringify(body)
-    });
-  }
-};
 
 const STORAGE_KEY = 'voidOfficeTycoon.sessionId';
 const FURNITURE_SCALE_STORAGE_KEY = 'voidOfficeTycoon.furnitureScaleMultiplier';
