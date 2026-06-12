@@ -4718,11 +4718,8 @@ async function downloadLog() {
       
       lines.push(JSON.stringify({ ...base, eventType: entry.eventType || 'unknown' }));
 
-      if (entry.points !== undefined) {
-        lines.push(JSON.stringify({ ...base, eventType: 'score_update', payload: { ...base.payload, score: entry.points } }));
-      }
-
       if (entry.eventType === 'escape_check') {
+        lines.push(JSON.stringify({ ...base, eventType: 'score_update', payload: { ...base.payload, score: game.session.points || 0 } }));
         lines.push(JSON.stringify({ ...base, eventType: 'session_end' }));
       }
     });

@@ -1426,6 +1426,9 @@ h3 {
   min-height: 116px;
   padding: 14px;
   text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 
 .bug-card span,
