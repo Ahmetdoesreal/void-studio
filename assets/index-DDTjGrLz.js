@@ -6814,9 +6814,9 @@ texCoord = mod(texCoord, 1.0) * outFrame.zw + outFrame.xy;`},disable:!!t}};d.exp
         <p class="lede">${ht(d.gameOverview||"")}</p>
         ${H.error?`<div class="alert error">${ht(H.error)}</div>`:""}
         <form class="start-form" data-form="start">
-          <label for="studentId">Class ID</label>
+          <label for="studentId">Player Code</label>
           <div class="start-row">
-            <input id="studentId" name="studentId" maxlength="80" placeholder="COM0463-01" required />
+            <input id="studentId" name="studentId" maxlength="80" placeholder="Pseudonym (e.g. Player-01)" required />
             <button type="submit">Start Session</button>
           </div>
         </form>
