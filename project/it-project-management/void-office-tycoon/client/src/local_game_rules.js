@@ -544,6 +544,9 @@ export function new_session(student_id = null) {
         playTimeMs: 0,
         lastResumedAt: timestamp,
         points: STARTING_POINTS,
+        totalEarned: STARTING_POINTS,
+        totalSpent: 0,
+        finalScore: 0,
         resources: JSON.parse(JSON.stringify(DEFAULT_RESOURCES)),
         departments: new_departments(),
         world: new_world(session_id),
@@ -586,12 +589,47 @@ export function check_collapse(session) {
     if (collapsed.length === 0) return;
 
     const labels = collapsed.map(key => RESOURCE_LABELS[key] || key).join(", ");
+    session.finalScore = 0;
     session.finalResult = {
         status: "collapsed",
         escaped: false,
         timestamp: now_iso(),
         reason: `The office collapsed because ${labels} reached zero.`,
+        finalScore: 0,
     };
+}
+
+export function check_game_over(session) {
+    ensure_world(session);
+    if (session.finalResult) return;
+
+    // Count total plays used across all minigames
+    const history = session.minigameHistory || [];
+    const total_max_plays = SCENARIOS.length * MAX_PLAYS_PER_MINIGAME; // 5 × 2 = 10
+
+    if (history.length < total_max_plays) return; // Still has minigame plays left
+
+    // All minigame plays exhausted — check if escape is still possible
+    const missing = missing_escape_requirements(session);
+    if (missing.length === 0) return; // Can still escape
+
+    // Check if player has enough points to meet remaining requirements
+    const departments_needed = RESOURCE_BUILDING_IDS.filter(id => !building_type_built(session, id));
+    const dept_cost = departments_needed.reduce((sum, id) => sum + (BUILDING_TYPES_BY_ID[id]?.cost || 0), 0);
+    const can_afford_depts = session.points >= dept_cost;
+
+    if (!can_afford_depts || missing.some(m => m.includes("Raise"))) {
+        // Cannot afford remaining departments or resources too low — game over
+        session.finalScore = 0;
+        session.finalResult = {
+            status: "game_over",
+            escaped: false,
+            timestamp: now_iso(),
+            reason: "All minigame attempts have been used. The office could not reach the nebula in time.",
+            finalScore: 0,
+            missing: missing,
+        };
+    }
 }
 
 export function ensure_action_allowed(session) {
@@ -662,6 +700,7 @@ export function record_minigame_result(session, payload) {
     const awards_points = success || minigame_id === "budget_rift";
     const points_earned = awards_points ? scenario.points : 0;
     session.points += points_earned;
+    session.totalEarned = (session.totalEarned || 0) + points_earned;
     apply_resource_delta(session, resource_delta);
     session.currentScenarioIndex = (parseInt(session.currentScenarioIndex || 0, 10) + 1) % SCENARIOS.length;
 
@@ -679,6 +718,7 @@ export function record_minigame_result(session, payload) {
     session.minigameHistory.push(result);
 
     check_collapse(session);
+    if (!session.finalResult) check_game_over(session);
     touch(session);
     return { session, result };
 }
@@ -708,6 +748,7 @@ export function buy_department(session, department_id, anchor_cell = null, rotat
 
     const resource_delta = JSON.parse(JSON.stringify(btype.resourceEffect));
     session.points -= price;
+    session.totalSpent = (session.totalSpent || 0) + price;
     const instance = {
         id: instance_id,
         typeId: department_id,
@@ -802,6 +843,7 @@ export function build_world_cell(session, x, y) {
     if (session.points < PATH_BUILD_COST) throw new RuleError(`Path tiles cost ${PATH_BUILD_COST} points.`);
 
     session.points -= PATH_BUILD_COST;
+    session.totalSpent = (session.totalSpent || 0) + PATH_BUILD_COST;
     world.builtPath.push(cell_key);
     update_light_connection(world, x, y);
 
@@ -858,11 +900,13 @@ export function escape_check(session) {
             placement: portal_placement,
             worldCell: JSON.parse(JSON.stringify(portal_placement.anchorCell)),
         };
+        session.finalScore = session.points;
         session.finalResult = {
             status: "escaped",
             escaped: true,
             timestamp: now_iso(),
             reason: "The Portal Room opened and the office escaped the void.",
+            finalScore: session.points,
         };
     }
 
@@ -884,11 +928,18 @@ export function build_report(session, proposal = {}) {
         };
     }
 
+    const is_escaped = final_result && final_result.escaped;
+    const final_score = is_escaped ? session.points : 0;
+    session.finalScore = final_score;
+
     return {
         projectTitle: state.projectTitle || "Void Office Tycoon",
         studentId: session.studentId,
         sessionId: session.sessionId,
         points: session.points,
+        totalEarned: session.totalEarned || 0,
+        totalSpent: session.totalSpent || 0,
+        finalScore: final_score,
         playTimeMs: session.playTimeMs || 0,
         resources: JSON.parse(JSON.stringify(session.resources)),
         builtDepartments: Object.values(session.departments || {}).filter(d => d.built),

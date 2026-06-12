@@ -2641,7 +2641,7 @@ function renderDashboard() {
       ${game.error ? `<div class="alert error">${escapeHtml(game.error)}</div>` : ''}
       ${game.notice ? `<div class="alert">${escapeHtml(game.notice)}</div>` : ''}
       ${session.paused ? '<div class="alert warning">Session paused. The office state is preserved.</div>' : ''}
-      ${session.finalResult ? `<div class="alert final">${escapeHtml(session.finalResult.reason)}</div>` : ''}
+      ${session.finalResult ? `<div class="alert final">${escapeHtml(session.finalResult.reason)}${session.finalResult.escaped ? ` <strong>Final Score: ${session.finalScore ?? session.points}</strong>` : ' <strong>Score: 0</strong>'}</div>` : ''}
 
       <section class="resource-strip">
         ${Object.entries(session.resources).map(([key, value]) => renderResource(key, value)).join('')}
@@ -3990,7 +3990,12 @@ function renderReport() {
         <div class="report-block">
           <h2>Final Result</h2>
           <p>${escapeHtml(report.finalResult.reason)}</p>
-          <strong>${report.finalResult.escaped ? 'Escaped' : report.finalResult.status}</strong>
+          <strong>${report.finalResult.escaped ? 'Escaped' : report.finalResult.status === 'game_over' ? 'Game Over' : report.finalResult.status}</strong>
+        </div>
+        <div class="report-block">
+          <h2>Final Score</h2>
+          <strong style="font-size:2em;color:${report.finalScore > 0 ? '#4ade80' : '#f87171'}">${report.finalScore ?? 0}</strong>
+          <p style="margin-top:0.5em;font-size:0.85em;opacity:0.7">Earned: ${report.totalEarned ?? 0} · Spent: ${report.totalSpent ?? 0}</p>
         </div>
         <div class="report-block">
           <h2>Time Played</h2>
@@ -4708,6 +4713,9 @@ async function downloadLog() {
       score: entry.score ?? 0,
       points: entry.points ?? 0,
       pointsEarned: entry.pointsEarned ?? 0,
+      totalEarned: entry.totalEarned ?? 0,
+      totalSpent: entry.totalSpent ?? 0,
+      finalScore: entry.finalScore ?? 0,
       success: entry.success ?? false,
       resources: entry.resources || {},
       timestamp: entry.timestamp || '',
