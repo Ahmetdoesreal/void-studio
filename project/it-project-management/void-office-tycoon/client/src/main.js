@@ -561,42 +561,42 @@ function pickVariant(variants) {
 }
 
 const backlogItems = [
-  { id: 's1', ...pickVariant([{ text: 'Project Initiation & Charter', note: 'Project scope and objectives defined' }]) },
-  { id: 's2', ...pickVariant([{ text: 'Architecture & Sprint Planning', note: 'Technical design and task breakdown' }]) },
-  { id: 's3', ...pickVariant([{ text: 'QA Testing & User Acceptance', note: 'System validation by QA and client' }]) },
-  { id: 's4', ...pickVariant([{ text: 'Development & Implementation', note: 'Core coding and feature build' }]) },
-  { id: 's5', ...pickVariant([{ text: 'Production Deployment & Retrospective', note: 'Release to live and team review' }]) },
-  { id: 's6', ...pickVariant([{ text: 'Requirements Analysis & Scoping', note: 'Gathering detailed business needs' }]) }
+  { id: 's1', ...pickVariant([{ text: 'Business Case Validation & Stakeholder Buy-in', note: 'Project scope and objectives defined' }]) },
+  { id: 's2', ...pickVariant([{ text: 'System Architecture & API Design', note: 'Technical design and task breakdown' }]) },
+  { id: 's3', ...pickVariant([{ text: 'User Acceptance Testing (UAT) & Security Audit', note: 'System validation by QA and client' }]) },
+  { id: 's4', ...pickVariant([{ text: 'Feature Implementation & CI/CD Setup', note: 'Core coding and feature build' }]) },
+  { id: 's5', ...pickVariant([{ text: 'Go-Live & Post-Implementation Review', note: 'Release to live and team review' }]) },
+  { id: 's6', ...pickVariant([{ text: 'Requirement Elicitation & MVP Definition', note: 'Gathering detailed business needs' }]) }
 ];
 
 const bugCards = [
-  { id: 'b1', severity: 'serious', ...pickVariant([{ title: 'Payment gateway fails silently during checkout' }]) },
-  { id: 'b2', severity: 'minor', ...pickVariant([{ title: 'Button alignment is 2px off on mobile Safari' }]) },
-  { id: 'b3', severity: 'serious', ...pickVariant([{ title: 'Production database credentials leaked in client logs' }]) },
-  { id: 'b4', severity: 'minor', ...pickVariant([{ title: 'Placeholder text typo on the About Us page' }]) },
-  { id: 'b5', severity: 'serious', ...pickVariant([{ title: 'User sessions cross-contaminate under high server load' }]) },
-  { id: 'b6', severity: 'minor', ...pickVariant([{ title: 'Console warning Deprecation during local build' }]) }
+  { id: 'b1', severity: 'serious', ...pickVariant([{ title: 'Customers are charged twice if they double-click the checkout button.' }]) },
+  { id: 'b2', severity: 'minor', ...pickVariant([{ title: 'CRITICAL ALERT: ResourceNotFoundException thrown when accessing /favicon.ico' }]) },
+  { id: 'b3', severity: 'serious', ...pickVariant([{ title: 'A developer left a "TODO: remove hardcoded auth token" comment in the production build.' }]) },
+  { id: 'b4', severity: 'minor', ...pickVariant([{ title: 'System throws NullReferenceException when a user tries to delete an already deleted account.' }]) },
+  { id: 'b5', severity: 'serious', ...pickVariant([{ title: 'GDPR compliance module fails to anonymize exported user datasets.' }]) },
+  { id: 'b6', severity: 'minor', ...pickVariant([{ title: 'The weekly automated backup email is sent at 2:05 AM instead of 2:00 AM.' }]) }
 ];
 
 const riskCards = [
-  { id: 'r1', severity: 'serious', ...pickVariant([{ title: 'Key cloud provider API deprecation announced for next week', note: 'External dependency' }]) },
-  { id: 'r2', severity: 'minor', ...pickVariant([{ title: 'Team lunch delivery delayed by 15 minutes', note: 'Low-impact nuisance' }]) },
-  { id: 'r3', severity: 'serious', ...pickVariant([{ title: 'Only one senior backend developer knows the core architecture', note: 'Bus Factor' }]) },
-  { id: 'r4', severity: 'minor', ...pickVariant([{ title: 'Jira server needs a routine restart over the weekend', note: 'Routine maintenance' }]) },
-  { id: 'r5', severity: 'serious', ...pickVariant([{ title: 'Client changes core business requirements mid-sprint', note: 'Scope creep' }]) },
-  { id: 'r6', severity: 'minor', ...pickVariant([{ title: 'Office coffee machine needs descaling', note: 'Facility issue' }]) }
+  { id: 'r1', severity: 'serious', ...pickVariant([{ title: 'The primary database vendor is discontinuing support for our current version next month.', note: 'Vendor Lock-in' }]) },
+  { id: 'r2', severity: 'minor', ...pickVariant([{ title: 'A new JavaScript framework was released and developers are asking to rewrite the frontend.', note: 'Shiny Object Syndrome' }]) },
+  { id: 'r3', severity: 'serious', ...pickVariant([{ title: 'The client has hinted at merging our project with another vendor\'s incomplete system before launch.', note: 'Scope Creep' }]) },
+  { id: 'r4', severity: 'minor', ...pickVariant([{ title: 'The staging environment SSL certificate expires in 3 days.', note: 'Routine Maintenance' }]) },
+  { id: 'r5', severity: 'serious', ...pickVariant([{ title: 'Load testing shows the system fails completely at 40% of the expected launch day traffic.', note: 'Performance Bottleneck' }]) },
+  { id: 'r6', severity: 'minor', ...pickVariant([{ title: 'Two team members have requested vacation on the same week, three months from now.', note: 'Resource Planning' }]) }
 ];
 
 const budgetChoices = [
-  { id: 'budget_patch', delta: { budget: 15, team: -4, quality: 0 }, ...pickVariant([{ title: 'Downgrade environments', text: 'Reduce cloud infrastructure costs by downgrading staging environments.' }]) },
-  { id: 'team_sync', delta: { budget: -6, team: 14, quality: 2 }, ...pickVariant([{ title: 'Approve team event', text: 'Approve overtime pay and weekend catering to boost team morale for the deadline.' }]) },
-  { id: 'quality_gate', delta: { budget: -8, team: 0, quality: 16 }, ...pickVariant([{ title: 'Hire pen-testers', text: 'Purchase automated security scanning tools and hire an external penetration tester.' }]) }
+  { id: 'budget_patch', delta: { budget: 15, team: -4, quality: -5 }, ...pickVariant([{ title: 'Outsource QA to a cheap third-party vendor', text: 'Saves budget immediately, but creates communication overhead and lowers overall testing quality.' }]) },
+  { id: 'team_sync', delta: { budget: -10, team: 14, quality: 2 }, ...pickVariant([{ title: 'Approve Crunch Time with Bonus', text: 'Approve paid overtime and cater weekend meals. Morale goes up temporarily, but budget takes a massive hit.' }]) },
+  { id: 'quality_gate', delta: { budget: -8, team: -3, quality: 16 }, ...pickVariant([{ title: 'Enforce Strict Code Review Policy', text: 'Requires 2 senior approvals for every PR. Quality skyrockets, but developers complain about the bureaucracy.' }]) }
 ];
 
 const stakeholderChoices = [
-  { id: 'reply_with_decision', ...pickVariant([{ title: 'Present workarounds', text: 'Present the current blocker, offer two viable workarounds, and ask for their final decision.', note: 'Best practice' }]) },
-  { id: 'promise_later', ...pickVariant([{ title: 'Promise an update later', text: 'Tell them you are busy and will send an update sometime next week without details.', note: 'Delays alignment' }]) },
-  { id: 'send_metrics_only', ...pickVariant([{ title: 'Send metrics only', text: 'Send a complex technical Jira burn-down chart without any explanation.', note: 'Leaves the stakeholder guessing' }]) }
+  { id: 'reply_with_decision', ...pickVariant([{ title: 'Present workarounds', text: 'Clearly articulate the blocker, offer two viable technical workarounds with trade-offs, and ask for a decision.', note: 'Transparent communication' }]) },
+  { id: 'promise_later', ...pickVariant([{ title: 'Hide the blocker', text: 'Tell the stakeholders everything is on track and hope the team can fix the issue by working through the weekend.', note: 'Breaches trust if discovered' }]) },
+  { id: 'send_metrics_only', ...pickVariant([{ title: 'Send raw metrics', text: 'Send an automated Jira burn-down chart full of technical jargon without any executive summary.', note: 'Creates confusion and anxiety' }]) }
 ];
 
 const minigames = [
@@ -3184,14 +3184,14 @@ function renderBugRain() {
     <div class="bug-grid">
       ${bugCards.map(card => `
         <button
-          class="bug-card sev-${card.severity} ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
+          class="bug-card ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
           data-action="toggle-bug"
           data-bug-id="${card.id}"
           ${!canAct() ? 'disabled' : ''}
         >
-          <span class="severity-tag sev-${card.severity}">${card.severity === 'serious' ? '🔴 Serious' : '🟡 Minor'}</span>
+          <span class="severity-tag generic-tag">🐛 Ticket</span>
           <strong>${escapeHtml(card.title)}</strong>
-          <span class="bug-state">${selected.has(card.id) ? '✓ Marked to block' : 'Tap to triage'}</span>
+          <span class="bug-state">${selected.has(card.id) ? '✅ Marked to block' : 'Tap to triage'}</span>
           ${game.debugOpen && game.showCorrectAnswers ? `<em>${card.severity === 'serious' ? 'Correct: block release' : 'Correct: minor'}</em>` : ''}
         </button>
       `).join('')}
@@ -3232,14 +3232,14 @@ function renderRiskVault() {
     <div class="bug-grid">
       ${riskCards.map(card => `
         <button
-          class="bug-card sev-${card.severity} ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
+          class="bug-card ${selected.has(card.id) ? 'selected' : ''} ${game.debugOpen && game.showCorrectAnswers && card.severity === 'serious' ? 'correct' : ''}"
           data-action="toggle-risk"
           data-risk-id="${card.id}"
           ${!canAct() ? 'disabled' : ''}
         >
-          <span class="severity-tag sev-${card.severity}">${card.severity === 'serious' ? 'Mitigate now' : 'Monitor'}</span>
+          <span class="severity-tag generic-tag">⚠️ Event</span>
           <strong>${escapeHtml(card.title)}</strong>
-          <span class="bug-state">${selected.has(card.id) ? '✓ Added to register' : 'Tap to evaluate'}</span>
+          <span class="bug-state">${selected.has(card.id) ? '✅ Added to register' : 'Tap to evaluate'}</span>
           <em>${escapeHtml(card.note)}</em>
         </button>
       `).join('')}
