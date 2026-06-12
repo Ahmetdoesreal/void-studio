@@ -1,56 +1,37 @@
 # Void Office Tycoon
 
-Void Office Tycoon is a Windows-priority client/server implementation of `it_project_management_2300005633.json`.
+Void Office Tycoon is a local browser-based implementation of `it_project_management_2300005633.json`. 
+It was originally designed as a client/server application but has been fully converted to a client-side JavaScript application running locally in the browser.
 
-- `server/` contains the `aiohttp` API, JSON storage, proposal copy, and game rules.
-- `client/` contains the Vite frontend.
+- `client/` contains the Vite frontend and the local logic API (`localApi.js` and `local_game_rules.js`).
 - `client/src/assets/sprites/` contains editable power-of-two SVG sprites.
-- `tools/export_habbo_swfs.py` extracts embedded Habbo SWF PNGs with SWFTools.
-- `tools/launch.py` manages startup checks and service launch.
-- `run-api.bat`, `run-client.bat`, and `run-all.bat` are Windows-first wrappers around the launcher.
-- `SETUP_WINDOWS.md` has the setup commands.
 
-The game now includes a persistent 32x32 isometric world grid. Students build a path from the black void toward the nebula gate, avoid randomly generated mini blackholes, and place irregular office departments into the map. Each normal cell has a 4x4 subcell layer for department sprite stacks and generated north/west perimeter walls.
+The game features a persistent 32x32 isometric world grid. Students build a path from the black void toward the nebula gate, avoid randomly generated mini blackholes, and place irregular office departments into the map. Each normal cell has a 4x4 subcell layer for department sprite stacks and generated north/west perimeter walls.
 
-The existing `../void-studio/` prototype is not used or modified.
+## How to Run
 
-## Launcher
+Since the game now runs entirely on the client side, you only need Node.js installed. Python is no longer required.
 
-After dependencies are installed, run:
+1. Navigate to the `client` directory:
+   ```bash
+   cd project/it-project-management/void-office-tycoon/client
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
 
-```bat
-python tools\launch.py doctor
-python tools\launch.py all
-```
+The application will be available at `http://localhost:5173/`. 
+All game sessions, choices, and state are saved locally in your browser's `localStorage`.
 
-The `.bat` files call the same launcher:
+## Data and Logs
+- Session states are kept in browser `localStorage`.
+- To get your GPAF log JSONL file for your portfolio submission, finish the game and click "Download Log" on the final report screen.
 
-```bat
-run-api.bat
-run-client.bat
-run-all.bat
-```
+## Habbo SWF Assets
 
-`run-all.bat` opens the browser at `http://127.0.0.1:5173/`. If the app is already running, the launcher reports that instead of failing on occupied ports.
-
-On Windows the launcher uses `npm.cmd`, which avoids PowerShell execution-policy blocking around `npm.ps1`.
-If `doctor` reports a missing Rollup native package, rerun `npm.cmd install` from `client` on Windows.
-
-## Habbo SWF Export
-
-The Habbo asset pack is kept outside the game code at `../../../assets_habbo_exported/`.
-To export the existing local SWF files, install SWFTools so `swfextract` is on your PATH, then run:
-
-```bash
-cd project/it-project-management/void-office-tycoon
-python3 tools/export_habbo_swfs.py --dry-run
-python3 tools/export_habbo_swfs.py
-```
-
-The default command exports a small starter set only. To export every SWF from the latest production folder:
-
-```bash
-python3 tools/export_habbo_swfs.py --all --keep-going
-```
-
-The script writes embedded SWF PNG assets to `client/src/assets/sprites/habbo_raw/` and creates a `manifest.json` with the emitted width and height. It does not resize, crop, pad, recolor, or edit the extracted PNGs.
+The Habbo asset pack is kept outside the game code. Emitted embedded SWF PNG assets are stored in `client/src/assets/sprites/habbo_raw/`. They are not resized, cropped, padded, or recolored.
