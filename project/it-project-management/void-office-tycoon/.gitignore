@@ -1,8 +1,18 @@
-server/.venv/
-server/data/sessions/*.json
-server/data/logs/*.json
-client/node_modules/
-client/dist/
-client/src/assets/sprites/habbo_raw/
+# Python and unused backend
+server/
+tests/
+*.py
 *.pyc
 __pycache__/
+.venv/
+.pytest_cache/
+
+# OS
+.DS_Store
+
+# Build/Deps
+client/node_modules/
+client/dist/
+
+# Raw assets
+client/src/assets/sprites/habbo_raw/
