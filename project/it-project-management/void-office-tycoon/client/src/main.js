@@ -4700,12 +4700,18 @@ async function downloadLog() {
     const response = await api.get(`/api/sessions/${game.session.sessionId}/log`);
     const entries = response.log || [];
     const lines = entries.map(entry => JSON.stringify({
+      eventType: entry.eventType || 'unknown',
       studentId: entry.studentId || game.session.studentId,
-      minigameId: entry.minigameId || null,
-      departmentBuilt: entry.departmentBuilt || null,
+      minigameId: entry.minigameId || '',
+      departmentBuilt: entry.departmentBuilt || '',
       resourceChange: entry.resourceChange || {},
-      timestamp: entry.timestamp || null,
-      finalResult: entry.finalResult || null
+      score: entry.score ?? 0,
+      points: entry.points ?? 0,
+      pointsEarned: entry.pointsEarned ?? 0,
+      success: entry.success ?? false,
+      resources: entry.resources || {},
+      timestamp: entry.timestamp || '',
+      finalResult: entry.finalResult || ''
     }));
     const jsonlContent = lines.join('\n') + (lines.length ? '\n' : '');
     const blob = new Blob([jsonlContent], {

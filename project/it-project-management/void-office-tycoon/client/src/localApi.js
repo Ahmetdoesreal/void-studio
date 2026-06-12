@@ -58,12 +58,18 @@ export const localApi = {
         if (method === 'POST' && path === '/api/sessions') {
             const session = rules.new_session(body.studentId);
             appendLog(session, {
+                eventType: 'session_start',
                 studentId: session.studentId,
-                minigameId: null,
-                departmentBuilt: null,
+                minigameId: '',
+                departmentBuilt: '',
                 resourceChange: {},
+                score: 0,
+                points: session.points,
+                pointsEarned: 0,
+                success: false,
+                resources: JSON.parse(JSON.stringify(session.resources)),
                 timestamp: session.createdAt,
-                finalResult: null
+                finalResult: ''
             });
             saveSession(session);
             return { ok: true, session };
@@ -89,12 +95,18 @@ export const localApi = {
             let session = loadSession(sessionId);
             const { session: updatedSession, result } = rules.record_minigame_result(session, body);
             appendLog(updatedSession, {
+                eventType: 'minigame_result',
                 studentId: updatedSession.studentId,
-                minigameId: result.minigameId,
-                departmentBuilt: null,
-                resourceChange: result.resourceChange,
+                minigameId: result.minigameId || '',
+                departmentBuilt: '',
+                resourceChange: result.resourceChange || {},
+                score: result.score || 0,
+                points: updatedSession.points,
+                pointsEarned: result.pointsEarned || 0,
+                success: result.success || false,
+                resources: JSON.parse(JSON.stringify(updatedSession.resources)),
                 timestamp: result.timestamp,
-                finalResult: updatedSession.finalResult || null
+                finalResult: updatedSession.finalResult ? updatedSession.finalResult.status : ''
             });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, result };
@@ -106,12 +118,18 @@ export const localApi = {
                 session, body.departmentId, body.anchorCell, body.rotation || 0, body.presetId || 'single'
             );
             appendLog(updatedSession, {
+                eventType: 'buy_department',
                 studentId: updatedSession.studentId,
-                minigameId: null,
-                departmentBuilt: act.departmentName,
-                resourceChange: act.resourceChange,
+                minigameId: '',
+                departmentBuilt: act.departmentName || '',
+                resourceChange: act.resourceChange || {},
+                score: 0,
+                points: updatedSession.points,
+                pointsEarned: -(act.cost || 0),
+                success: true,
+                resources: JSON.parse(JSON.stringify(updatedSession.resources)),
                 timestamp: act.timestamp,
-                finalResult: updatedSession.finalResult || null
+                finalResult: updatedSession.finalResult ? updatedSession.finalResult.status : ''
             });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, action: act };
@@ -121,12 +139,18 @@ export const localApi = {
             let session = loadSession(sessionId);
             const { session: updatedSession, action: act } = rules.build_world_cell(session, parseInt(body.x, 10), parseInt(body.y, 10));
             appendLog(updatedSession, {
+                eventType: 'build_path',
                 studentId: updatedSession.studentId,
-                minigameId: null,
-                departmentBuilt: null,
+                minigameId: '',
+                departmentBuilt: `Path ${body.x},${body.y}`,
                 resourceChange: {},
+                score: 0,
+                points: updatedSession.points,
+                pointsEarned: act.lost ? 0 : -(act.cost || 0),
+                success: act.built || false,
+                resources: JSON.parse(JSON.stringify(updatedSession.resources)),
                 timestamp: new Date().toISOString(),
-                finalResult: updatedSession.finalResult || null
+                finalResult: updatedSession.finalResult ? updatedSession.finalResult.status : ''
             });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, action: act };
@@ -143,12 +167,18 @@ export const localApi = {
             let session = loadSession(sessionId);
             const { session: updatedSession, result } = rules.escape_check(session);
             appendLog(updatedSession, {
+                eventType: 'escape_check',
                 studentId: updatedSession.studentId,
-                minigameId: null,
-                departmentBuilt: "Escape Check",
+                minigameId: '',
+                departmentBuilt: 'Escape Check',
                 resourceChange: {},
+                score: result.eligible ? 1 : 0,
+                points: updatedSession.points,
+                pointsEarned: 0,
+                success: result.eligible || false,
+                resources: JSON.parse(JSON.stringify(updatedSession.resources)),
                 timestamp: new Date().toISOString(),
-                finalResult: updatedSession.finalResult || null
+                finalResult: updatedSession.finalResult ? updatedSession.finalResult.status : ''
             });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, result };
