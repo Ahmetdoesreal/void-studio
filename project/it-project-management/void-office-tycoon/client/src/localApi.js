@@ -10,6 +10,11 @@ function saveSession(session) {
     localStorage.setItem(`${STORAGE_KEY}_${session.sessionId}`, JSON.stringify(session));
 }
 
+function appendLog(session, logEntry) {
+    if (!session.choiceLog) session.choiceLog = [];
+    session.choiceLog.push(logEntry);
+}
+
 function loadSession(sessionId) {
     const raw = localStorage.getItem(`${STORAGE_KEY}_${sessionId}`);
     if (!raw) throw new Error("Session not found.");
@@ -52,6 +57,14 @@ export const localApi = {
 
         if (method === 'POST' && path === '/api/sessions') {
             const session = rules.new_session(body.studentId);
+            appendLog(session, {
+                studentId: session.studentId,
+                minigameId: null,
+                departmentBuilt: null,
+                resourceChange: {},
+                timestamp: session.createdAt,
+                finalResult: null
+            });
             saveSession(session);
             return { ok: true, session };
         }
@@ -75,6 +88,14 @@ export const localApi = {
         if (method === 'POST' && action === 'minigame-result') {
             let session = loadSession(sessionId);
             const { session: updatedSession, result } = rules.record_minigame_result(session, body);
+            appendLog(updatedSession, {
+                studentId: updatedSession.studentId,
+                minigameId: result.minigameId,
+                departmentBuilt: null,
+                resourceChange: result.resourceChange,
+                timestamp: result.timestamp,
+                finalResult: updatedSession.finalResult || null
+            });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, result };
         }
@@ -84,6 +105,14 @@ export const localApi = {
             const { session: updatedSession, action: act } = rules.buy_department(
                 session, body.departmentId, body.anchorCell, body.rotation || 0, body.presetId || 'single'
             );
+            appendLog(updatedSession, {
+                studentId: updatedSession.studentId,
+                minigameId: null,
+                departmentBuilt: act.departmentName,
+                resourceChange: act.resourceChange,
+                timestamp: act.timestamp,
+                finalResult: updatedSession.finalResult || null
+            });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, action: act };
         }
@@ -91,6 +120,14 @@ export const localApi = {
         if (method === 'POST' && action === 'build-world-cell') {
             let session = loadSession(sessionId);
             const { session: updatedSession, action: act } = rules.build_world_cell(session, parseInt(body.x, 10), parseInt(body.y, 10));
+            appendLog(updatedSession, {
+                studentId: updatedSession.studentId,
+                minigameId: null,
+                departmentBuilt: null,
+                resourceChange: {},
+                timestamp: new Date().toISOString(),
+                finalResult: updatedSession.finalResult || null
+            });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, action: act };
         }
@@ -105,6 +142,14 @@ export const localApi = {
         if (method === 'POST' && action === 'escape-check') {
             let session = loadSession(sessionId);
             const { session: updatedSession, result } = rules.escape_check(session);
+            appendLog(updatedSession, {
+                studentId: updatedSession.studentId,
+                minigameId: null,
+                departmentBuilt: "Escape Check",
+                resourceChange: {},
+                timestamp: new Date().toISOString(),
+                finalResult: updatedSession.finalResult || null
+            });
             saveSession(updatedSession);
             return { ok: true, session: updatedSession, result };
         }
