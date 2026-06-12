@@ -4704,23 +4704,29 @@ async function downloadLog() {
   await withAction(async () => {
     const response = await api.get(`/api/sessions/${game.session.sessionId}/log`);
     const entries = response.log || [];
-    const lines = entries.map(entry => JSON.stringify({
-      eventType: entry.eventType || 'unknown',
-      studentId: entry.studentId || game.session.studentId,
-      minigameId: entry.minigameId || '',
-      departmentBuilt: entry.departmentBuilt || '',
-      resourceChange: entry.resourceChange || {},
-      score: entry.score ?? 0,
-      points: entry.points ?? 0,
-      pointsEarned: entry.pointsEarned ?? 0,
-      totalEarned: entry.totalEarned ?? 0,
-      totalSpent: entry.totalSpent ?? 0,
-      finalScore: entry.finalScore ?? 0,
-      success: entry.success ?? false,
-      resources: entry.resources || {},
-      timestamp: entry.timestamp || '',
-      finalResult: entry.finalResult || ''
-    }));
+    const lines = [];
+    
+    entries.forEach(entry => {
+      const ts = entry.timestamp || new Date().toISOString();
+      const base = {
+        playerPseudoId: entry.studentId || game.session.studentId,
+        gameId: 'GM-9F51EF0C0810',
+        sessionId: game.session.sessionId,
+        ts: ts,
+        payload: { ...entry }
+      };
+      
+      lines.push(JSON.stringify({ ...base, eventType: entry.eventType || 'unknown' }));
+
+      if (entry.points !== undefined) {
+        lines.push(JSON.stringify({ ...base, eventType: 'score_update', payload: { ...base.payload, score: entry.points } }));
+      }
+
+      if (entry.eventType === 'escape_check') {
+        lines.push(JSON.stringify({ ...base, eventType: 'session_end' }));
+      }
+    });
+
     const jsonlContent = lines.join('\n') + (lines.length ? '\n' : '');
     const blob = new Blob([jsonlContent], {
       type: 'application/x-ndjson'
