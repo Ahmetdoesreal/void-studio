@@ -2591,9 +2591,9 @@ function renderStart() {
         <p class="lede">${escapeHtml(state.gameOverview || '')}</p>
         ${game.error ? `<div class="alert error">${escapeHtml(game.error)}</div>` : ''}
         <form class="start-form" data-form="start">
-          <label for="studentId">Class ID</label>
+          <label for="studentId">Player Code</label>
           <div class="start-row">
-            <input id="studentId" name="studentId" maxlength="80" placeholder="COM0463-01" required />
+            <input id="studentId" name="studentId" maxlength="80" placeholder="Pseudonym (e.g. Player-01)" required />
             <button type="submit">Start Session</button>
           </div>
         </form>
