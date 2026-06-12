@@ -561,42 +561,42 @@ function pickVariant(variants) {
 }
 
 const backlogItems = [
-  { id: 's1', ...pickVariant([{ text: 'Class ID login before saving a report', note: 'Persistence and privacy gate' }, { text: 'Secure sign-in wall for progress saves', note: 'Data ownership checkpoint' }]) },
-  { id: 's2', ...pickVariant([{ text: 'Portal Room opens after balanced resources', note: 'Core win condition' }, { text: 'Victory gate unlocks when metrics align', note: 'Primary completion trigger' }]) },
-  { id: 's3', ...pickVariant([{ text: 'Animated desk plant skins', note: 'Cosmetic polish' }, { text: 'Seasonal wallpaper pack for lobbies', note: 'Visual flair upgrade' }]) },
-  { id: 's4', ...pickVariant([{ text: 'Final reflection export for facilitator review', note: 'Assessment artifact' }, { text: 'Post-game summary sheet for instructor grading', note: 'Learning evidence output' }]) },
-  { id: 's5', ...pickVariant([{ text: 'Optional neon nameplates for departments', note: 'Cosmetic polish' }, { text: 'Glow-effect title banners per office wing', note: 'Decorative enhancement' }]) },
-  { id: 's6', ...pickVariant([{ text: 'Pause state keeps the office visible', note: 'Classroom facilitation' }, { text: 'Freeze mode preserves the live office view', note: 'Instructor pacing tool' }]) }
+  { id: 's1', ...pickVariant([{ text: 'Project Initiation & Charter', note: 'Project scope and objectives defined' }]) },
+  { id: 's2', ...pickVariant([{ text: 'Architecture & Sprint Planning', note: 'Technical design and task breakdown' }]) },
+  { id: 's3', ...pickVariant([{ text: 'QA Testing & User Acceptance', note: 'System validation by QA and client' }]) },
+  { id: 's4', ...pickVariant([{ text: 'Development & Implementation', note: 'Core coding and feature build' }]) },
+  { id: 's5', ...pickVariant([{ text: 'Production Deployment & Retrospective', note: 'Release to live and team review' }]) },
+  { id: 's6', ...pickVariant([{ text: 'Requirements Analysis & Scoping', note: 'Gathering detailed business needs' }]) }
 ];
 
 const bugCards = [
-  { id: 'b1', severity: 'serious', ...pickVariant([{ title: 'Report export deletes the latest choice' }, { title: 'Download report overwrites the newest decision' }]) },
-  { id: 'b2', severity: 'minor', ...pickVariant([{ title: 'Budget text wraps on one laptop size' }, { title: 'Financial display clips on narrow screens' }]) },
-  { id: 'b3', severity: 'serious', ...pickVariant([{ title: 'Portal opens with Quality below 50' }, { title: 'Escape gate activates despite failing quality score' }]) },
-  { id: 'b4', severity: 'minor', ...pickVariant([{ title: 'Department hover color feels too quiet' }, { title: 'Office wing highlight contrast is barely visible' }]) },
-  { id: 'b5', severity: 'serious', ...pickVariant([{ title: 'Paused students can still buy upgrades' }, { title: 'Frozen sessions still allow shop purchases' }]) },
-  { id: 'b6', severity: 'minor', ...pickVariant([{ title: 'Reflection prompt has a typo' }, { title: 'Summary question contains a spelling mistake' }]) }
+  { id: 'b1', severity: 'serious', ...pickVariant([{ title: 'Payment gateway fails silently during checkout' }]) },
+  { id: 'b2', severity: 'minor', ...pickVariant([{ title: 'Button alignment is 2px off on mobile Safari' }]) },
+  { id: 'b3', severity: 'serious', ...pickVariant([{ title: 'Production database credentials leaked in client logs' }]) },
+  { id: 'b4', severity: 'minor', ...pickVariant([{ title: 'Placeholder text typo on the About Us page' }]) },
+  { id: 'b5', severity: 'serious', ...pickVariant([{ title: 'User sessions cross-contaminate under high server load' }]) },
+  { id: 'b6', severity: 'minor', ...pickVariant([{ title: 'Console warning Deprecation during local build' }]) }
 ];
 
 const riskCards = [
-  { id: 'r1', severity: 'serious', ...pickVariant([{ title: 'Vendor contract expires before sprint 4', note: 'External dependency' }, { title: 'Supplier agreement lapses mid-iteration', note: 'Third-party timeline gap' }]) },
-  { id: 'r2', severity: 'minor', ...pickVariant([{ title: 'Office posters are off-brand', note: 'Cosmetic issue' }, { title: 'Lobby signage uses outdated colour palette', note: 'Brand consistency note' }]) },
-  { id: 'r3', severity: 'serious', ...pickVariant([{ title: 'Single tester is covering every release gate', note: 'Capacity bottleneck' }, { title: 'One QA engineer owns all go/no-go checkpoints', note: 'Staffing single-point-of-failure' }]) },
-  { id: 'r4', severity: 'minor', ...pickVariant([{ title: 'Coffee machine uses the old logo', note: 'Low-impact nuisance' }, { title: 'Break room appliance still shows legacy branding', note: 'Minor visual mismatch' }]) },
-  { id: 'r5', severity: 'serious', ...pickVariant([{ title: 'Key stakeholder decisions arrive after planning closes', note: 'Schedule risk' }, { title: 'Executive approvals land after the sprint window shuts', note: 'Late-authority bottleneck' }]) },
-  { id: 'r6', severity: 'minor', ...pickVariant([{ title: 'Break room lamp flickers in one corner', note: 'Annoying but contained' }, { title: 'Utility light in the lounge pulses intermittently', note: 'Isolated facility glitch' }]) }
+  { id: 'r1', severity: 'serious', ...pickVariant([{ title: 'Key cloud provider API deprecation announced for next week', note: 'External dependency' }]) },
+  { id: 'r2', severity: 'minor', ...pickVariant([{ title: 'Team lunch delivery delayed by 15 minutes', note: 'Low-impact nuisance' }]) },
+  { id: 'r3', severity: 'serious', ...pickVariant([{ title: 'Only one senior backend developer knows the core architecture', note: 'Bus Factor' }]) },
+  { id: 'r4', severity: 'minor', ...pickVariant([{ title: 'Jira server needs a routine restart over the weekend', note: 'Routine maintenance' }]) },
+  { id: 'r5', severity: 'serious', ...pickVariant([{ title: 'Client changes core business requirements mid-sprint', note: 'Scope creep' }]) },
+  { id: 'r6', severity: 'minor', ...pickVariant([{ title: 'Office coffee machine needs descaling', note: 'Facility issue' }]) }
 ];
 
 const budgetChoices = [
-  { id: 'budget_patch', delta: { budget: 15, team: -4, quality: 0 }, ...pickVariant([{ title: 'Stabilize procurement', text: 'Protect Budget while accepting a small Team cost.' }, { title: 'Lock down the supply chain', text: 'Secure funding pipelines at the expense of short-term morale.' }]) },
-  { id: 'team_sync', delta: { budget: -6, team: 14, quality: 2 }, ...pickVariant([{ title: 'Protect the team', text: 'Recover Team confidence with a controlled budget spend.' }, { title: 'Invest in crew resilience', text: 'Boost staff trust by diverting a measured slice of the budget.' }]) },
-  { id: 'quality_gate', delta: { budget: -8, team: 0, quality: 16 }, ...pickVariant([{ title: 'Fund quality gates', text: 'Spend Budget now to prevent weaker releases later.' }, { title: 'Pre-pay for release safeguards', text: 'Front-load testing costs to avoid costly post-launch patches.' }]) }
+  { id: 'budget_patch', delta: { budget: 15, team: -4, quality: 0 }, ...pickVariant([{ title: 'Downgrade environments', text: 'Reduce cloud infrastructure costs by downgrading staging environments.' }]) },
+  { id: 'team_sync', delta: { budget: -6, team: 14, quality: 2 }, ...pickVariant([{ title: 'Approve team event', text: 'Approve overtime pay and weekend catering to boost team morale for the deadline.' }]) },
+  { id: 'quality_gate', delta: { budget: -8, team: 0, quality: 16 }, ...pickVariant([{ title: 'Hire pen-testers', text: 'Purchase automated security scanning tools and hire an external penetration tester.' }]) }
 ];
 
 const stakeholderChoices = [
-  { id: 'reply_with_decision', ...pickVariant([{ title: 'Request a decision with context', text: 'Share the blocker, the mitigation path, and the one decision you need today.', note: 'Best practice' }, { title: 'Present the trade-off and ask for a ruling', text: 'Lay out the obstacle, two possible remedies, and the single call the sponsor must make now.', note: 'Transparency win' }]) },
-  { id: 'promise_later', ...pickVariant([{ title: 'Promise an update later', text: 'Avoid the hard conversation now and hope the next sprint goes better.', note: 'Delays alignment' }, { title: 'Defer the hard talk to the next cycle', text: 'Sidestep the confrontation today and bet that the following iteration resolves itself.', note: 'Postpones clarity' }]) },
-  { id: 'send_metrics_only', ...pickVariant([{ title: 'Send metrics only', text: 'Reply with charts but no recommendation or ask.', note: 'Leaves the stakeholder guessing' }, { title: 'Broadcast raw dashboards without commentary', text: 'Forward the numbers with zero interpretation or proposed next steps.', note: 'Forces the sponsor to decode alone' }]) }
+  { id: 'reply_with_decision', ...pickVariant([{ title: 'Present workarounds', text: 'Present the current blocker, offer two viable workarounds, and ask for their final decision.', note: 'Best practice' }]) },
+  { id: 'promise_later', ...pickVariant([{ title: 'Promise an update later', text: 'Tell them you are busy and will send an update sometime next week without details.', note: 'Delays alignment' }]) },
+  { id: 'send_metrics_only', ...pickVariant([{ title: 'Send metrics only', text: 'Send a complex technical Jira burn-down chart without any explanation.', note: 'Leaves the stakeholder guessing' }]) }
 ];
 
 const minigames = [

@@ -69,15 +69,15 @@ export const SCENARIOS_BY_ID = Object.fromEntries(SCENARIOS.map(s => [s.id, s]))
 
 export const BUDGET_RIFT_CHOICES = {
     budget_patch: {
-        label: "Lock down the supply chain",
+        label: "Downgrade environments",
         resourceDelta: { budget: 15, team: -4, quality: 0 },
     },
     team_sync: {
-        label: "Invest in crew resilience",
+        label: "Approve team event",
         resourceDelta: { budget: -6, team: 14, quality: 2 },
     },
     quality_gate: {
-        label: "Pre-pay for release safeguards",
+        label: "Hire pen-testers",
         resourceDelta: { budget: -8, team: 0, quality: 16 },
     },
 };
@@ -88,15 +88,15 @@ export const CRITICAL_RISK_IDS = new Set(["r1", "r3", "r5"]);
 
 export const STAKEHOLDER_BOOTH_CHOICES = {
     reply_with_decision: {
-        label: "Present the trade-off and ask for a ruling",
+        label: "Present workarounds",
         best: true,
     },
     promise_later: {
-        label: "Defer the hard talk to the next cycle",
+        label: "Promise an update later",
         best: false,
     },
     send_metrics_only: {
-        label: "Broadcast raw dashboards without commentary",
+        label: "Send metrics only",
         best: false,
     },
 };
