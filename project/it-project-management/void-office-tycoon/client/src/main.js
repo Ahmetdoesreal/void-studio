@@ -4704,7 +4704,8 @@ async function downloadLog() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${game.session.sessionId}-log.json`;
+    const studentStr = (game.session.studentId || 'log').replace(/[^a-zA-Z0-9]/g, '_');
+    link.download = `${studentStr}-log.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
