@@ -2591,9 +2591,9 @@ function renderStart() {
         <p class="lede">${escapeHtml(state.gameOverview || '')}</p>
         ${game.error ? `<div class="alert error">${escapeHtml(game.error)}</div>` : ''}
         <form class="start-form" data-form="start">
-          <label for="studentId">Player Code</label>
+          <label for="displayName">Display Name (for leaderboard)</label>
           <div class="start-row">
-            <input id="studentId" name="studentId" maxlength="80" placeholder="Pseudonym (e.g. Player-01)" required />
+            <input id="displayName" name="displayName" maxlength="40" placeholder="Your nickname" required />
             <button type="submit">Start Session</button>
           </div>
         </form>
@@ -3977,7 +3977,7 @@ function renderReport() {
     <main class="report-screen">
       <header class="topbar">
         <div>
-          <p class="eyebrow">${escapeHtml(report.studentId)}</p>
+          <p class="eyebrow">${escapeHtml(game.session?.displayName || report.studentId)}</p>
           <h1>${escapeHtml(report.projectTitle)} Report</h1>
         </div>
         <div class="topbar-actions">
@@ -4039,14 +4039,22 @@ function renderReport() {
   `;
 }
 
+function generatePseudoCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'P-';
+  for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+  return code;
+}
+
 async function handleStart(event) {
   event.preventDefault();
   const form = new FormData(event.target);
-  const studentId = String(form.get('studentId') || '').trim();
-  if (!studentId) return;
+  const displayName = String(form.get('displayName') || '').trim();
+  if (!displayName) return;
+  const studentId = generatePseudoCode();
 
   await withAction(async () => {
-    const response = await api.post('/api/sessions', { studentId });
+    const response = await api.post('/api/sessions', { studentId, displayName });
     game.session = response.session;
     localStorage.setItem(STORAGE_KEY, game.session.sessionId);
     game.screen = 'dashboard';
@@ -4705,22 +4713,37 @@ async function downloadLog() {
     const response = await api.get(`/api/sessions/${game.session.sessionId}/log`);
     const entries = response.log || [];
     const lines = [];
+    const pseudoId = game.session.studentId;
+    const nickname = game.session.displayName || pseudoId;
     
     entries.forEach(entry => {
       const ts = entry.timestamp || new Date().toISOString();
+      const cleanPayload = {
+        event: entry.eventType || 'unknown',
+        minigame: entry.minigameId || null,
+        department: entry.departmentBuilt || null,
+        pointsChange: entry.pointsEarned || 0,
+        currentPoints: entry.points ?? 0,
+        totalEarned: entry.totalEarned ?? 0,
+        totalSpent: entry.totalSpent ?? 0,
+        finalScore: entry.finalScore ?? 0,
+        success: entry.success || false,
+        resources: entry.resources || {},
+        result: entry.finalResult || null
+      };
       const base = {
-        playerPseudoId: entry.studentId || game.session.studentId,
+        playerPseudoId: pseudoId,
+        displayName: nickname,
         gameId: 'GM-9F51EF0C0810',
         sessionId: game.session.sessionId,
-        ts: ts,
-        payload: { ...entry }
+        ts: ts
       };
       
-      lines.push(JSON.stringify({ ...base, eventType: entry.eventType || 'unknown' }));
+      lines.push(JSON.stringify({ ...base, eventType: entry.eventType || 'unknown', payload: cleanPayload }));
 
       if (entry.eventType === 'escape_check') {
-        lines.push(JSON.stringify({ ...base, eventType: 'score_update', payload: { ...base.payload, score: game.session.points || 0 } }));
-        lines.push(JSON.stringify({ ...base, eventType: 'session_end' }));
+        lines.push(JSON.stringify({ ...base, eventType: 'score_update', payload: { score: game.session.points || 0, displayName: nickname } }));
+        lines.push(JSON.stringify({ ...base, eventType: 'session_end', payload: { finalScore: game.session.finalScore || 0, displayName: nickname } }));
       }
     });
 
@@ -4731,7 +4754,7 @@ async function downloadLog() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    const studentStr = (game.session.studentId || 'log').replace(/[^a-zA-Z0-9]/g, '_');
+    const studentStr = (pseudoId || 'log').replace(/[^a-zA-Z0-9]/g, '_');
     link.download = `${studentStr}-log.jsonl`;
     document.body.appendChild(link);
     link.click();

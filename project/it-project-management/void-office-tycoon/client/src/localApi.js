@@ -57,6 +57,7 @@ export const localApi = {
 
         if (method === 'POST' && path === '/api/sessions') {
             const session = rules.new_session(body.studentId);
+            session.displayName = body.displayName || session.studentId;
             appendLog(session, {
                 eventType: 'session_start',
                 studentId: session.studentId,
